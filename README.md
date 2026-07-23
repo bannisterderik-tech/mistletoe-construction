@@ -1,0 +1,40 @@
+# Mistletoe Construction — Website
+
+SEO/AEO-optimized static site for **Mistletoe Construction LLC** (Riddle, OR · CCB #255729 · mistletoeconstruction.com).
+
+## Stack
+
+Pure static HTML/CSS/JS — no build step, no framework, no dependencies. Deploy the folder to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pages w/ custom domain) and point `mistletoeconstruction.com` at it.
+
+- `css/main.css` — full design system (evergreen/parchment/copper, Fraunces + Karla)
+- `js/main.js` — nav toggle, scroll reveals, hero rain animation, contact-form mailto fallback
+- `images/` — real assets pulled from the existing site (logos, hero, project photos)
+
+## Site map
+
+- `/` — homepage (RoofingContractor + FAQPage schema)
+- `/services/` — hub + 13 service pages (Service + FAQPage + BreadcrumbList schema each)
+- `/locations/` — hub + 10 unique town pages across Douglas County
+- `/guides/` — hub + 8 in-depth guides (Article + FAQPage schema) targeting the content gaps
+  no local competitor covers: costs, permits, wildfire/Class A, moss, insurance claims,
+  winter roofing, metal vs asphalt, CCB verification
+- `/membership.html` — Home Care Membership ($49/mo) conversion page
+- `/faq.html` — 16-question AEO hub with FAQPage schema
+- `/about.html`, `/contact.html`, `/our-work.html`, `/404.html`
+- `sitemap.xml`, `robots.txt`
+
+## Local preview
+
+```bash
+python3 -m http.server 8899
+```
+
+Then open http://localhost:8899. (Absolute paths — `/css/…` — require a server; opening files directly won't style.)
+
+## After deploy — do these once
+
+1. **Google Business Profile**: ensure NAP matches exactly: Mistletoe Construction LLC, 595 E Third St, Riddle, OR 97469, (541) 670-5005.
+2. **Google Search Console**: verify the domain, submit `sitemap.xml`.
+3. **Contact form**: currently opens the visitor's email app (mailto) — no backend needed. To capture leads server-side, wire the form to Netlify Forms/Formspree and remove `data-estimate` from `contact.html`.
+4. **Reviews**: as Google reviews accumulate, add genuine ones (never fabricated) to the homepage and a `/reviews.html` page with Review schema.
+5. Keep publishing guides — the `/guides/` cluster is the moat; competitors have nothing like it.
