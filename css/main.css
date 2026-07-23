@@ -275,7 +275,13 @@ a.card { text-decoration: none; color: inherit; }
   background: var(--cream); border-radius: var(--radius-lg); padding: 2.1rem;
   border: 1px solid rgba(28,36,29,0.08); box-shadow: var(--shadow-soft);
   display: flex; flex-direction: column; gap: 0.4rem; position: relative;
+  color: var(--ink);
 }
+/* The plan card is light even inside dark sections — force dark text */
+.plan h3, .section-dark .plan h3 { color: var(--pine-900); }
+.plan p, .section-dark .plan p { color: var(--ink-soft); }
+.section-dark .plan .checklist li::before { background: var(--pine-700); color: var(--cream); }
+.plan a.btn-ghost-phone, .section-dark .plan a.btn-ghost-phone { color: var(--copper-deep); }
 .plan.featured { border: 2px solid var(--copper); box-shadow: var(--shadow-lift); }
 .plan .plan-flag {
   position: absolute; top: -0.85rem; left: 1.6rem; background: var(--copper); color: #fff;
