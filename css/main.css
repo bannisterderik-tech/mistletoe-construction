@@ -1,36 +1,52 @@
 /* ============================================================
    MISTLETOE CONSTRUCTION LLC — Design System
-   Pacific Northwest craftsman: evergreen, parchment, copper.
+   Original brand: deep evergreen + bright brand green,
+   Edmund display + Mulish body (matched to mistletoeconstruction.com).
    ============================================================ */
 
+@font-face {
+  font-family: "Edmund";
+  src: url("../fonts/edmund-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Edmund";
+  src: url("../fonts/edmund-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  /* Evergreen scale */
-  --pine-950: #0d1b12;
-  --pine-900: #122619;
-  --pine-800: #1a3524;
-  --pine-700: #234631;
-  --pine-600: #2e5a3f;
-  --pine-500: #3d7051;
-  --moss: #7fa588;
-  --sage: #b8cbb4;
-  --mist: #dde6d8;
+  /* Brand evergreen scale (from original site: #1b3d26 / #234c30) */
+  --pine-950: #12291a;
+  --pine-900: #1b3d26;
+  --pine-800: #234c30;
+  --pine-700: #2c5f3c;
+  --pine-600: #367248;
+  --pine-500: #418756;
+  --moss: #7d9a82;
+  --sage: #a9bfae;
+  --mist: #dbe5dc;
 
-  /* Warm neutrals */
-  --parchment: #f6f2e7;
-  --parchment-deep: #ede7d3;
-  --cream: #fcfaf3;
-  --ink: #1c241d;
-  --ink-soft: #46524a;
+  /* Neutrals (original off-white #f5f6f3, ink #1f1f1f) */
+  --parchment: #f5f6f3;
+  --parchment-deep: #e9ede7;
+  --cream: #fcfdfb;
+  --ink: #1f1f1f;
+  --ink-soft: #4a524c;
 
-  /* Copper accent */
-  --copper: #b65c2e;
-  --copper-bright: #cd6f3a;
-  --copper-deep: #96481f;
-  --ochre: #c9913b;
+  /* Brand green accent (original: #3f9128 / #4aa72e / #5cbb3c) */
+  --copper: #3f9128;
+  --copper-bright: #4aa72e;
+  --copper-deep: #2e6f1e;
+  --ochre: #5cbb3c;
 
-  /* Type */
-  --font-display: "Fraunces", Georgia, serif;
-  --font-body: "Karla", "Helvetica Neue", sans-serif;
+  /* Type (original site fonts) */
+  --font-display: "Edmund", "Trebuchet MS", sans-serif;
+  --font-body: "Mulish", "Helvetica Neue", sans-serif;
 
   /* Rhythm */
   --space-1: 0.5rem;
@@ -63,7 +79,7 @@ img, svg, video { max-width: 100%; height: auto; display: block; }
 a { color: var(--copper-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { color: var(--copper); }
 button { font: inherit; cursor: pointer; }
-h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 640; line-height: 1.08; margin: 0 0 var(--space-2); letter-spacing: -0.01em; color: var(--pine-900); }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.08; margin: 0 0 var(--space-2); letter-spacing: 0.02em; text-transform: uppercase; color: var(--pine-900); }
 h1 { font-size: clamp(2.4rem, 5.4vw, 4.1rem); }
 h2 { font-size: clamp(1.85rem, 3.6vw, 2.8rem); }
 h3 { font-size: clamp(1.3rem, 2.2vw, 1.65rem); }
@@ -100,8 +116,8 @@ body::before {
   font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; text-decoration: none;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
-.btn-primary { background: var(--copper); color: #fff; box-shadow: 0 8px 24px rgba(182, 92, 46, 0.35); }
-.btn-primary:hover { background: var(--copper-bright); color: #fff; transform: translateY(-2px); box-shadow: 0 14px 34px rgba(182, 92, 46, 0.42); }
+.btn-primary { background: var(--copper); color: #fff; box-shadow: 0 8px 24px rgba(63, 145, 40, 0.35); }
+.btn-primary:hover { background: var(--copper-bright); color: #fff; transform: translateY(-2px); box-shadow: 0 14px 34px rgba(63, 145, 40, 0.42); }
 .btn-outline { border-color: var(--pine-700); color: var(--pine-800); background: transparent; }
 .btn-outline:hover { background: var(--pine-800); color: var(--cream); transform: translateY(-2px); }
 .on-dark .btn-outline, .btn-outline.on-dark { border-color: rgba(252, 250, 243, 0.55); color: var(--cream); }
@@ -119,18 +135,18 @@ body::before {
 .site-header .wrap { display: flex; align-items: center; gap: var(--space-3); min-height: 4.6rem; }
 .brand { display: flex; align-items: center; text-decoration: none; }
 .brand img { height: 2.15rem; width: auto; }
-.nav-main { margin-left: auto; display: flex; align-items: center; gap: 1.6rem; }
+.nav-main { margin-left: auto; display: flex; align-items: center; gap: 1.15rem; }
 .nav-main > a {
-  color: var(--mist); text-decoration: none; font-weight: 700; font-size: 0.98rem;
+  color: var(--mist); text-decoration: none; font-weight: 700; font-size: 0.94rem; white-space: nowrap;
   padding: 0.4rem 0; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
 }
 .nav-main > a:hover, .nav-main > a[aria-current="page"] { color: #fff; border-bottom-color: var(--ochre); }
-.nav-cta { margin-left: 0.4rem; }
+.nav-cta { margin-left: 0.4rem; padding: 0.7rem 1.2rem; font-size: 0.94rem; white-space: nowrap; }
 .nav-phone { color: var(--ochre) !important; font-variant-numeric: tabular-nums; }
 .nav-toggle { display: none; margin-left: auto; background: none; border: 0; padding: 0.5rem; }
 .nav-toggle span { display: block; width: 26px; height: 2.5px; background: var(--cream); margin: 5.5px 0; border-radius: 2px; transition: transform 0.25s, opacity 0.2s; }
 
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   .nav-toggle { display: block; }
   .nav-main {
     position: fixed; inset: 4.6rem 0 auto 0; flex-direction: column; align-items: stretch; gap: 0;
@@ -154,7 +170,7 @@ body::before {
 .hero-scrim { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(13,27,18,0.94) 24%, rgba(13,27,18,0.55) 60%, rgba(13,27,18,0.25)); }
 .hero .wrap { position: relative; z-index: 2; padding-block: clamp(4.5rem, 11vw, 8.5rem); max-width: var(--maxw); }
 .hero h1 { color: var(--cream); max-width: 15ch; }
-.hero h1 em { font-style: italic; color: var(--ochre); }
+.hero h1 em { font-style: normal; color: var(--ochre); }
 .hero-lede { font-size: clamp(1.05rem, 1.6vw, 1.25rem); max-width: 46ch; color: var(--mist); }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
 .hero-cred { margin-top: var(--space-4); font-size: 0.92rem; color: var(--sage); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; }
@@ -272,7 +288,7 @@ a.card { text-decoration: none; color: inherit; }
 
 /* ---------- Quote / testimonial ---------- */
 .pullquote {
-  font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 2rem); font-style: italic;
+  font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 2rem); font-style: normal; text-transform: uppercase; letter-spacing: 0.02em;
   line-height: 1.35; color: var(--cream); max-width: 34ch; margin: 0;
 }
 .pullquote-attr { margin-top: var(--space-3); font-family: var(--font-body); font-style: normal; font-size: 0.95rem; color: var(--sage); }
@@ -312,6 +328,10 @@ a.card { text-decoration: none; color: inherit; }
   font-style: italic; color: var(--ink-soft);
 }
 .prose table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-size: 0.97rem; background: var(--cream); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-soft); }
+@media (max-width: 720px) {
+  .prose table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .prose table td, .prose table th { white-space: normal; min-width: 9rem; }
+}
 .prose th { background: var(--pine-800); color: var(--cream); text-align: left; padding: 0.75rem 0.9rem; font-family: var(--font-body); }
 .prose td { padding: 0.7rem 0.9rem; border-top: 1px solid rgba(28,36,29,0.09); vertical-align: top; }
 .prose .table-scroll { overflow-x: auto; }
@@ -319,7 +339,7 @@ a.card { text-decoration: none; color: inherit; }
   margin: 1.8rem 0; padding: 1.3rem 1.5rem; border-radius: var(--radius);
   background: var(--mist); border: 1px solid rgba(35, 70, 49, 0.2);
 }
-.callout.copper { background: #f7e8dc; border-color: rgba(182, 92, 46, 0.3); }
+.callout.copper { background: #e7f2e0; border-color: rgba(63, 145, 40, 0.3); }
 .callout-title { font-weight: 800; color: var(--pine-800); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
 .byline { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-size: 0.92rem; color: var(--ink-soft); margin-bottom: var(--space-3); }
 .byline strong { color: var(--pine-800); }
