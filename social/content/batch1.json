@@ -1,0 +1,502 @@
+[
+  {
+    "id": "d01a",
+    "day": 1,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "trust",
+    "slides": [
+      {
+        "template": "photo",
+        "photo": "work/img_2310.jpg",
+        "kicker": "Riddle, Oregon",
+        "headline": "Meet Mistletoe Construction"
+      },
+      {
+        "template": "dark",
+        "kicker": "Who We Are",
+        "headline": "Family-owned. Riddle-based.",
+        "body": "Founded by Alex Smith, working every corner of Douglas County — Roseburg to Glide, Canyonville to Sutherlin. No call centers, no storm chasers."
+      },
+      {
+        "template": "light",
+        "kicker": "Licensed & Legit",
+        "headline": "Oregon CCB #255729",
+        "body": "Licensed, insured, and an Owens Corning contractor. If we put our name on a roof, we can stand under it in November."
+      },
+      {
+        "template": "dark",
+        "kicker": "Coming Up",
+        "headline": "A roof you never think about",
+        "body": "Our Home Care Membership keeps your roof inspected and maintained year-round, from $49/month. More on that soon."
+      }
+    ],
+    "caption": "We're Mistletoe Construction — a family-owned roofing and construction company out of Riddle, Oregon, serving all of Douglas County. Licensed (Oregon CCB #255729), insured, and an Owens Corning contractor. No call centers, no traveling storm chasers — just a local crew that answers the phone and shows up when we say we will.\n\nWe're also building something new: a Home Care Membership that keeps your roof maintained year-round, from $49/month. More on that soon.\n\nSleep better when it rains. Call or text (541) 670-5005.",
+    "hashtags": ["#RiddleOregon", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#OregonRoofing", "#FamilyOwned", "#Roofing", "#LocalBusiness", "#RoofReplacement", "#SouthernOregon"]
+  },
+  {
+    "id": "d01b",
+    "day": 1,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2309.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Our Work",
+        "headline": "Post one. Here's the work."
+      }
+    ],
+    "caption": "First post, so here's the work. Architectural shingles on a Douglas County home — straight courses, clean ridge lines, flashing done right. No stock photos on this page: if we post a roof, we nailed it ourselves.\n\nWe're a family-owned crew out of Riddle serving all of Douglas County, licensed and insured (Oregon CCB #255729). Have a roof that needs looking at? Free estimates, honest answers.\n\nCall or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#RiddleOregon", "#OregonRoofing", "#AsphaltShingles", "#RoofReplacement", "#Craftsmanship", "#UmpquaValley", "#FamilyOwned"]
+  },
+  {
+    "id": "d02a",
+    "day": 2,
+    "slot": 1,
+    "type": "still",
+    "template": "stat",
+    "category": "seasonal",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Umpqua Valley Climate",
+        "big": "130",
+        "headline": "Rainy days a year, give or take",
+        "body": "Roseburg gets most of its 30–33 inches between October and May. A shaded roof plane may not fully dry for weeks in winter. Moss heaven."
+      }
+    ],
+    "caption": "130. That's roughly how many days a year it rains in the Umpqua Valley — and most of our 30–33 inches lands between October and May.\n\nFor your roof, that means shaded slopes can stay damp for weeks at a stretch in winter. Add tree shade and asphalt shingle texture, and you've built world-class moss habitat without even trying.\n\nA little green fuzz now is a cheap fix. A thick mat later isn't. Free moss inspections across Douglas County — call or text (541) 670-5005.",
+    "hashtags": ["#UmpquaValley", "#RoseburgOregon", "#DouglasCounty", "#OregonWeather", "#RoofMoss", "#MossRemoval", "#HomeMaintenance", "#RoofingTips", "#PNW", "#OregonRoofing"]
+  },
+  {
+    "id": "d02b",
+    "day": 2,
+    "slot": 2,
+    "type": "carousel",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Roof Moss · The Damage",
+        "headline": "What that green fuzz is actually doing up there"
+      },
+      {
+        "template": "light",
+        "kicker": "Damage 1",
+        "headline": "It lifts shingle edges",
+        "body": "As moss mats thicken, they pry up the edges of shingles — breaking the sealed bond that keeps wind-driven rain out."
+      },
+      {
+        "template": "dark",
+        "kicker": "Damage 2",
+        "headline": "It holds water like a sponge",
+        "body": "A moss mat stays wet for days after rain, wicking moisture into nail holes and seams and speeding up granule loss."
+      },
+      {
+        "template": "light",
+        "kicker": "Damage 3",
+        "headline": "It dams the water flow",
+        "body": "Thick moss in valleys and along eaves pushes water sideways under shingles instead of down into your gutters."
+      },
+      {
+        "template": "stat",
+        "kicker": "The Bill",
+        "big": "-10yr",
+        "headline": "A 25-year roof can fail in 15",
+        "body": "Under an unmanaged moss load — and moss damage is often excluded from warranty coverage as a maintenance issue."
+      }
+    ],
+    "caption": "Moss looks harmless. It isn't. Swipe for the three ways a moss mat quietly works on your shingles — lifting edges, holding water like a wet sponge, and damming the flow that's supposed to reach your gutters.\n\nThe punchline: a roof that should last 25 years can fail in 15 under an unmanaged moss load, and manufacturers usually call that a maintenance issue, not a warranty claim.\n\nCatch it early and it's a few hundred dollars, not a new roof. Call or text (541) 670-5005.",
+    "hashtags": ["#RoofMoss", "#MossRemoval", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#RoofingTips", "#HomeMaintenance", "#AsphaltShingles", "#OregonRoofing", "#RoofDamage"]
+  },
+  {
+    "id": "d03a",
+    "day": 3,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Roofing Myth",
+        "myth": "Pressure washing is the fast way to clean a mossy roof.",
+        "truth": "It strips granules, drives water under shingles, voids warranties.",
+        "body": "If a \"roof cleaner\" shows up with a pressure washer, send them home."
+      }
+    ],
+    "caption": "Every year we inspect roofs that were ruined not by moss, but by the cure. A pressure washer makes a mossy roof look great for one summer — while blasting off the granules your shingles need to survive the next twenty winters.\n\nThe right way is gentle: brush the loose moss off dry, treat what remains, let Oregon's rain do the rinsing. Slower, yes. Kinder to the roof you paid five figures for, also yes.\n\nQuestions about a green roof? Call or text (541) 670-5005.",
+    "hashtags": ["#RoofingMyths", "#MossRemoval", "#RoofCleaning", "#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RoofingTips", "#AsphaltShingles", "#PressureWashing", "#OregonRoofing"]
+  },
+  {
+    "id": "d03b",
+    "day": 3,
+    "slot": 2,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Zinc Strips, Honestly",
+        "myth": "Zinc strips will kill the moss already on your roof.",
+        "truth": "They prevent regrowth 10–15 ft down-slope. They won't clear a mat.",
+        "body": "Great preventive on a clean roof. Long planes may need a second row."
+      }
+    ],
+    "caption": "Zinc strips get sold as magic. Here's the honest version: rain washing over zinc releases ions that inhibit moss growth for roughly 10–15 feet down-slope of the strip. On a clean roof, that's genuinely useful prevention — well suited to our 130-plus rain days a year.\n\nWhat they won't do is clear moss that's already established. Removal first, zinc after — and long roof planes may need a second row partway down.\n\nWe install them as part of a removal-plus-prevention plan. Call or text (541) 670-5005.",
+    "hashtags": ["#ZincStrips", "#MossRemoval", "#RoofMoss", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#RoofingTips", "#HomeMaintenance", "#OregonRoofing"]
+  },
+  {
+    "id": "d04a",
+    "day": 4,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "process",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Moss Removal · Done Right",
+        "headline": "How to de-moss a roof without wrecking it"
+      },
+      {
+        "template": "light",
+        "kicker": "Step 1",
+        "headline": "Wait for dry moss",
+        "body": "Late summer is ideal. Drought-stressed moss releases its grip and brushes away with far less shingle damage."
+      },
+      {
+        "template": "dark",
+        "kicker": "Step 2",
+        "headline": "Brush, don't blast",
+        "body": "A stiff (not wire) brush, working down-slope so you never lift shingle edges. No pressure washer. Ever."
+      },
+      {
+        "template": "light",
+        "kicker": "Step 3",
+        "headline": "Treat what remains",
+        "body": "A zinc- or potassium-salt treatment kills the rhizoids the brush can't reach. Then Oregon's rain does the rinsing."
+      },
+      {
+        "template": "dark",
+        "kicker": "Step 4",
+        "headline": "Clear the gutters after",
+        "body": "Dead moss keeps shedding for weeks. A follow-up gutter clean keeps that debris from starting the next problem."
+      }
+    ],
+    "caption": "The safe way to de-moss a roof, in four steps: wait for dry moss, brush down-slope, treat what's left, and clean the gutters afterward. No pressure washer anywhere in the sequence — on purpose.\n\nOne honest warning: walking a wet or mossy roof is genuinely dangerous, and steep pitches shouldn't be walked at all. If your roof is either of those, this is worth-paying-a-pro territory.\n\nFree estimates on moss removal anywhere in Douglas County. Call or text (541) 670-5005.",
+    "hashtags": ["#MossRemoval", "#RoofCleaning", "#RoofingTips", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#HomeMaintenance", "#DIY", "#OregonRoofing", "#RoofMoss"]
+  },
+  {
+    "id": "d04b",
+    "day": 4,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Roof Tip · Douglas County",
+        "headline": "Why the north slope goes green first",
+        "body": "North- and east-facing planes see the least sun and stay damp longest. If your south slope is clean and the north is green, that's the whole story."
+      }
+    ],
+    "caption": "Drive any street in Roseburg or Myrtle Creek in February and you'll spot it: green creeping up the north slope of half the roofs on the block.\n\nNo mystery. North- and east-facing planes get the least sun, so they stay damp longest — and damp is all moss needs. Your south slope can look brand new while the north side quietly grows a lawn.\n\nQuick habit: eyeball the north slope from the ground each winter. See fuzz? Call or text (541) 670-5005.",
+    "hashtags": ["#RoofingTips", "#RoofMoss", "#RoseburgOregon", "#MyrtleCreek", "#DouglasCounty", "#UmpquaValley", "#HomeMaintenance", "#MossRemoval", "#OregonHomes"]
+  },
+  {
+    "id": "d05a",
+    "day": 5,
+    "slot": 1,
+    "type": "still",
+    "template": "stat",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Straight Prices",
+        "big": "$250+",
+        "headline": "Typical moss removal here runs $250–600",
+        "body": "Depends on roof size, pitch, and how established the moss is. Early green fuzz is the cheap end. A rotted mat can mean repair money instead."
+      }
+    ],
+    "caption": "What moss removal actually costs around here: most Roseburg-area jobs land between $250 and $600, depending on roof size, pitch, and how established the moss is.\n\nThe spread is the lesson. A light green fuzz caught early sits at the bottom of that range. A thick multi-year mat costs more — and if it's already lifted or rotted shingles, you're into repair money instead.\n\nWe give a written price after seeing the roof, never before. Call or text (541) 670-5005.",
+    "hashtags": ["#MossRemoval", "#RoofCleaning", "#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#HomeMaintenance", "#RoofingCosts", "#OregonRoofing", "#RoofMoss", "#HonestPricing"]
+  },
+  {
+    "id": "d05b",
+    "day": 5,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2283.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "On the Job",
+        "headline": "The unglamorous middle"
+      }
+    ],
+    "caption": "Mid-job, shingles staged and ready to go on. Not the glamorous part — but staging, prep, and dry-in are where a roof is actually won or lost, long before the finished photos.\n\nWe photograph our work at every stage. It keeps us honest, and it's the same habit behind our membership photo reports: you see what we see, without leaving the ground.\n\nFamily-owned in Riddle, working all over Douglas County. Free estimates — call or text (541) 670-5005.",
+    "hashtags": ["#RoofingLife", "#WorkInProgress", "#DouglasCounty", "#RiddleOregon", "#RoseburgOregon", "#OregonRoofing", "#AsphaltShingles", "#FamilyOwned", "#UmpquaValley"]
+  },
+  {
+    "id": "d06a",
+    "day": 6,
+    "slot": 1,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Replacement Tip",
+        "headline": "Replacing anyway? Ask for algae-resistant shingles.",
+        "body": "Copper-infused granules resist growth and come standard in quality architectural lines. If a replacement is coming anyway, this is the moment."
+      }
+    ],
+    "caption": "If a roof replacement is in your future anyway, here's a freebie: ask for algae-resistant shingles. Copper-infused granules resist the growth our climate loves, and they come standard in most quality architectural lines — including the Owens Corning products we install.\n\nIt won't make a roof maintenance-free in the Umpqua Valley. Nothing will. But it's the cheapest moss prevention you'll ever buy, because it's built in from day one.\n\nPlanning a replacement? Call or text (541) 670-5005.",
+    "hashtags": ["#RoofReplacement", "#AsphaltShingles", "#RoofingTips", "#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OwensCorning", "#OregonRoofing", "#RoofMoss", "#HomeImprovement"]
+  },
+  {
+    "id": "d06b",
+    "day": 6,
+    "slot": 2,
+    "type": "carousel",
+    "template": "dark",
+    "category": "seasonal",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Seasonal Guide",
+        "headline": "The Douglas County moss calendar"
+      },
+      {
+        "template": "light",
+        "kicker": "Aug–Sep",
+        "headline": "Remove & treat",
+        "bullets": [
+          "Brush off dry, weakened moss",
+          "Apply preventive treatment",
+          "Trim overhanging limbs"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "Oct–Nov",
+        "headline": "Clear the runways",
+        "body": "Clean gutters after leaf drop and make sure the roof is shedding water cleanly going into the wet season."
+      },
+      {
+        "template": "light",
+        "kicker": "Feb–Mar",
+        "headline": "Check from the ground",
+        "body": "Winter is when moss does its growing. Catching a green fuzz early beats scraping a mat later."
+      }
+    ],
+    "caption": "Moss care isn't complicated — it's just timed. Aug–Sep: remove and treat while the moss is dry and weak. Oct–Nov: gutters after leaf drop, before the rain settles in. Feb–Mar: a quick look from the ground, because winter is when moss does nearly all its growing.\n\nSave this one. Or don't, and let us remember it for you — that's literally what the Home Care Membership is for.\n\nQuestions about where your roof is on this calendar? Call or text (541) 670-5005.",
+    "hashtags": ["#RoofMoss", "#MossRemoval", "#SeasonalMaintenance", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#HomeMaintenance", "#RoofingTips", "#OregonRoofing", "#FallPrep"]
+  },
+  {
+    "id": "d07a",
+    "day": 7,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "membership",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Home Care Membership",
+        "headline": "Moss maintenance you never have to remember"
+      },
+      {
+        "template": "light",
+        "kicker": "What's Included",
+        "headline": "One plan, whole calendar",
+        "bullets": [
+          "Annual roof + gutter inspection",
+          "Seasonal debris & moss checks",
+          "Photo report after every visit",
+          "10% off any repairs",
+          "Priority scheduling"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "Storm Season",
+        "headline": "Emergency tarping included",
+        "body": "Up to 100 sq ft per incident — because leaks don't wait for business hours, and neither should the tarp."
+      },
+      {
+        "template": "stat",
+        "kicker": "The Price",
+        "big": "$49",
+        "headline": "Per month. No contracts.",
+        "body": "Timed to the Douglas County moss calendar, so the work happens when it actually works."
+      }
+    ],
+    "caption": "The moss calendar only works if somebody follows it. That's the Home Care Membership: annual roof and gutter inspection, seasonal debris and moss checks, priority scheduling, 10% off repairs, and a photo report after every visit so you see exactly what we see.\n\nEmergency tarping up to 100 sq ft per incident is included too, because leaks don't check the calendar.\n\nFrom $49 a month, no contracts. Sleep better when it rains — call or text (541) 670-5005.",
+    "hashtags": ["#HomeCareMembership", "#RoofMaintenance", "#DouglasCounty", "#RoseburgOregon", "#RiddleOregon", "#UmpquaValley", "#MossRemoval", "#GutterCleaning", "#HomeMaintenance", "#OregonRoofing"]
+  },
+  {
+    "id": "d07b",
+    "day": 7,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Prevention Tip",
+        "headline": "The biggest moss fix isn't on the roof",
+        "body": "Overhanging limbs cast the shade moss loves and drop the litter that feeds it. Trimming them back changes the habitat — more sun, less debris, less moss."
+      }
+    ],
+    "caption": "The biggest single fix for a mossy roof usually isn't on the roof — it's the tree hanging over it.\n\nOverhanging limbs do two things: cast the shade moss needs, and drop the needle-and-leaf litter that holds moisture and feeds growth. Trim them back and you've changed the habitat — more sun, less debris, measurably less moss.\n\nWe love our oaks and Doug-firs. Just not touching the shingles. Want a second opinion on yours? Call or text (541) 670-5005.",
+    "hashtags": ["#RoofingTips", "#TreeTrimming", "#RoofMoss", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#HomeMaintenance", "#MossPrevention", "#OregonHomes"]
+  },
+  {
+    "id": "d08a",
+    "day": 8,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Roofing Myth",
+        "myth": "Roof moss is just cosmetic.",
+        "truth": "It's a top reason western Oregon roofs die a decade early.",
+        "body": "Most folks ignore it right up until the ceiling stain shows up."
+      }
+    ],
+    "caption": "\"It's just moss. It's cosmetic.\" We hear it weekly — usually about two winters before the ceiling stain.\n\nMoss is one of the most common reasons western Oregon roofs die a decade early. It pries up shingle edges, holds water against the deck, and blocks drainage — none of which shows from the driveway until it's expensive.\n\nThe good news: caught early, it's neither hard nor costly to fix. Free inspections across Douglas County. Call or text (541) 670-5005.",
+    "hashtags": ["#RoofingMyths", "#RoofMoss", "#MossRemoval", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#HomeMaintenance", "#RoofingTips", "#OregonRoofing", "#RoofDamage"]
+  },
+  {
+    "id": "d08b",
+    "day": 8,
+    "slot": 2,
+    "type": "carousel",
+    "template": "photo",
+    "category": "local",
+    "photo": "work/img_4016.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "photo": "work/img_4016.jpg",
+        "kicker": "Riddle, Oregon",
+        "headline": "Our hometown, our weather"
+      },
+      {
+        "template": "dark",
+        "kicker": "Local Since Day One",
+        "headline": "595 E Third St, Riddle",
+        "body": "Family-owned, run by folks who live under the same rain you do. When we quote a roof, we're quoting a neighbor's."
+      },
+      {
+        "template": "light",
+        "kicker": "Where We Work",
+        "headline": "All of Douglas County",
+        "bullets": [
+          "Roseburg · Green · Winston",
+          "Myrtle Creek · Canyonville",
+          "Sutherlin · Oakland",
+          "Glide · Camas Valley"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "Our Promise",
+        "headline": "Sleep better when it rains",
+        "body": "That's the tagline because it's the job: a roof you don't have to think about at 2 a.m. in November."
+      }
+    ],
+    "caption": "We're not a franchise with a Riddle phone number. We're from here — 595 E Third St, a family business in a town where everybody knows whose truck is whose.\n\nThat's why the tagline is \"Sleep better when it rains.\" We live under the same clouds you do, and we know exactly what October through May asks of a roof in Douglas County.\n\nRoseburg to Glide, Canyonville to Sutherlin — if you're in the county, you're local to us. Call or text (541) 670-5005.",
+    "hashtags": ["#RiddleOregon", "#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#SutherlinOregon", "#SmallTownBusiness", "#FamilyOwned", "#OregonRoofing", "#SouthernOregon", "#ShopLocal"]
+  },
+  {
+    "id": "d09a",
+    "day": 9,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "5-Minute Check",
+        "headline": "Black grit in your gutters? That's your roof's armor.",
+        "body": "Shingle granules protect against UV and rain. Some loss is normal — heavy grit on an older roof or below a mossy slope means fast aging."
+      }
+    ],
+    "caption": "Five-minute homeowner check: run a hand through your gutter after a rain. Black, sandy grit? Those are shingle granules — your roof's UV armor, washing away.\n\nSome loss is normal, especially on a newer roof. But heavy grit on an older roof, or below a mossy slope, means the shingles are aging fast right where it counts.\n\nNot sure how much is too much? Send us a photo — call or text (541) 670-5005 and we'll give you a straight answer.",
+    "hashtags": ["#RoofingTips", "#GutterCleaning", "#HomeMaintenance", "#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#AsphaltShingles", "#RoofInspection", "#OregonRoofing"]
+  },
+  {
+    "id": "d09b",
+    "day": 9,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "seasonal",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Rain Season Ahead",
+        "big": "33in",
+        "headline": "Nearly all of it falls October through May",
+        "body": "Roseburg's annual rain arrives in one long stretch. Whatever your roof needs — moss treatment, gutters, a repair — the cheap time is before October."
+      }
+    ],
+    "caption": "Roseburg's 30-plus inches of annual rain doesn't spread itself out politely — nearly all of it arrives between October and May.\n\nWhich makes right now the season that matters. Moss treatment, gutter cleaning, that small repair you've been meaning to schedule: done before October, it's cheap and easy. Done in November, it's wet, urgent, and booked out.\n\nBeat the rush and the rain. Call or text (541) 670-5005.",
+    "hashtags": ["#RainSeason", "#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonWeather", "#RoofingTips", "#HomeMaintenance", "#MossRemoval", "#FallPrep", "#OregonRoofing"]
+  },
+  {
+    "id": "d10a",
+    "day": 10,
+    "slot": 1,
+    "type": "still",
+    "template": "light",
+    "category": "faq",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Honest Answer",
+        "headline": "Can you de-moss your own roof? Sometimes, yes.",
+        "body": "Low pitch, dry day, soft brush, down-slope strokes — doable. Steep, wet, or two stories up? That's what we're for. Mossy roofs are dangerous to walk."
+      }
+    ],
+    "caption": "Honest answer to a common question: yes, some homeowners can de-moss their own roof. Low pitch, single story, dry day, soft brush, down-slope strokes — that's a reasonable Saturday.\n\nSteep pitch, two stories, wet shingles, or an established mat? Please don't. We'd rather quote you $250–600 than have you meet the ground.\n\nEither way: skip the pressure washer, and treat after you brush. Questions? Call or text (541) 670-5005 — free advice is free.",
+    "hashtags": ["#MossRemoval", "#DIYvsPro", "#RoofingTips", "#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RoofSafety", "#HomeMaintenance", "#OregonRoofing", "#RoofCleaning"]
+  },
+  {
+    "id": "d10b",
+    "day": 10,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2285.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Real Job · Douglas County",
+        "headline": "A valley, prepped the boring way"
+      }
+    ],
+    "caption": "From a real job: a valley, prepped and ready. Valleys are where two roof planes dump their water into one channel — the hardest-working real estate on any roof, and the first place shortcuts show up as leaks.\n\nSo we prep them the boring way: clean deck, proper underlayment, everything sealed before a single shingle goes down. Boring is the point.\n\nFamily-owned, Riddle-based, Oregon CCB #255729. Free estimates — call or text (541) 670-5005.",
+    "hashtags": ["#RoofingLife", "#RealWork", "#DouglasCounty", "#RiddleOregon", "#RoseburgOregon", "#UmpquaValley", "#OregonRoofing", "#Craftsmanship", "#RoofReplacement"]
+  }
+]

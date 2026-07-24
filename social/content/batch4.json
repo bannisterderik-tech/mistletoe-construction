@@ -1,0 +1,190 @@
+[
+ {
+  "id": "d31a", "day": 31, "slot": 1, "type": "carousel", "template": "dark", "category": "seasonal",
+  "photo": "hero-rain-roof.webp",
+  "slides": [
+   {"template": "photo", "kicker": "Seasonal · Douglas County", "headline": "The fall ritual that decides your whole winter."},
+   {"template": "dark", "kicker": "Step 1 · September", "headline": "Treat moss while it's weak.", "body": "After a dry summer, moss is brittle and barely holding on. Treat it now and the product sits waiting for the rain — right when moss does nearly all its growing."},
+   {"template": "light", "kicker": "Step 2 · Late October", "headline": "Clean gutters AFTER leaf drop.", "body": "Most people get this backwards. Clean in early September and the oaks and maples just refill them. Time it to the first big drop and you do the job once."},
+   {"template": "dark", "kicker": "Step 3 · Before the rain", "headline": "Limbs, boots, flashing.", "bullets": ["Nothing overhanging the roof plane", "Cracked pipe boots = February stains", "Lifted flashing at chimneys and walls", "Binoculars from the yard — stay off the roof"]},
+   {"template": "stat", "kicker": "The deadline", "big": "130", "headline": "rainy days coming, October through May.", "body": "Sealants need dry shingles. Moss treatment works ahead of the season. Gutters only matter if they're clear when the water shows up."}
+  ],
+  "caption": "Douglas County weather runs on a switch. Dry through September, then somewhere in October it flips — and the Umpqua Valley settles in for roughly 130 rainy days.\n\nAlmost everything that goes wrong with a roof here goes wrong in the wet season. Almost everything that prevents it has to happen before. That's the whole fall ritual: moss in September, gutters after leaf drop, limbs and flashing before the rain.\n\nSix-week window. Spend it well — or have us spend it for you. Free estimate: (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#FallHomePrep", "#RoofingTips", "#HomeMaintenance", "#GutterCleaning", "#RainySeason"]
+ },
+ {
+  "id": "d31b", "day": 31, "slot": 2, "type": "still", "template": "stat", "category": "seasonal",
+  "slides": [
+   {"kicker": "Umpqua Valley Weather", "big": "30–33", "headline": "inches of rain between October and May.", "body": "Fix your roof before the rain and it's a scheduled job on a dry deck. Fix it after and it's a tarp, a bucket, and a wait for a weather window."}
+  ],
+  "caption": "Before the rain, not after. That's the entire philosophy of roof maintenance in this valley, compressed to four words.\n\nA cracked pipe boot found in October is a small scheduled fix. The same boot found in January is a ceiling stain, wet insulation, and an emergency call in the dark. Same part. Wildly different bill.\n\nThe rain doesn't negotiate its arrival date — but you get to pick which side of it your roof work lands on. Want eyes on yours before the switch flips? Call or text (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#OregonRain", "#OregonRoofing", "#RoofMaintenance", "#RoofingTips", "#HomeownerTips", "#WinterPrep"]
+ },
+ {
+  "id": "d32a", "day": 32, "slot": 1, "type": "still", "template": "dark", "category": "tip",
+  "slides": [
+   {"kicker": "Gutter Tip · Fir Country", "headline": "Twice a year. Minimum.", "body": "Late fall after leaf drop, late spring after needle shed — plus a quick look after any windstorm. Under heavy fir canopy, plan on a third pass.", "bullets": ["Fir needles shed year-round, not just fall", "They mat into a felt that blocks water", "Downspouts clog first — hose-test them"]}
+  ],
+  "caption": "Gutter advice written for the rest of the country assumes leaves: one autumn drop, one cleanup, done. Douglas-fir country doesn't work that way. Needles shed all year, slip through cheap screens, and mat into a dense felt that holds water against your fascia for months.\n\nSo: twice a year minimum — late fall and late spring — and a glance after every big blow. The trees don't read the brochures.\n\nRather keep your weekends? Our gutter cleaning crew does ladders for a living. (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#SutherlinOregon", "#GutterCleaning", "#OregonRoofing", "#HomeMaintenance", "#RoofingTips", "#FirTrees", "#HomeownerTips"]
+ },
+ {
+  "id": "d32b", "day": 32, "slot": 2, "type": "carousel", "template": "dark", "category": "process",
+  "slides": [
+   {"template": "dark", "kicker": "The Fascia Rot Chain", "headline": "How a clogged gutter becomes a carpentry bill."},
+   {"template": "dark", "kicker": "Link 1", "headline": "Clog → overflow.", "body": "Debris blocks the trough, and every storm sends water over the back edge — straight down the fascia board, all winter long."},
+   {"template": "light", "kicker": "Link 2", "headline": "Overflow → rot.", "body": "Wood that never dries, rots. Gutter hangers lose their grip in the punky fascia, and the whole run starts to sag off-pitch."},
+   {"template": "dark", "kicker": "Link 3", "headline": "Sag → foundation.", "body": "A sagging gutter dumps concentrated runoff at your foundation. Splashback rots siding; bad cases wick into rafter tails and sheathing."},
+   {"template": "stat", "kicker": "Breaking the chain", "big": "1", "headline": "afternoon of cleaning stops the whole sequence.", "body": "Each link multiplies the repair cost. The first link costs a ladder and an hour."}
+  ],
+  "caption": "We see this failure sequence over and over across Douglas County, and it always starts the same way: debris an afternoon's cleaning would have removed.\n\nClog, overflow, rotted fascia, sagging gutter, water at the foundation. Every arrow in that chain multiplies the cost — and new gutters screwed into rotten fascia is money thrown away, so catching it early matters twice.\n\nPeeling paint or dark staining on your fascia boards? Have it looked at before hanging anything new on it. Free estimate: (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#WinstonOregon", "#GutterCleaning", "#OregonRoofing", "#HomeMaintenance", "#FasciaRepair", "#RoofingTips", "#HomeownerTips"]
+ },
+ {
+  "id": "d33a", "day": 33, "slot": 1, "type": "carousel", "template": "dark", "category": "faq",
+  "slides": [
+   {"template": "dark", "kicker": "Emergency Guide", "headline": "Water's coming through the ceiling. Do this, in order."},
+   {"template": "dark", "kicker": "Step 1", "headline": "Catch the water.", "bullets": ["Bucket under the drip, towel in the bottom", "Move or cover everything below", "Water near a fixture? Kill that breaker"]},
+   {"template": "light", "kicker": "Step 2", "headline": "Drain a bulging ceiling — on purpose.", "body": "Small hole at the lowest point of the bulge, bucket underneath. One controlled half-inch hole beats a whole collapsed ceiling."},
+   {"template": "dark", "kicker": "Step 3", "headline": "Photograph everything first.", "body": "Active drip, stain, bulge, wet belongings, debris in the yard. Timestamped photos of live damage beat a dried stain a week later — adjusters agree."},
+   {"template": "dark", "kicker": "Step 4", "headline": "Call a roofer. Not a ladder.", "body": "Never get on a wet roof. Call or text (541) 670-5005 — we'll talk you through it and get a crew and a tarp moving if you need one."}
+  ],
+  "caption": "A roof leak never announces itself on a sunny Tuesday. It shows up mid-storm, usually at night, usually somewhere inconvenient.\n\nThe good news: the difference between a minor repair and a soaked, moldy mess mostly comes down to the first hour — and none of it requires going anywhere near the roof. Catch the water, drain the bulge, shoot the photos, make the call.\n\nSave this post. Hopefully you never need it. If you do, we answer: (541) 670-5005, call or text.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#RoofLeak", "#OregonRoofing", "#EmergencyRepair", "#RoofingTips", "#HomeownerTips", "#StormDamage"]
+ },
+ {
+  "id": "d33b", "day": 33, "slot": 2, "type": "still", "template": "light", "category": "tip",
+  "slides": [
+   {"kicker": "Yes, Really", "headline": "Poke the ceiling bulge.", "body": "That bubble is holding water and spreading it sideways. A small hole at the low point, bucket underneath, releases it where YOU choose. Feels wrong. It's damage control."}
+  ],
+  "caption": "This is the step that surprises people on every emergency call: if your ceiling is bulging with water, poke it. Controlled, small, lowest point, bucket ready.\n\nDrywall holds a shocking amount of water before it fails — and while it holds, the water spreads, soaking a wider and wider stretch of ceiling, insulation, and framing. When it finally lets go, it goes all at once. One half-inch hole is the cheapest repair in this whole scenario.\n\nLeak questions at 9pm? We take those calls. (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#RoofLeak", "#OregonRoofing", "#RoofingTips", "#HomeownerTips", "#HomeMaintenance", "#EmergencyRepair"]
+ },
+ {
+  "id": "d34a", "day": 34, "slot": 1, "type": "still", "template": "myth", "category": "myth",
+  "slides": [
+   {"kicker": "Myth vs Truth", "myth": "The leak is right above the ceiling stain.", "truth": "Water can travel 10+ feet along rafters before it drips.", "body": "Water runs along framing and sheathing until it finds a low point. The stain marks the landing, not the entry."}
+  ],
+  "caption": "The most common roof-leak mistake we see: someone patches the shingles directly above the ceiling stain, and the stain comes back with the next storm.\n\nWater almost never drops straight down. It rides rafters and sheathing — sometimes ten feet or more — before finding a low spot to drip from. The stain tells you where the water landed. Finding where it got in means following the wet streak uphill, usually to a boot, flashing, or valley.\n\nStubborn stain that keeps returning? We trace leaks to the source. (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofLeak", "#RoofingMyths", "#RoofingTips", "#HomeownerTips", "#RoofRepair"]
+ },
+ {
+  "id": "d34b", "day": 34, "slot": 2, "type": "still", "template": "dark", "category": "tip",
+  "slides": [
+   {"kicker": "Attic Detective Work", "headline": "Your attic knows where the leak is.", "bullets": ["Follow drip trails and shine uphill", "Lights off — pinpricks of daylight are holes", "Dark, matted insulation marks the landing", "Trail ends at a boot, chimney, or valley"]}
+  ],
+  "caption": "You can't find a leak from the roof while it's raining — and you shouldn't try. But the attic? That's fair game, and it's where the evidence lives.\n\nFlashlight up, step only on framing, and play detective: wet streaks running down rafters point uphill toward the entry. Kill the light and look for pinholes of daylight. A dark patch of compressed insulation shows where water's been landing.\n\nNote it, photograph it, come back down. Then hand us the intel — it genuinely speeds up the fix. (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#GlideOregon", "#RoofLeak", "#OregonRoofing", "#RoofingTips", "#HomeMaintenance", "#AtticInspection", "#HomeownerTips"]
+ },
+ {
+  "id": "d35a", "day": 35, "slot": 1, "type": "still", "template": "myth", "category": "myth",
+  "slides": [
+   {"kicker": "Myth vs Truth", "myth": "You can't replace a roof in an Oregon winter.", "truth": "Roofs get replaced here all winter. It's planned differently.", "body": "Crews work the dry windows between storms — and never open more roof than they can dry-in the same day."}
+  ],
+  "caption": "Every winter we take calls from homeowners standing under an active leak, planning to live with buckets until June because they assume roofing season ended in October.\n\nIt didn't. Western Oregon roofs get replaced all winter — with forecast-driven scheduling, section-by-section tear-off, hand-sealed shingles in the cold, and same-day dry-in, every day. Same materials, same warranty, and usually a much shorter line than July.\n\n\"Call back in June\" is not a plan when your ceiling is dripping in January. Call now instead: (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#WinterRoofing", "#RoofReplacement", "#RoofingMyths", "#RoofingTips", "#OregonWinter"]
+ },
+ {
+  "id": "d35b", "day": 35, "slot": 2, "type": "still", "template": "stat", "category": "seasonal",
+  "slides": [
+   {"kicker": "Winter Weather Windows", "big": "2–5", "headline": "clear days between winter storm systems.", "body": "Rain here comes in pulses, not a solid wall. A typical roof tears off and dries in one day per section — a two-day window is genuinely enough."}
+  ],
+  "caption": "Here's the thing about our 130 rainy days: they don't arrive as one seven-month monsoon. Pacific systems roll through in pulses, and between them come real dry windows — two, three, sometimes five clear days, even in the dead of winter.\n\nThat's why winter roofing works here. The job isn't scheduled like summer (\"we start Tuesday\") — it's scheduled like winter (\"we start at the front edge of the next dry window, and we watch the forecast like hawks\").\n\nRoof due and tired of waiting on July? Let's talk windows: (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#CanyonvilleOregon", "#OregonRoofing", "#WinterRoofing", "#RoofReplacement", "#RoofingTips", "#OregonWeather"]
+ },
+ {
+  "id": "d36a", "day": 36, "slot": 1, "type": "carousel", "template": "dark", "category": "membership",
+  "slides": [
+   {"template": "dark", "kicker": "Home Care Membership", "headline": "When the storm wins a round, members make one call."},
+   {"template": "dark", "kicker": "What's included", "headline": "Storm coverage, built in.", "bullets": ["Emergency tarping ≤100 sq ft/incident", "Priority scheduling — front of the line", "Seasonal debris checks after storms", "10% off any repairs we find"]},
+   {"template": "light", "kicker": "Why tarping matters", "headline": "A tarp is a bridge, not a defeat.", "body": "Professionally installed, a tarp keeps a damaged section dry for weeks while the estimate, materials, and weather window line up."},
+   {"template": "stat", "kicker": "The number", "big": "$49", "headline": "a month, from. No long-term contracts.", "body": "Plus the annual roof and gutter inspection, with a photo report after every visit. You sleep better when it rains; we do the ladder work."}
+  ],
+  "caption": "The worst part of storm damage isn't the hole — it's the scramble. Who do you call? How fast can they come? What does emergency work cost at 7am on a Saturday?\n\nHome Care members skip the scramble. Emergency tarping of storm damage (up to 100 sq ft per incident) is included, priority scheduling means you're at the front of the line, and the seasonal checks catch most problems before they become ceiling stains anyway.\n\nFrom $49/month, no long-term contracts. Questions? Call or text (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#StormDamage", "#HomeCareMembership", "#EmergencyTarping", "#HomeMaintenance", "#SleepBetterWhenItRains"]
+ },
+ {
+  "id": "d36b", "day": 36, "slot": 2, "type": "still", "template": "photo", "category": "tip",
+  "photo": "work/img_2310.jpg",
+  "slides": [
+   {"kicker": "After the Storm", "headline": "Document first. Clean up second.", "body": "Timestamped photos of active damage — drips, debris, shingles on the lawn — beat a dried stain a week later. Video with sound counts too."}
+  ],
+  "caption": "It's human nature: storm passes, you start picking up. But if there's any chance of an insurance claim, the cleanup can wait twenty minutes.\n\nShoot everything as-is. The active drip, the ceiling stain, the bulge, the wet rug, the limb in the yard, the shingles on the lawn. Video with sound of live dripping is compelling evidence. Then get a roofer's written assessment before you open the claim — you'll be reporting facts instead of guesses.\n\nStorm-checked roofs and straight answers: (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#OaklandOregon", "#StormDamage", "#OregonRoofing", "#InsuranceClaim", "#RoofingTips", "#HomeownerTips"]
+ },
+ {
+  "id": "d37a", "day": 37, "slot": 1, "type": "carousel", "template": "dark", "category": "seasonal",
+  "slides": [
+   {"template": "dark", "kicker": "Attic Ventilation", "headline": "The problem that gets you twice a year."},
+   {"template": "dark", "kicker": "Winter", "headline": "The sweating roof deck.", "body": "Showers, cooking, and laundry push moist air up into a cold attic. Without airflow, it condenses on the sheathing and rots the deck — no leak required."},
+   {"template": "light", "kicker": "Summer", "headline": "The 86°F oven effect.", "body": "An unvented attic superheats, baking shingles from below and radiating heat into the house all evening. Roofs that should go 20–25 years give up early."},
+   {"template": "dark", "kicker": "The fix", "headline": "A loop, not a hole.", "body": "Cool air in low at the soffits, out high at the ridge — roughly balanced. Exhaust without intake just pulls more moist air up from the living space."},
+   {"template": "stat", "kicker": "Winter self-test", "big": "5 min", "headline": "with a flashlight on a cold morning.", "body": "Frosty or shiny nail tips through the deck mean moist air is condensing up there. So do musty smells and mold-dark sheathing."}
+  ],
+  "caption": "A surprising share of the January \"roof leaks\" we get called for in Roseburg and Myrtle Creek aren't leaks at all. The roof is fine — the water is coming from inside. It's condensation, and it's a ventilation problem, not a shingle problem.\n\nGet ventilation wrong and you pay twice: a damp, quietly rotting deck all winter, and cooked shingles plus higher cooling bills all summer. Manufacturers even write ventilation into their warranty terms.\n\nNot sure what's happening up there? We'll check attic, vents, and roof together — free estimate: (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#MyrtleCreekOregon", "#AtticVentilation", "#OregonRoofing", "#HomeMaintenance", "#RoofingTips", "#Condensation", "#HomeownerTips"]
+ },
+ {
+  "id": "d37b", "day": 37, "slot": 2, "type": "still", "template": "dark", "category": "tip",
+  "slides": [
+   {"kicker": "Five-Minute Check", "headline": "Where does your bathroom fan actually go?", "body": "One shower's steam, vented into a cold attic, condenses on the deck fast — we've seen sheathing above bathrooms rotted black. Duct it fully outside."}
+  ],
+  "caption": "We find this constantly: bathroom fans that vent into the attic instead of through it. Sometimes the duct was never connected. Sometimes it's aimed vaguely at a gable vent. Sometimes it just ends in the insulation.\n\nEvery shower runs a steam machine into a cold Oregon attic, and the sheathing above the bathroom pays for it — we've found it rotted black while the rest of the deck looked new. Every exhaust fan must duct completely outdoors, insulated duct, proper exterior cap. No \"close enough.\"\n\nFlashlight check takes five minutes. Questions after? (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#GreenOregon", "#AtticVentilation", "#OregonRoofing", "#HomeMaintenance", "#RoofingTips", "#HomeownerTips"]
+ },
+ {
+  "id": "d38a", "day": 38, "slot": 1, "type": "still", "template": "stat", "category": "tip",
+  "slides": [
+   {"kicker": "Gutter Sizing · Oregon Rain", "big": "5\"", "headline": "K-style handles most Umpqua Valley homes.", "body": "Our rain is steady, not torrential. Go 6\" for big or steep planes, long runs, metal roofs, or heavy tree cover — and honestly, upsized 3×4\" downspouts matter more."}
+  ],
+  "caption": "Good news hiding in our rain profile: 30-plus inches a year sounds brutal, but it arrives as long, steady soakings — and gutter capacity has to handle the rate, not the annual total. Standard 5-inch K-style keeps up on most valley homes.\n\nThe honest upgrade advice: downspouts are the bottleneck more often than the gutter is. Going from 2×3 to 3×4-inch roughly doubles outlet capacity and clogs far less — the single best upgrade on a debris-prone house.\n\nSizing questions for your roof? Free estimate: (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#SutherlinOregon", "#Gutters", "#OregonRain", "#OregonRoofing", "#HomeMaintenance", "#RoofingTips", "#HomeownerTips"]
+ },
+ {
+  "id": "d38b", "day": 38, "slot": 2, "type": "still", "template": "myth", "category": "myth",
+  "slides": [
+   {"kicker": "Myth vs Truth", "myth": "Gutter guards mean never cleaning gutters again.", "truth": "Good guards mean fewer cleanings — not zero.", "body": "Micro-mesh handles fir needles; cheap screens don't. Under heavy canopy, expect an occasional brushing instead of a shovel job."}
+  ],
+  "caption": "Anyone promising you'll \"never think about gutters again\" under a Douglas-fir is selling the sizzle.\n\nHere's our honest version: quality micro-mesh guards genuinely work — needles can't thread through, and most debris dries and blows off. Cheap screens and slot covers are where the category's bad reputation comes from; needles slip through or mat on top, and now you're cleaning guards instead of gutters. Even the best need an occasional brush-off.\n\nFewer cleanings, less ladder time, not zero. We'll tell you straight whether guards make sense for your trees: (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#WinstonOregon", "#GutterGuards", "#OregonRoofing", "#RoofingMyths", "#HomeMaintenance", "#HomeownerTips", "#FirTrees"]
+ },
+ {
+  "id": "d39a", "day": 39, "slot": 1, "type": "carousel", "template": "dark", "category": "process",
+  "photo": "work/img_2311.jpg",
+  "slides": [
+   {"template": "photo", "kicker": "Roof Inspection 101", "headline": "What a pro actually checks — zone by zone."},
+   {"template": "dark", "kicker": "Zone 1 · The ground", "headline": "Binoculars, full perimeter.", "bullets": ["Sight the ridge — sag means trouble", "Missing, curled, or shiny shingles", "Granule piles at downspout outlets", "Moss creeping up the north slope"]},
+   {"template": "light", "kicker": "Zone 2 · The attic", "headline": "Where leaks show up first.", "bullets": ["Stains on the underside of the deck", "Lights off: daylight = holes", "Frosty nail tips = condensation", "Bath fans must duct outside"]},
+   {"template": "dark", "kicker": "Zone 3 · The roof", "headline": "The pro portion.", "body": "Every flashing detail, boots checked by hand, sealant lines, and deck softness underfoot — felt, not seen. Wet Oregon shingles are slick as ice. Leave this zone to us."},
+   {"template": "stat", "kicker": "How often", "big": "1x", "headline": "a year, late summer to early fall.", "body": "Dry roof, moss at its weakest, and time to fix anything found before the October rains."}
+  ],
+  "caption": "No mystery, no magic — a roof inspection is a list, worked methodically. And we publish ours, because an informed homeowner is our favorite kind of customer.\n\nZones 1 and 2 are yours if you want them: binoculars from the yard, flashlight in the attic. Zone 3 — walking the roof, checking every boot and flashing by hand — is ours. Wet shingles are dangerously slick here most of the year, and bad footwork damages roofing even when nobody falls.\n\nWhen did someone last actually look at yours? (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#RoofInspection", "#OregonRoofing", "#RoofingTips", "#HomeMaintenance", "#HomeownerTips", "#RoofRepair"]
+ },
+ {
+  "id": "d39b", "day": 39, "slot": 2, "type": "still", "template": "photo", "category": "photo",
+  "photo": "work/img_2309.jpg",
+  "slides": [
+   {"kicker": "Real Job · Douglas County", "headline": "An inspection without photos is a rumor.", "body": "Every inspection and membership visit ends with a photo report — what we found, dated, same angles year after year. Trend lines, not vibes."}
+  ],
+  "caption": "Finished architectural shingle roof, one of ours. But the part of our work you don't see in photos like this is the photos themselves.\n\nEvery inspection we do — and every Home Care Membership visit — ends with a photo report. Dated pictures, repeated yearly from the same angles, turn \"I think the moss is worse\" into a documented trend line. They also matter when money's on the table: insurance claims, warranty questions, honest before-and-after proof.\n\nIf a roofer inspects your roof and can't show you pictures, ask why. We always can. (541) 670-5005.",
+  "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#OregonRoofing", "#RoofInspection", "#RealJob", "#RoofingContractor", "#PhotoReport", "#HomeMaintenance", "#TrustTheProcess"]
+ },
+ {
+  "id": "d40a", "day": 40, "slot": 1, "type": "still", "template": "dark", "category": "seasonal",
+  "slides": [
+   {"kicker": "Post-Winter Audit", "headline": "\"Not dripping\" and \"undamaged\" are different claims.", "body": "By May your roof has taken ~130 rainy days, windstorms, and freeze-thaw nights. Spring is when you verify — while every fix is small and cheap.", "bullets": ["Creased shingles = broken seal, next storm wins", "Cracked pipe boots from freeze-thaw", "Faint tea-colored rings on ceilings"]}
+  ],
+  "caption": "Your roof just finished a six-month endurance test. If nothing's dripping — congratulations. But the expensive failures we see almost never come from one bad storm. They come from small winter damage that sat unverified through a summer and met the next wet season unrepaired.\n\nThe sneaky one: a horizontal crease across a shingle that's lying flat again. The mat fractured, the seal broke, and it's now a loose flap held by habit. Next real windstorm takes it.\n\nSpring is repair-booking season — fresh diagnosis, dry conditions, open calendar. (541) 670-5005.",
+  "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#SpringMaintenance", "#RoofInspection", "#RoofingTips", "#RoofRepair", "#HomeownerTips"]
+ },
+ {
+  "id": "d40b", "day": 40, "slot": 2, "type": "still", "template": "photo", "category": "local",
+  "photo": "work/img_4016.jpg",
+  "slides": [
+   {"kicker": "South County · Local", "headline": "Myrtle Creek and Canyonville: we're minutes up the road.", "body": "Based in Riddle. When a storm rolls up the South Umpqua, quick response isn't a slogan for us — it's geography."}
+  ],
+  "caption": "Plenty of roofing outfits will drive to Myrtle Creek or Canyonville. The difference is what \"we'll head over\" means when the shop is in Riddle — minutes away, not an hour down I-5.\n\nSouth Douglas County is home for us, not a service-area line on a map. Storm checks, leak calls, estimates, and the occasional \"can you just look at this?\" — same-day is realistic when you're this close.\n\nFamily-owned, Oregon CCB #255729, and probably passing your exit today anyway. Call or text (541) 670-5005.",
+  "hashtags": ["#MyrtleCreekOregon", "#CanyonvilleOregon", "#RiddleOregon", "#DouglasCounty", "#UmpquaValley", "#SouthUmpqua", "#OregonRoofing", "#LocalBusiness", "#FamilyOwned", "#RoofingContractor"]
+ }
+]

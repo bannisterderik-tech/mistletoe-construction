@@ -1,0 +1,518 @@
+[
+  {
+    "id": "d41a",
+    "day": 41,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "trust",
+    "photo": "work/img_2309.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Trust · Douglas County",
+        "headline": "How to verify any Oregon contractor in 2 minutes"
+      },
+      {
+        "template": "dark",
+        "kicker": "Step 1",
+        "headline": "Go to the state's license search",
+        "body": "search.ccb.state.or.us — free, public, no login. Search by CCB number (fastest) or business name. Oregon law requires the number on ads, bids, and contracts."
+      },
+      {
+        "template": "light",
+        "kicker": "Step 2",
+        "headline": "Read the record",
+        "bullets": [
+          "License status: Active",
+          "Surety bond on file",
+          "Liability insurance current",
+          "Residential endorsement",
+          "Complaints: clean or resolved"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "Step 3",
+        "headline": "Match the paperwork",
+        "body": "The name and CCB number on the record should exactly match your estimate and contract. A bid under one name backed by a license for another entity is a problem."
+      },
+      {
+        "template": "stat",
+        "kicker": "Now try it",
+        "big": "255729",
+        "headline": "Run the check on us first",
+        "body": "Search 255729 right now. Active license, bond, and insurance on file. We'd rather earn trust with a public record than a slogan."
+      }
+    ],
+    "caption": "Every contractor says \"licensed and insured.\" Almost none of them tell you how to check. In Oregon it's free, public, and takes about two minutes — the CCB publishes every contractor's license status, bond, insurance, and complaint history.\n\nRun the check before you sign anything or pay a deposit; that's the point of no return. And run it on us first: search 255729 at search.ccb.state.or.us. If any other bid on your kitchen table can't pass the same two-minute test, you just learned something important for free.\n\nQuestions about a bid you're holding? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RiddleOregon", "#RoofingTips", "#HireSmart", "#ContractorTips", "#HomeownerTips", "#CCB"]
+  },
+  {
+    "id": "d41b",
+    "day": 41,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "trust",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Look Us Up First",
+        "big": "255729",
+        "headline": "Our CCB number. Check it before you call us.",
+        "body": "search.ccb.state.or.us — active license, bond, insurance, and complaint history, straight from the state. Free, public, two minutes."
+      }
+    ],
+    "caption": "Our CCB number is 255729. Before you call us — or anyone else — look it up at search.ccb.state.or.us. You'll see our active license, bond, insurance, and complaint history, straight from the State of Oregon, no login required.\n\nWe'd rather earn your trust with a public record than a slogan. Two minutes, every contractor, no exceptions — including us.\n\nThen if you like what you see, call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#RiddleOregon", "#UmpquaValley", "#OregonRoofing", "#Transparency", "#HireLocal", "#RoofingContractor", "#HomeownerTips"]
+  },
+  {
+    "id": "d42a",
+    "day": 42,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "trust",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Hiring Guide",
+        "headline": "4 questions that expose a weak roofing bid"
+      },
+      {
+        "template": "light",
+        "kicker": "Question 1",
+        "headline": "What underlayment, exactly?",
+        "body": "The waterproof layer doing the real work all winter — and the easiest place for a low bid to cheap out. \"Standard underlayment\" on an estimate is a shrug, not a spec."
+      },
+      {
+        "template": "dark",
+        "kicker": "Question 2",
+        "headline": "Flashing: replaced or reused?",
+        "body": "Most leaks start at flashing. Reusing tired metal under brand-new shingles is a classic corner cut. The default should be new — itemized in writing."
+      },
+      {
+        "template": "light",
+        "kicker": "Question 3",
+        "headline": "What's the payment schedule?",
+        "body": "Good answer: a modest deposit, balance tied to milestones. A contractor who wants most of the money before the first shingle comes off is planning a short relationship."
+      },
+      {
+        "template": "dark",
+        "kicker": "Question 4",
+        "headline": "Do you run a magnet?",
+        "body": "A tear-off drops thousands of nails. Daily cleanup, tarps over landscaping, and a magnetic sweep of the lawn before the crew leaves. Puzzled looks? Keep shopping."
+      }
+    ],
+    "caption": "A new roof is one of the biggest checks most homeowners ever write, and fifteen minutes of direct questions will tell you more than any sales pitch. These four — plus the obvious one, \"what's your CCB number?\" — say more about a bid than the price at the bottom does.\n\nA professional outfit answers all of them without flinching. Vagueness is its own answer.\n\nThe full list of twelve questions lives in the guides section of our site. Ask us any of them, any time. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingTips", "#HireSmart", "#RoofReplacement", "#ContractorTips", "#HomeownerTips", "#MyrtleCreekOregon"]
+  },
+  {
+    "id": "d42b",
+    "day": 42,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Hiring Tip",
+        "headline": "Who's actually on your roof?",
+        "body": "Crew or subcontractors — either can be fine. But you deserve to know who's trained, accountable, and insured up there. \"We have guys\" is the warning sign."
+      }
+    ],
+    "caption": "Plenty of companies sell the job and sub the labor out to whoever's available that week. Subbing isn't automatically bad — but you're allowed to ask who will actually be on your house, and you should.\n\nA good answer is a straight one: \"our own employees,\" or \"these specific subs, they've worked with us for years, and here's the insurance that covers them.\" A vague answer about \"our guys\" tells you accountability hasn't been figured out yet — and won't be figured out on your roof.\n\nAsk us. We like this question. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingTips", "#HireSmart", "#HomeownerTips", "#ContractorTips", "#WinstonOregon"]
+  },
+  {
+    "id": "d43a",
+    "day": 43,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Permit Myth",
+        "myth": "Permits are optional — they just add cost",
+        "truth": "Unpermitted roof work resurfaces when you sell the house",
+        "body": "Oregon's seller disclosure asks about it, and buyers' agents negotiate against it. We pull the permit on every reroof — it's built into the estimate."
+      }
+    ],
+    "caption": "A contractor who offers to \"save you money\" by skipping the permit is telling you how they handle everything else, too.\n\nHere's what actually happens: the reroof goes unpermitted, the county never inspects it, and years later Oregon's seller disclosure form asks you — in writing — about unpermitted work. That bargain roof becomes a line item a buyer's agent negotiates against.\n\nEvery roof replacement we do in Douglas County gets a permit. The fee and the paperwork are built into the estimate; you never touch a form. Questions about your project? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RiddleOregon", "#RoofingMyths", "#BuildingPermits", "#HomeownerTips", "#RoofReplacement"]
+  },
+  {
+    "id": "d43b",
+    "day": 43,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "faq",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Local Rules · Douglas County",
+        "big": "100",
+        "headline": "Square feet — the permit line",
+        "body": "Roof work over one square generally needs a permit here. A handful of shingles usually doesn't; a full reroof always does. Your contractor makes that call — and pulls it."
+      }
+    ],
+    "caption": "The working rule in Douglas County: once roof work exceeds one roofing square — 100 square feet — a permit is generally required.\n\nIn practice: swapping a few wind-blown shingles usually stays exempt. Replacing a whole valley or a storm-damaged slope can cross the line. A full reroof always does — there's no realistic way to replace a roof under the threshold.\n\nRules get updated and cities like Roseburg and Sutherlin run their own building programs, so the county is always the final word. But your contractor should already know which office covers your address. Ours does. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#SutherlinOregon", "#UmpquaValley", "#OregonRoofing", "#BuildingPermits", "#RoofingTips", "#HomeownerTips", "#RoofReplacement"]
+  },
+  {
+    "id": "d44a",
+    "day": 44,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "trust",
+    "photo": "hero-rain-roof.webp",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "After the Storm",
+        "headline": "4 signs the roofer at your door is a storm chaser"
+      },
+      {
+        "template": "dark",
+        "kicker": "Red Flag 1",
+        "headline": "Door-knocking right after the storm",
+        "body": "Often with out-of-state plates and a \"we're doing your neighbor's roof\" line. Their model is volume: file everything, install fast, be three states away by spring."
+      },
+      {
+        "template": "light",
+        "kicker": "Red Flag 2",
+        "headline": "\"We'll waive your deductible\"",
+        "body": "Waiving or rebating a deductible means misrepresenting the claim to your insurer. That's insurance fraud — illegal, full stop. Instant disqualifier."
+      },
+      {
+        "template": "dark",
+        "kicker": "Red Flag 3",
+        "headline": "Pressure to sign on the porch",
+        "body": "An assignment of benefits or contingency agreement pushed at you before any adjuster has seen the roof. A legitimate contractor lets you sleep on it."
+      },
+      {
+        "template": "light",
+        "kicker": "Red Flag 4",
+        "headline": "No local address, no CCB number",
+        "body": "Every legitimate Oregon contractor has both. Two minutes at search.ccb.state.or.us settles it — no license, no conversation."
+      }
+    ],
+    "caption": "After every big storm, out-of-area crews sweep through Douglas County. Some are fine. The ones running the storm-chaser playbook are not — and the deductible one is the big tell: offering to waive or rebate your deductible means lying to your insurer, which is insurance fraud. It also tells you exactly how they operate everywhere else.\n\nA legitimate local contractor documents damage honestly, writes a scope your adjuster can verify, and has a physical address you can drive to next year.\n\nStorm damage and not sure who to trust? Start with a free, honest assessment. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#StormDamage", "#RoofingTips", "#HireLocal", "#HomeownerTips", "#InsuranceClaims", "#WinstonOregon"]
+  },
+  {
+    "id": "d44b",
+    "day": 44,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Money Red Flag",
+        "headline": "Big deposit? Slow down.",
+        "body": "A contractor who wants most of the money before the first shingle comes off is either underfunded or planning a short relationship. Modest deposit, balance on milestones."
+      }
+    ],
+    "caption": "This is where the horror stories start: a big check up front, then a crew that shows up late, thin, or never.\n\nWhat a healthy payment schedule looks like: a modest deposit, with the balance tied to real milestones — materials delivered, tear-off complete, final walkthrough done. And nobody should pressure you to release final payment before you've walked the finished job.\n\nRed flags: large cash-up-front demands and \"sign today\" discounts. A solid company doesn't need your money to buy your shingles. Questions about a bid? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingTips", "#HireSmart", "#HomeownerTips", "#ContractorTips", "#MyrtleCreekOregon"]
+  },
+  {
+    "id": "d45a",
+    "day": 45,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "faq",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Warranty Guide",
+        "headline": "\"Lifetime warranty\" is doing a lot of work on that wrapper"
+      },
+      {
+        "template": "light",
+        "kicker": "Warranty 1 of 2",
+        "headline": "The manufacturer covers the shingle",
+        "body": "Factory defects and premature granule loss caused by the product. Materials only — it does not touch anything human hands did on your roof."
+      },
+      {
+        "template": "dark",
+        "kicker": "Warranty 2 of 2",
+        "headline": "Your contractor covers the install",
+        "body": "Flashing details, nailing, valleys, sealing. Most first-decade roof problems are installation problems — this modest warranty is the one that actually gets used."
+      },
+      {
+        "template": "light",
+        "kicker": "The Fine Print",
+        "headline": "What \"lifetime\" actually means",
+        "body": "Full coverage early, then prorating. A defect found in year 22 may be worth a fraction — materials only. Labor, tear-off, and disposal are usually on you."
+      },
+      {
+        "template": "dark",
+        "kicker": "The Boring Step",
+        "headline": "Register it. Keep the paperwork.",
+        "body": "Enhanced warranties often require registration within a set window — a step that gets skipped constantly. A warranty claim is a documentation exercise."
+      }
+    ],
+    "caption": "\"Is it covered?\" The honest answer: your roof carries two separate warranties from two separate parties, and the gap between them is where homeowners get burned.\n\nThe impressive one with the big number covers the shingle — factory defects only. The modest workmanship warranty covers the installation, which is where most first-decade problems actually live. A leak at a chimney is almost never a defective shingle; it's a flashing detail.\n\nWhen you're interviewing roofers, ask about both, separately, in writing. Full breakdown in our warranty guide on the site. Questions? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofWarranty", "#RoofingTips", "#HomeownerTips", "#RoofReplacement", "#RiddleOregon"]
+  },
+  {
+    "id": "d45b",
+    "day": 45,
+    "slot": 2,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Warranty Killer",
+        "myth": "Pressure washing is a safe way to clean a mossy roof",
+        "truth": "It strips the granules — manufacturers call that abuse",
+        "body": "The number-one self-inflicted warranty wound around here. Done right, moss removal is gentle — and runs $250–600, which is cheaper than a voided roof."
+      }
+    ],
+    "caption": "Every summer we see it: a mossy roof, a rented pressure washer, and a homeowner about to blast the protective granules off their own shingles. Manufacturers treat pressure washing as abuse, not maintenance — which means the damage isn't covered and the warranty may not be either.\n\nOther quiet warranty-killers worth knowing: inadequate attic ventilation, shingle layovers (prohibited in Douglas County anyway), and neglected maintenance like established moss and chronically clogged gutters.\n\nMoss handled the safe way runs $250–600. Ceiling stains run a lot more. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#MossRemoval", "#RoofingMyths", "#RoofWarranty", "#HomeMaintenance", "#SutherlinOregon"]
+  },
+  {
+    "id": "d46a",
+    "day": 46,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "process",
+    "photo": "work/img_2319.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Insurance Playbook",
+        "headline": "Storm damage? Do these 4 things, in this order"
+      },
+      {
+        "template": "dark",
+        "kicker": "Step 1",
+        "headline": "Document before you touch",
+        "body": "Photos wide and close, from the ground — plus interior stains, the date, and a screenshot of that day's wind report. Keep a few torn shingles as evidence."
+      },
+      {
+        "template": "light",
+        "kicker": "Step 2",
+        "headline": "Tarp it — your policy requires it",
+        "body": "Nearly every policy includes a duty to mitigate further damage. Emergency tarping counts; keep the receipt. Permanent repairs wait for the adjuster."
+      },
+      {
+        "template": "dark",
+        "kicker": "Step 3",
+        "headline": "Read your declarations page",
+        "body": "Find three things: RCV or ACV on the roof, covered perils, and your wind deductible — sometimes a separate, higher one. These decide how the claim goes."
+      },
+      {
+        "template": "light",
+        "kicker": "Step 4",
+        "headline": "Compare scopes, supplement gaps",
+        "body": "Get a detailed local estimate and have your roofer meet the adjuster. If the scope misses code items or hidden damage, supplements are normal — not a fight."
+      }
+    ],
+    "caption": "A Pacific front driving 50-mph gusts up the Umpqua Valley will strip shingles and peel ridge caps just fine. When it's your house, the order you do things in matters — for keeping water out and for how the claim goes.\n\nNone of this is insurance advice — your policy and your insurer's instructions govern. But this is the practical sequence we walk homeowners through, from a crew that ends up on a lot of these roofs.\n\nStorm damage? We'll document it, tarp what needs tarping, and tell you straight what it is. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#StormDamage", "#InsuranceClaims", "#RoofingTips", "#HomeownerTips", "#GlideOregon", "#OaklandOregon"]
+  },
+  {
+    "id": "d46b",
+    "day": 46,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "faq",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Know Your Policy",
+        "headline": "RCV pays today's cost. ACV subtracts depreciation — forever.",
+        "body": "On an older roof, ACV can cover half the bill or less — and insurers quietly move aging roofs to ACV at renewal. Check your declarations page before storm season."
+      }
+    ],
+    "caption": "Two little acronyms decide how a roof claim actually pays out.\n\nRCV — replacement cost value — pays today's cost to replace, usually releasing the depreciation after the work is done. ACV — actual cash value — subtracts depreciation permanently, which on an 18-year-old roof can mean a payout that's a fraction of the real bill.\n\nHere's the part people miss: insurers increasingly move aging roofs to ACV or payment schedules at renewal, and most homeowners don't notice until claim time. Twenty minutes with your declarations page now beats a surprise later. Roof questions, anytime: call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#InsuranceClaims", "#StormDamage", "#HomeownerTips", "#RoofingTips", "#CanyonvilleOregon"]
+  },
+  {
+    "id": "d47a",
+    "day": 47,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Honest Math",
+        "myth": "You should always file a claim after storm damage",
+        "truth": "If the repair is near your deductible, filing pays you $0",
+        "body": "And the claim still logs on your history, which can nudge premiums for years. Get an honest repair estimate first — then decide. We'll tell you straight."
+      }
+    ],
+    "caption": "Here's the part a roofer chasing insurance work won't tell you: sometimes filing is a bad deal for you.\n\nA $1,200 repair against a $2,500 deductible pays you nothing — and still logs a claim that follows you when you shop policies. One modest claim can cost more in premium creep than it ever paid out.\n\nRule of thumb: file when the damage clearly and substantially exceeds your deductible; pay out of pocket when it doesn't; and get the honest repair estimate before deciding, not after. Ours is free, and we'll tell you plainly if it's a $600 fix that doesn't belong near a claim. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#InsuranceClaims", "#StormDamage", "#RoofingMyths", "#HomeownerTips", "#RiddleOregon"]
+  },
+  {
+    "id": "d47b",
+    "day": 47,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Wind Tip",
+        "headline": "After the wind, check the edges first",
+        "body": "Wind peels from the edge in: rake edges at the gables, ridge caps, eaves. Look from the ground with zoom — and check the yard for shingles. Don't climb."
+      }
+    ],
+    "caption": "Wind doesn't lift a roof from the middle — it gets a fingernail under an edge and peels. So after a windstorm, the places to look are the rake edges along your gable ends, the ridge caps up top, and the eaves.\n\nDo it from the ground with your phone's zoom, and take a lap of the yard: shingles or tab pieces in the grass are the roof telling on itself. Please don't climb a storm-damaged roof — that's a job for people with harnesses and bad knees already.\n\nSee something lifted or missing? Send us the photo. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#StormDamage", "#RoofingTips", "#HomeMaintenance", "#HomeownerTips", "#GreenOregon", "#WinstonOregon"]
+  },
+  {
+    "id": "d48a",
+    "day": 48,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "glossary",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Roofing Glossary",
+        "headline": "Kick-out flashing",
+        "body": "A small diverter where a roof edge meets a wall — kicks water into the gutter instead of behind your siding. Required in Douglas County; missing on most homes we inspect."
+      }
+    ],
+    "caption": "Today's vocabulary word: a piece of metal the size of your hand that prevents thousands of dollars of rot.\n\nWhere a roof edge dies into a vertical wall, every storm sends a sheet of runoff down that line. Kick-out flashing throws it into the gutter. Without it, water runs behind the siding, rotting sheathing and framing invisibly until paint bubbles or siding bulges.\n\nIt's required at sidewalls in Douglas County — and still one of the most common missing details we find on existing homes. If your roof dead-ends into a wall above a gutter, go take a look. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingGlossary", "#Flashing", "#RoofingTips", "#HomeMaintenance", "#HomeownerTips"]
+  },
+  {
+    "id": "d48b",
+    "day": 48,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Maintenance Stat",
+        "big": "10-15",
+        "headline": "Years — then the pipe boot cracks",
+        "body": "Wet winters and bone-dry summers crack the rubber gasket at your roof's halfway point. Caught early, it's one of the cheapest roof repairs there is."
+      }
+    ],
+    "caption": "Every plumbing vent through your roof wears a flashing with a metal base and a rubber gasket. The metal lasts practically forever. The rubber doesn't — our soaked-half-the-year, baked-the-other-half climate cracks that neoprene in roughly 10 to 15 years.\n\nThat timing is the trap: boots fail at the midpoint of a 20–25 year roof, when nobody's thinking about the roof at all. A cracked boot leaks a little with every storm — a stain near the bathroom ceiling is the classic tell.\n\nNew boot, caught early: one of the cheapest repairs we do. Caught late: rotted decking too. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofRepair", "#RoofingTips", "#HomeMaintenance", "#HomeownerTips", "#MyrtleCreekOregon"]
+  },
+  {
+    "id": "d49a",
+    "day": 49,
+    "slot": 1,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2285.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Real Job · Douglas County",
+        "headline": "The part you'll never see again",
+        "body": "A valley carries more water than anywhere else on the roof. Membrane down, metal clean, courses tight — done right before the shingles hide it forever."
+      }
+    ],
+    "caption": "This is a valley on a real Douglas County job, prepped and ready — and once the shingles go on, nobody will ever see this work again.\n\nThat's exactly why we photograph it. A valley drains two roof planes at once, which makes it the hardest-working square footage on the house through an Umpqua Valley winter. Peel-and-stick membrane underneath, clean metal, tight courses: the stuff that decides whether a roof is quiet for twenty years or leaking in three.\n\nThe hidden layers are where trust lives. We're happy to show you ours. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofReplacement", "#Craftsmanship", "#RoofingLife", "#RealJob", "#RiddleOregon", "#QualityWork"]
+  },
+  {
+    "id": "d49b",
+    "day": 49,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "trust",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Trust & Transparency",
+        "headline": "Why we put our prices on the internet",
+        "body": "Most asphalt replacements here land between $10k and $25k; metal runs 2–3x. If a number is going to scare you off, better now than after three site visits."
+      }
+    ],
+    "caption": "Most roofers guard their pricing like a family recipe. We publish ours: asphalt replacements around Douglas County generally land between $10,000 and $25,000 depending on size, pitch, and what the tear-off finds. Metal runs two to three times that. Moss removal: $250–600.\n\nWhy say it out loud? Because you're going to find out anyway, and a company that hides the number until you're emotionally invested is negotiating, not informing. Real bids depend on your actual roof — but you deserve the honest range before anyone climbs a ladder.\n\nWant your real number? Free estimate. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingCost", "#Transparency", "#RoofReplacement", "#HomeownerTips", "#SutherlinOregon"]
+  },
+  {
+    "id": "d50a",
+    "day": 50,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "membership",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Home Care Membership",
+        "headline": "Proof, not promises"
+      },
+      {
+        "template": "light",
+        "kicker": "Every Visit",
+        "headline": "A photo report, every time",
+        "body": "You see exactly what we saw on your roof — dated, photographed, kept on file. It doubles as the maintenance documentation warranty claims love."
+      },
+      {
+        "template": "dark",
+        "kicker": "From $49/mo",
+        "headline": "What's included",
+        "bullets": [
+          "Annual roof + gutter inspection",
+          "Seasonal debris checks",
+          "Priority scheduling",
+          "10% off repairs",
+          "Emergency tarping ≤100 sq ft/incident"
+        ]
+      },
+      {
+        "template": "light",
+        "kicker": "No Fine Print",
+        "headline": "And no long-term contracts",
+        "body": "Trust you have to lock in isn't trust. Cancel whenever — we'd rather keep you with photo reports than paperwork."
+      }
+    ],
+    "caption": "Anyone can say your roof is fine. We show you.\n\nEvery Home Care Membership visit ends with a photo report: what we looked at, what we found, what we did — dated and kept on file. If it's ever claim time, that file is the maintenance documentation adjusters and warranties actually respect. If it's never claim time, even better; that's the plan working.\n\nFrom $49/month: annual roof and gutter inspection, seasonal debris checks, priority scheduling, 10% off repairs, and emergency tarping up to 100 sq ft per incident. No long-term contracts.\n\nSleep better when it rains. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#HomeCareMembership", "#HomeMaintenance", "#RoofInspection", "#SleepBetterWhenItRains", "#RiddleOregon"]
+  },
+  {
+    "id": "d50b",
+    "day": 50,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "local",
+    "photo": "work/img_4016.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Winston · Sutherlin",
+        "headline": "Same crew, both ends of the county",
+        "body": "From our shop in Riddle we cover Winston to Sutherlin and everything between — same written estimates, permits handled for whichever office covers your address."
+      }
+    ],
+    "caption": "From our shop on E Third Street in Riddle, Winston is a quick run up Highway 99 and Sutherlin is an easy shot up I-5 — and we treat both like home turf, because they are.\n\nSame crew, same written estimates, same standards on every roof. One local wrinkle worth knowing: cities like Sutherlin can administer their own building programs, so the permit office depends on your address. That's our job to track, not yours — it's handled on every job we do.\n\nWinston, Sutherlin, or anywhere in between: free estimates, honest answers. Call or text (541) 670-5005.",
+    "hashtags": ["#WinstonOregon", "#SutherlinOregon", "#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#HireLocal", "#RoofingContractor"]
+  }
+]

@@ -1,0 +1,501 @@
+[
+  {
+    "id": "d11a",
+    "day": 11,
+    "slot": 1,
+    "type": "still",
+    "template": "stat",
+    "category": "faq",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Straight Answer · Oregon",
+        "big": "20-25",
+        "headline": "YEARS — WHAT AN ARCHITECTURAL ROOF REALLY LASTS HERE",
+        "body": "Lab says 30. Our 130 rainy days and bone-dry Julys say otherwise — and unmanaged moss can steal another 5–10 years."
+      }
+    ],
+    "caption": "\"How much life is left in my roof?\" is the question we get most. The honest answer for architectural asphalt in western Oregon: about 20–25 years — often less than the number on the wrapper. 130 rainy days from October to May, then dry Julys that bake out the moisture. That wet/dry cycle ages shingles faster than most of the country, and unmanaged moss can steal another five to ten years on top. Good ventilation and moss control get you to the high end of the range.\n\nWant to know where yours stands? Free written inspection: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofLifespan", "#RoofingTips", "#HomeMaintenance", "#AsphaltShingles", "#PNWHomes"]
+  },
+  {
+    "id": "d11b",
+    "day": 11,
+    "slot": 2,
+    "type": "carousel",
+    "template": "dark",
+    "category": "tip",
+    "photo": "work/img_2310.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Roof Check · Umpqua Valley",
+        "headline": "6 SIGNS YOUR ROOF IS ASKING TO RETIRE"
+      },
+      {
+        "template": "dark",
+        "kicker": "Signs 1 & 2",
+        "headline": "CURLING SHINGLES & GRITTY GUTTERS",
+        "body": "Widespread curling or cracking means the asphalt is done flexing. Granules piling up in the gutters mean the protective surface is washing away."
+      },
+      {
+        "template": "light",
+        "kicker": "Signs 3 & 4",
+        "headline": "BARE SPOTS & MOSS-LIFTED EDGES",
+        "body": "Shiny bald patches age fast in sun and rain. Moss mats lift shingle edges and hold water against the roof — and warranties usually won't cover it."
+      },
+      {
+        "template": "dark",
+        "kicker": "Signs 5 & 6",
+        "headline": "REPEAT LEAKS & A ROOF PAST 20",
+        "body": "Leaks in different places mean the system is failing, not one spot. Past year 20 here, start planning on your schedule — not the roof's."
+      }
+    ],
+    "caption": "Roofs rarely fail without warning — most roof killers are visible a year or two before they leak. Swipe for the six signs we look for on Douglas County roofs.\n\nOne caveat from a crew that replaces roofs for a living: most roofs under 15 years old don't need us for anything but maintenance and the occasional small repair. But if yours is showing two or more of these past year 20, it's time to plan — calmly, in the dry season, on your terms.\n\nFree written condition report: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#RoofReplacement", "#RoofingTips", "#HomeMaintenance", "#CurbAppeal"]
+  },
+  {
+    "id": "d12a",
+    "day": 12,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Cost Honesty · 2026",
+        "headline": "WHAT A ROOF REPLACEMENT REALLY COSTS AROUND HERE",
+        "body": "Most Douglas County asphalt replacements: roughly $10,000–$25,000, full tear-off included. Metal runs 2–3x. A written estimate is the only real number."
+      }
+    ],
+    "caption": "Nobody enjoys pricing a roof, so here's the straight version. Most asphalt shingle replacements in Douglas County land roughly between $10,000 and $25,000, full tear-off included. Smaller, simple ranch roofs can come in under that; large, steep, cut-up roofs can go over. Metal runs about 2–3x asphalt — and lasts 40–70 years, so the math isn't as lopsided as it looks.\n\nEvery number here is an estimate, not a quote. Roofs vary too much for anything else to be honest. The only real number is a written estimate for your actual roof — ours are free: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofReplacement", "#RoofCost", "#HomeOwnership", "#RoofingTips", "#SouthernOregon"]
+  },
+  {
+    "id": "d12b",
+    "day": 12,
+    "slot": 2,
+    "type": "carousel",
+    "template": "dark",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Cost Guide · Douglas County",
+        "headline": "THE 6 THINGS THAT ACTUALLY MOVE YOUR ROOF PRICE"
+      },
+      {
+        "template": "light",
+        "kicker": "Factors 1 & 2",
+        "headline": "SIZE & PITCH",
+        "body": "Roofing is priced per square, so size is the biggest driver. Steep pitch means harnesses, staging, and more hours per square."
+      },
+      {
+        "template": "dark",
+        "kicker": "Factors 3 & 4",
+        "headline": "TEAR-OFF LAYERS & DECK REPAIR",
+        "body": "Two old layers doubles the tear-off labor and dump fees. Rotted sheathing gets replaced per sheet — a good bid prices it up front."
+      },
+      {
+        "template": "light",
+        "kicker": "Factors 5 & 6",
+        "headline": "COMPLEXITY & ACCESS",
+        "body": "Valleys, dormers, skylights, chimneys — detail work adds up. Tight lots, long carries, and no room for the dumpster add hours too."
+      }
+    ],
+    "caption": "Three bids on the same roof can differ by $8,000 and all be \"fair\" — they're just pricing different jobs. These six factors are what actually move the number: size, pitch, tear-off layers, deck condition, complexity, and access.\n\nAlmost none of them are visible from the driveway, which is why phone quotes are guesses. When we bid your roof, every one of these shows up as a line item you can read and compare.\n\nFree written estimate: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofCost", "#RoofReplacement", "#HomeImprovement", "#RoofingTips", "#WinstonOregon"]
+  },
+  {
+    "id": "d13a",
+    "day": 13,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Roofing Myth · Local Rules",
+        "myth": "You can just shingle over the old ones",
+        "truth": "Not in Douglas County. Full tear-off required — no overlays.",
+        "body": "Reroofs over 100 sq ft generally need a permit here, too. The tear-off rule finds hidden rot instead of burying it."
+      }
+    ],
+    "caption": "In some parts of the country, roofers nail a second layer of shingles over the first and skip the tear-off. Not here. Douglas County doesn't allow shingle-over-shingle overlays — every reroof is a full tear-off down to the deck, and jobs over 100 square feet generally need a permit.\n\nSo if someone offers to \"save you money\" with a layover, they're offering to break the rules on your house. And the savings would've come back to bite you anyway — more on that tomorrow.\n\nQuestions about what your reroof actually involves? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#RoofingMyths", "#RoofReplacement", "#BuildingPermits", "#HomeOwnerTips"]
+  },
+  {
+    "id": "d13b",
+    "day": 13,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Roof Tip · Douglas County",
+        "headline": "TEAR-OFF ISN'T AN UPSELL — IT'S THE BETTER ROOF",
+        "bullets": [
+          "Overlays trap heat & hide deck rot",
+          "They add dead weight to the framing",
+          "Next reroof becomes a double tear-off",
+          "Tear-off gets the deck inspected & fixed"
+        ]
+      }
+    ],
+    "caption": "Yes, a tear-off costs more than an overlay would. It's also worth every penny. Overlays trap heat, hide rot, add dead weight, and turn the next replacement into a double tear-off — someone always pays for the shortcut eventually.\n\nA full tear-off means your deck actually gets inspected and repaired. That's the difference between a roof that lasts and one that just looks new from the street. We photograph everything we find under there and show you before we fix it.\n\nFree written estimate: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofReplacement", "#RoofingTips", "#HomeMaintenance", "#TearOff", "#SutherlinOregon"]
+  },
+  {
+    "id": "d14a",
+    "day": 14,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "process",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Estimate School",
+        "headline": "CAN YOU ACTUALLY READ THAT ROOFING BID?"
+      },
+      {
+        "template": "light",
+        "kicker": "Lines 1–3",
+        "headline": "TEAR-OFF, DECK, UNDERLAYMENT",
+        "bullets": [
+          "Full tear-off, layers assumed in writing",
+          "Deck repair priced per sheet, up front",
+          "Underlayment named — synthetic, not 'felt'"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "Lines 4–6",
+        "headline": "MEMBRANE, FLASHING, VENTS",
+        "bullets": [
+          "Ice & water membrane, locations listed",
+          "New flashing — beware the word 'reuse'",
+          "Ventilation matched to your attic"
+        ]
+      },
+      {
+        "template": "light",
+        "kicker": "Lines 7–9",
+        "headline": "PERMIT, CLEANUP, WARRANTY",
+        "bullets": [
+          "Permit line — required over 100 sq ft here",
+          "Cleanup, disposal & magnetic nail sweep",
+          "Workmanship warranty, in writing"
+        ]
+      }
+    ],
+    "caption": "Most homeowners compare roofing bids on exactly one number: the total. That's how the worst bid wins.\n\nThe total tells you almost nothing. The line items tell you everything — what's actually going on your roof, what's being quietly skipped, and what's coming back as a surprise charge in week two. Swipe for the nine lines every legitimate estimate should have.\n\nOurs come itemized exactly like this. Not a coincidence. Free written estimate: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingEstimate", "#RoofReplacement", "#HomeOwnerTips", "#SmartHomeowner", "#MyrtleCreek"]
+  },
+  {
+    "id": "d14b",
+    "day": 14,
+    "slot": 2,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Roofing Myth · Bids",
+        "myth": "The lowest bid is the best deal",
+        "truth": "The discount hides in layers you'll never see.",
+        "body": "Felt instead of synthetic. Reused flashing. No permit. Those shortcuts surface as leaks in years two through five."
+      }
+    ],
+    "caption": "Uncomfortable economics: labor and shingles cost roughly the same for everyone. So when one bid comes in thousands under the rest, the difference lives in the layers you can't see — felt instead of synthetic underlayment, reused flashing, no membrane, no permit, no warranty behind the work.\n\nWith 130 rainy days a year working on every shortcut, those savings surface as leaks within a few years. The cheap bid plus the fix costs more than the honest bid would have. We see the receipts on this regularly.\n\nWant a bid you can actually read? (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingMyths", "#RoofingEstimate", "#HomeOwnerTips", "#RoofReplacement", "#CanyonvilleOregon"]
+  },
+  {
+    "id": "d15a",
+    "day": 15,
+    "slot": 1,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2319.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Real Job · Work In Progress",
+        "headline": "RACING THE RIDGE BEFORE THE CLOUDS DECIDE"
+      }
+    ],
+    "caption": "Mid-job, morning clouds still deciding what they want to do. The rule on our crews: never tear off more roof than we can dry-in the same day. By evening, every opened section is under synthetic underlayment — so if the weather turns, the house stays watertight and we wait it out.\n\nA paused roof is fine. A rushed roof is how you get shingles sealed over damp decking. Real job, real sky, no filter.\n\nFree written estimates: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#RoofersOfInstagram", "#WorkInProgress", "#RoofReplacement", "#PNW"]
+  },
+  {
+    "id": "d15b",
+    "day": 15,
+    "slot": 2,
+    "type": "carousel",
+    "template": "dark",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Cost Honesty",
+        "headline": "THE LINE ITEM THAT PREVENTS THE MID-JOB SURPRISE"
+      },
+      {
+        "template": "light",
+        "kicker": "What It Is",
+        "headline": "A PER-SHEET PRICE FOR DECKING, SET BEFORE DAY ONE",
+        "body": "Nobody knows the plywood's condition until tear-off. An honest estimate sets the replacement price per sheet in advance — often with a few sheets included."
+      },
+      {
+        "template": "dark",
+        "kicker": "How It Works",
+        "headline": "PHOTOS FIRST. YOUR APPROVAL BEFORE EXTRA SHEETS.",
+        "body": "We document any rot we find, show you, and bill at the stated rate — never a mystery number invented on your roof."
+      },
+      {
+        "template": "light",
+        "kicker": "The Red Flag",
+        "headline": "NO ALLOWANCE LINE ISN'T CHEAPER",
+        "body": "It just defers the cost to a mid-job negotiation you'll lose — because by then, your roof is open."
+      }
+    ],
+    "caption": "Nobody knows what the plywood looks like until the old roof comes off. The honest way to handle that: a deck repair allowance — a per-sheet price for replacing rotten decking, written into the estimate before the job starts, with photos and your approval before anything beyond what's included gets replaced.\n\nA bid with no allowance line isn't a cheaper bid. It's a surprise charge waiting for the exact moment you can't say no.\n\nAsk us to walk you through ours: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingEstimate", "#RoofCost", "#HomeOwnerTips", "#RoofReplacement", "#WinstonOregon"]
+  },
+  {
+    "id": "d16a",
+    "day": 16,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "process",
+    "photo": "work/img_2283.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Process · Start To Finish",
+        "headline": "WHAT REPLACEMENT WEEK ACTUALLY LOOKS LIKE"
+      },
+      {
+        "template": "light",
+        "kicker": "Weeks 1–3",
+        "headline": "THE QUIET PART: PERMIT & MATERIALS",
+        "body": "Measurements confirmed, shingles ordered, permit filed. Then a boom truck and a dumpster arrive a day or two before the crew does."
+      },
+      {
+        "template": "dark",
+        "kicker": "Day 1",
+        "headline": "TEAR-OFF: THE LOUD DAY",
+        "body": "Pets somewhere calm, cars out of the driveway, pictures off the walls. We never open more roof than we can dry-in by evening."
+      },
+      {
+        "template": "light",
+        "kicker": "Days 2–3",
+        "headline": "SHINGLES ON, MAGNET SWEEP, WALK-THROUGH",
+        "body": "Drip edge, membrane, underlayment, shingles, new flashing. Then cleanup, a magnetic nail sweep, and a punch-list walk with you."
+      }
+    ],
+    "caption": "A roof replacement is one of the biggest checks most people ever write, and almost nobody tells you what the week actually looks like. So here it is — a few quiet weeks of permits and material orders, one genuinely loud tear-off day, then quieter install days and a magnetic nail sweep before anyone calls it done.\n\nIf a contractor's version differs wildly from this — especially on permits or weather — ask why. Full day-by-day walkthrough is on our site.\n\nQuestions? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofReplacement", "#HomeImprovement", "#RoofingProcess", "#HomeOwnerTips", "#SouthernOregon"]
+  },
+  {
+    "id": "d16b",
+    "day": 16,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "process",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "By The Numbers",
+        "big": "1-3",
+        "headline": "DAYS ON THE ROOF FOR A TYPICAL ASPHALT REPLACEMENT",
+        "body": "Door-to-door it's more like 2–5 weeks once permits and material lead times are counted. Metal and complex roofs run longer."
+      }
+    ],
+    "caption": "One to three days on the roof — that's a typical single-family asphalt replacement. Door-to-door it's more like two to five weeks once permit processing and material lead times are counted. Metal, steep, and complex roofs run longer.\n\nAnd in the wet season, a one- to three-day weather slip is normal and correct. Anyone promising exact dates \"no matter what\" in January is really telling you what they're willing to roof over.\n\nPlanning yours? Free written estimate: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#RoofReplacement", "#RoofingFacts", "#HomeOwnerTips", "#PNWWeather"]
+  },
+  {
+    "id": "d17a",
+    "day": 17,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "process",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Under The Shingles",
+        "headline": "THE LAYER YOU'LL NEVER SEE AGAIN AFTER FRIDAY"
+      },
+      {
+        "template": "light",
+        "kicker": "What It Is",
+        "headline": "SELF-ADHERING WATERPROOF MEMBRANE",
+        "body": "Ice & water shield sticks straight to the deck and seals around nails — backup waterproofing exactly where roofs actually leak."
+      },
+      {
+        "template": "dark",
+        "kicker": "Where It Goes",
+        "headline": "THE LEAK-PRONE ZONES",
+        "bullets": [
+          "Valleys — where water concentrates",
+          "Eaves and roof edges",
+          "Around chimneys & skylights",
+          "At pipes and penetrations"
+        ]
+      },
+      {
+        "template": "light",
+        "kicker": "Why It Matters",
+        "headline": "YOUR ESTIMATE SHOULD SAY WHERE IT GOES",
+        "body": "Skipping membrane is a favorite quiet saving in low bids. We photograph ours before the shingles bury it — and you get the photos."
+      }
+    ],
+    "caption": "Once the shingles go on, you'll never see this layer again — which is exactly why it matters now. Ice and water membrane is self-adhering waterproofing that seals to the deck in the leak-prone zones: valleys, eaves, around chimneys and skylights, at every penetration.\n\nYour estimate should say where it goes, in writing. This is one of the easiest places for a low bid to quietly save money that you pay back later, one ceiling stain at a time. We photograph ours before it disappears.\n\nCall or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingTips", "#IceAndWaterShield", "#RoofReplacement", "#HomeOwnerTips", "#SutherlinOregon"]
+  },
+  {
+    "id": "d17b",
+    "day": 17,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Estimate Red Flag",
+        "headline": "'STANDARD UNDERLAYMENT' IS DOING A LOT OF HIDING",
+        "body": "The layer under the shingles does the real work all winter. You want a specific synthetic product named on the bid — not felt, not silence."
+      }
+    ],
+    "caption": "The shingles get the compliments. The underlayment does the work — it's the waterproof layer between your roof deck and an Oregon winter.\n\nOn a bid, you want a specific synthetic product, named. \"Standard underlayment,\" plain felt, or no mention at all is the single easiest place for a cheap bid to hide its discount — and you'll never spot the difference from the driveway. You'll spot it in year six, from your living room, during an atmospheric river.\n\nGet an estimate that names names: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingTips", "#Underlayment", "#RoofingEstimate", "#HomeMaintenance", "#MyrtleCreek"]
+  },
+  {
+    "id": "d18a",
+    "day": 18,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "membership",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Home Care Membership",
+        "headline": "YOUR ROOF WARNS YOU YEARS OUT — IF SOMEONE'S LOOKING",
+        "bullets": [
+          "Annual roof & gutter inspection",
+          "Photo report every visit",
+          "Seasonal debris & storm checks",
+          "10% off repairs + priority scheduling"
+        ],
+        "body": "From $49/month. No long-term contracts."
+      }
+    ],
+    "caption": "Most roof killers are visible a year or two before they leak — a lifted shingle, a tired pipe boot, moss getting a foothold on the north slope. Somebody just has to be up there looking.\n\nThat's the whole premise of our Home Care Membership: annual roof and gutter inspection, seasonal checks, a photo report every visit, priority scheduling, and 10% off repairs — from $49/month, no long-term contracts. Members don't discover their roof in a November storm. They see the replacement coming years out and plan for it.\n\nJoin: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#HomeMaintenance", "#RoofInspection", "#HomeCareMembership", "#SleepBetterWhenItRains"]
+  },
+  {
+    "id": "d18b",
+    "day": 18,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "local",
+    "photo": "work/img_4016.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Local · Roseburg",
+        "headline": "ROSEBURG'S OLDER HOMES DESERVE A CAREFUL TEAR-OFF",
+        "body": "Layovers from before the tear-off rules still hide on plenty of older roofs. Opening them honestly keeps the surprises off your bill."
+      }
+    ],
+    "caption": "Roseburg's older neighborhoods were roofed under different rules — and plenty of those roofs are still carrying shingle-over-shingle layovers from before Douglas County required full tear-offs. Layovers trap heat, hide deck problems, and live short lives.\n\nOlder homes deserve a careful tear-off: the framing tells the truth once it's open, and a per-sheet deck price agreed up front keeps the surprises honest. We work these streets year-round, from Riddle to Sutherlin — and February phone calls get answered.\n\nFree written estimate: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#SutherlinOregon", "#OregonRoofing", "#OldHouseLove", "#RoofReplacement", "#SouthernOregon"]
+  },
+  {
+    "id": "d19a",
+    "day": 19,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Roofing Myth · Materials",
+        "myth": "A shingle is a shingle",
+        "truth": "Architectural outlasts 3-tab by roughly 10 years here.",
+        "body": "Thicker laminated construction, far better wind ratings, and algae-resistant lines that matter in our wet climate."
+      }
+    ],
+    "caption": "A 3-tab special and an architectural shingle are not the same product at different prices — they're different roofs. Architectural shingles are thicker, laminated, carry much better wind ratings, and last roughly ten more years than 3-tab in this climate. The algae-resistant lines matter here too, where a wet winter feeds every streak and stain.\n\n3-tab's small savings up front tend to disappear in lost years. We'll tell you which makes sense for your house — even when it's the cheaper answer.\n\nCall or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofingMyths", "#AsphaltShingles", "#RoofReplacement", "#HomeOwnerTips", "#CanyonvilleOregon"]
+  },
+  {
+    "id": "d19b",
+    "day": 19,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Wind Rating · MPH",
+        "big": "130",
+        "headline": "ARCHITECTURAL SHINGLES RATE 110–130 MPH. 3-TAB? 60–70.",
+        "body": "Valley winter gusts peel lightweight tabs off one at a time. The heavier laminated shingle just holds on."
+      }
+    ],
+    "caption": "Standard 3-tab shingles typically carry wind ratings around 60–70 mph. Architectural shingles installed to spec commonly rate 110–130.\n\nDouglas County isn't tornado country, but the wind we do get — winter storms funneling through the valley, gusts on exposed ridgelines out toward Winston and Camas Valley — is exactly the kind that peels tabs off a lightweight roof one at a time. Every spring, we repair the difference.\n\nIf your roof sheds a few tabs every storm, let's take a look: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#WinstonOregon", "#OregonRoofing", "#WindDamage", "#StormSeason", "#RoofingFacts", "#AsphaltShingles"]
+  },
+  {
+    "id": "d20a",
+    "day": 20,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Budget Honesty",
+        "headline": "PLAN AT YEAR 20. REPLACE BY 25. NEVER TARP IN NOVEMBER.",
+        "body": "Choosing your contractor and material in the dry season beats emergency pricing in a storm. Past 25 here, repairs are usually money thrown at a failing roof."
+      }
+    ],
+    "caption": "Here's the budgeting version of roof honesty: an architectural asphalt roof in western Oregon lasts about 20–25 years. So plan the replacement at year 20 — get a written condition report, pick your contractor and material in the dry season, and replace by 25 on your schedule, not the roof's.\n\nChoosing calmly in July beats emergency-tarping in November, in both stress and dollars. And repairs past 25 are usually money thrown at a roof that's failing everywhere at once.\n\nStart the plan with a free inspection: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RoofReplacement", "#HomeBudget", "#RoofCost", "#HomeOwnerTips", "#PlanAhead"]
+  },
+  {
+    "id": "d20b",
+    "day": 20,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2309.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Real Job · Finished",
+        "headline": "THE PART OF THE JOB YOU ACTUALLY GET TO SEE"
+      }
+    ],
+    "caption": "Finished architectural shingle roof — one of ours. The part you can see gets the compliments, but the reasons it'll still be working in 20 years are all underneath: membrane in the valleys, new flashing at every wall and pipe, deck repairs we photographed before covering them.\n\nEvery replacement we do, you get that full photo set. It's your proof of what's under your shingles — for warranty questions, insurance conversations, and resale someday.\n\nSleep better when it rains. Free written estimates: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#RoofersOfInstagram", "#RoofReplacement", "#FinishedWork", "#SleepBetterWhenItRains"]
+  }
+]

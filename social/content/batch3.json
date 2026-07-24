@@ -1,0 +1,499 @@
+[
+  {
+    "id": "d21a",
+    "day": 21,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Wildfire Myth · Douglas Co.",
+        "myth": "A wall of flames is what takes homes in a wildfire",
+        "truth": "Most homes lost aren't touched by flames. Wind-blown embers do it.",
+        "body": "Embers land well ahead of the fire — in gutters, vents, and roof debris. And the biggest ember target on your property is the roof."
+      }
+    ],
+    "caption": "This is the fact that changed how we think about our own houses: most homes lost to wildfire are never reached by the flame front. They're lit by embers riding the wind, sometimes from a fire that's still miles out.\n\nWhich means wildfire defense isn't mostly about heroics — it's about a roof and gutters that give embers nothing to work with. That's a maintenance problem, and maintenance problems are solvable.\n\nTomorrow we'll walk through exactly how embers get in. Want your roof and vents looked at first? Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#GlideOregon", "#WildfireSeason", "#FireWise", "#HomeHardening", "#OregonRoofing", "#RoofingTips", "#ClassARoof"]
+  },
+  {
+    "id": "d21b",
+    "day": 21,
+    "slot": 2,
+    "type": "carousel",
+    "template": "dark",
+    "category": "seasonal",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Ember Season",
+        "headline": "How embers actually get into a house"
+      },
+      {
+        "template": "dark",
+        "kicker": "Door 1 · Gutters",
+        "headline": "Gutters packed with fir needles",
+        "body": "The classic Douglas County failure: an ember lands in dry needles, ignites, and the fire climbs into the roof edge. Clean gutters — or guards — close this door."
+      },
+      {
+        "template": "light",
+        "kicker": "Door 2 · Vents",
+        "headline": "Open attic and soffit vents",
+        "body": "Vents inhale embers straight into the driest space in the house. Fine 1/8\" metal mesh blocks them while keeping the airflow your attic needs."
+      },
+      {
+        "template": "dark",
+        "kicker": "Door 3 · Debris",
+        "headline": "Needle drifts on the roof itself",
+        "body": "Valleys and the spots behind chimneys collect ember fuel that sits right on top of your fire-rated roof. Seasonal clearing matters as much as the material."
+      },
+      {
+        "template": "light",
+        "kicker": "The Pattern",
+        "headline": "Half of ember defense is maintenance",
+        "body": "A Class A roof buried in dry needles has given back much of its advantage. Keep the doors shut and the rating actually means something."
+      }
+    ],
+    "caption": "Embers are small, wind-driven, and patient. They don't defeat a modern roof covering very often — they find the gaps around it.\n\nThe three usual entry points: gutters full of dry fir needles, unscreened attic vents, and debris drifts sitting in the valleys. All three are fixable, and none of them require a new roof.\n\nIf you're up a timbered draw or anywhere near the county's fire country, an hour of honest maintenance before August is worth more than any product brochure. We can handle it if ladders aren't your thing — call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#GlideOregon", "#FireWise", "#HomeHardening", "#WildfirePrep", "#GutterCleaning", "#RoofingTips", "#OregonRoofing", "#EmberDefense"]
+  },
+  {
+    "id": "d22a",
+    "day": 22,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "glossary",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Fire Ratings, Explained",
+        "headline": "What does \"Class A\" actually mean?"
+      },
+      {
+        "template": "dark",
+        "kicker": "The Rating",
+        "headline": "The top fire rating a roof can earn",
+        "body": "Roofs are rated Class A, B, or C in standardized burn tests. Class A means the assembly resists severe fire exposure — including burning brands sitting on the surface."
+      },
+      {
+        "template": "photo",
+        "photo": "work/img_2906.jpg",
+        "kicker": "The Fine Print",
+        "headline": "\"Assembly\" is the key word",
+        "body": "The rating belongs to covering PLUS underlayment — not the top layer alone. This is that underlayment on one of our metal jobs. Ask which rated assembly you're getting."
+      },
+      {
+        "template": "light",
+        "kicker": "Three Paths",
+        "headline": "How Douglas County roofs get to Class A",
+        "bullets": [
+          "Fiberglass architectural shingles",
+          "Metal over a rated underlayment",
+          "Concrete or clay tile"
+        ],
+        "body": "If your comp roof is reasonably modern, you may already have one."
+      }
+    ],
+    "caption": "\"Class A\" gets thrown around like a brand name, so here's the plain version: it's the top fire rating a roof assembly can earn, tested with burning material sitting directly on the surface.\n\nThe catch most people miss is the word assembly. The rating belongs to the whole system — covering plus underlayment — not the shingle or panel alone. A great product over the wrong underlayment may not make the rating. It's exactly the kind of detail a written bid should spell out.\n\nWant to know what your current roof rates? Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#RiddleOregon", "#ClassARoof", "#FireWise", "#OregonRoofing", "#RoofingTips", "#MetalRoof", "#HomeHardening"]
+  },
+  {
+    "id": "d22b",
+    "day": 22,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_3007.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Real Job · Douglas County",
+        "headline": "A metal roof, with fire-scarred hills behind it"
+      }
+    ],
+    "caption": "Look past the standing seam and you can still read the burn scars on the hills. That's not a backdrop we chose — it's just where the job was.\n\nThis is why metal keeps coming up in estimate conversations out in the county's fire country: steel doesn't burn, the assembly carries a Class A rating, and the smooth panels shed the needle litter that embers love. The homeowner wasn't buying a look. They were buying a roof that treats fire season as a design requirement.\n\nThinking the same way about your place? Call or text (541) 670-5005 for a free estimate.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#GlideOregon", "#MetalRoof", "#StandingSeam", "#ClassARoof", "#FireWise", "#OregonRoofing", "#RealJobs"]
+  },
+  {
+    "id": "d23a",
+    "day": 23,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Metal Roof Myth",
+        "myth": "Metal roofs are loud when it rains",
+        "truth": "On a house, rain lands within a few decibels of asphalt.",
+        "body": "The drumming you remember was a barn — bare metal over open framing. A home adds solid decking, underlayment, and an insulated attic that soak up the sound."
+      }
+    ],
+    "caption": "The number one question we get about metal roofing: \"won't it be loud when it rains?\" Fair worry — everyone's stood under a carport in a downpour.\n\nBut that's bare metal over open framing, where the panel IS the ceiling. A residential metal roof goes over solid sheathing and underlayment, above an insulated attic. All that mass absorbs the sound, and most homeowners honestly can't tell the difference from the living room.\n\nIn a place with 130 rain days a year, if metal roofs were loud, western Oregon would have noticed by now. Questions? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRain", "#MetalRoof", "#RoofingMyths", "#StandingSeam", "#OregonRoofing", "#RoofingTips", "#PNWLiving"]
+  },
+  {
+    "id": "d23b",
+    "day": 23,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Metal Roof Lifespan",
+        "big": "40-70",
+        "headline": "Years a well-installed metal roof lasts here",
+        "body": "Asphalt manages about 20–25 in our wet-dry climate — less if moss goes unmanaged. Metal roughly doubles or triples it, and sheds the moss and needles along the way."
+      }
+    ],
+    "caption": "40 to 70 years. That's the honest range for well-installed residential metal in our climate — against roughly 20–25 for architectural asphalt, and less than that if moss gets a foothold.\n\nPut differently: a metal roof installed today plausibly outlasts the mortgage, the truck, and a few appliances' worth of everything else. It's most of the answer to why people pay more upfront for it.\n\nWe'll run the numbers for your actual roof, metal and asphalt side by side, in writing. Call or text (541) 670-5005 for a free estimate.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#SutherlinOregon", "#MetalRoof", "#StandingSeam", "#RoofReplacement", "#OregonRoofing", "#HomeInvestment", "#RoofingFacts"]
+  },
+  {
+    "id": "d24a",
+    "day": 24,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "photo",
+        "photo": "work/1000002755.jpg",
+        "kicker": "Honest Comparison",
+        "headline": "Metal vs. asphalt, from a crew that installs both"
+      },
+      {
+        "template": "dark",
+        "kicker": "Upfront Cost",
+        "headline": "Asphalt wins the day you pay",
+        "body": "Most Douglas County asphalt replacements land roughly $10,000–$25,000. Metal runs about 2–3x that for the same roof. No way around it."
+      },
+      {
+        "template": "stat",
+        "kicker": "The Moss Factor",
+        "big": "130",
+        "headline": "Rain days a year — and moss loves asphalt",
+        "body": "Granular shingles give moss a perfect anchor. Smooth metal gives it nothing to grip, and fir needles slide off instead of composting. The big local advantage."
+      },
+      {
+        "template": "light",
+        "kicker": "Lifespan",
+        "headline": "20–25 years vs. 40–70",
+        "body": "Per year of service they're nearly the same roof. The real difference is when you pay: asphalt spreads it across two or three replacements; metal front-loads it once."
+      }
+    ],
+    "caption": "Ask three roofers \"metal or asphalt?\" and you'll usually learn more about what they sell than what you need. We install both in roughly equal seriousness, so our only stake is you not regretting the choice in ten years.\n\nShort version: both are good roofs, good at different things. Metal solves moss with money; asphalt solves it with maintenance. Metal front-loads the cost once; asphalt spreads it across replacements.\n\nWant both options priced for your actual roof — same crew, no commission games? Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#WinstonOregon", "#MetalRoof", "#AsphaltShingles", "#RoofReplacement", "#OregonRoofing", "#RoofingTips", "#HonestAdvice", "#MossProblems"]
+  },
+  {
+    "id": "d24b",
+    "day": 24,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "trust",
+    "slides": [
+      {
+        "template": "light",
+        "kicker": "Straight Talk",
+        "headline": "Sometimes asphalt is simply the right answer",
+        "body": "A quality Class A architectural asphalt roof is a genuinely good roof — not a consolation prize.",
+        "bullets": [
+          "The budget is the budget",
+          "Complex, cut-up rooflines",
+          "Matching the neighborhood",
+          "Selling within 5–10 years"
+        ]
+      }
+    ],
+    "caption": "Metal evangelists skip this part. We won't.\n\nIf $15,000 is what the project can bear, a well-executed architectural asphalt roof — Class A, algae-resistant, properly flashed — beats a stretched-budget metal job that shortchanges the details. Lots of valleys and dormers multiply metal's cost. On some streets a metal roof is a statement you didn't mean to make. And if you're selling in five years, you'd pay metal's full premium and hand the lifespan to the next owner.\n\nWe install both, so we'll tell you straight. Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#MyrtleCreekOregon", "#UmpquaValley", "#AsphaltShingles", "#RoofReplacement", "#HonestAdvice", "#OregonRoofing", "#RoofingTips", "#StraightTalk"]
+  },
+  {
+    "id": "d25a",
+    "day": 25,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "myth",
+        "kicker": "Moss Myth · Umpqua Valley",
+        "myth": "Every roof in the Umpqua Valley grows moss eventually",
+        "truth": "Metal's smooth surface gives moss rhizoids nothing to grip.",
+        "body": "Fir needles slide off instead of composting in the valleys. Choosing metal deletes a maintenance line item asphalt owners here carry for the life of the roof."
+      }
+    ],
+    "caption": "We live in world-class moss habitat — it's the number one killer of asphalt roofs in this valley. But moss needs something to hold onto, and a painted metal panel offers it nothing. No granular texture for rhizoids to anchor in, no needle compost building up in the valleys.\n\nThat's metal's quietest superpower here. Not the look, not even the fire rating — the fact that the $250–$600 professional moss treatment cycle simply stops applying to your house.\n\nCurious what that trade costs upfront? We'll put it in writing. Call or text (541) 670-5005.",
+    "hashtags": ["#UmpquaValley", "#DouglasCounty", "#RoseburgOregon", "#OaklandOregon", "#MossRemoval", "#MetalRoof", "#RoofMoss", "#OregonRoofing", "#HomeMaintenance", "#PNWProblems"]
+  },
+  {
+    "id": "d25b",
+    "day": 25,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "cost",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "The Honest Math",
+        "big": "2-3x",
+        "headline": "Metal's upfront premium — now run the per-year numbers",
+        "body": "Say $16k asphalt lasting ~22 years vs. $38k metal lasting ~50: roughly $730 vs. $760 per year. Nearly the same roof per year — the difference is when you pay."
+      }
+    ],
+    "caption": "Yes, metal costs roughly 2–3x asphalt upfront. Here's the frame that actually settles most decisions.\n\nTake a hypothetical Douglas County roof (all numbers estimates — your written estimate is the real math): $16,000 of asphalt over about 22 years is roughly $730 a year, plus moss treatments. $38,000 of metal over about 50 years is roughly $760 a year, with minimal upkeep.\n\nPer year of service, nearly the same roof. Forever home? Metal's one-and-done math is compelling. Five-year house? Asphalt almost always wins. Call or text (541) 670-5005 and we'll quote both.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#CanyonvilleOregon", "#MetalRoof", "#RoofReplacement", "#CostPerYear", "#OregonRoofing", "#HomeBudget", "#RoofingFacts"]
+  },
+  {
+    "id": "d26a",
+    "day": 26,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "glossary",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Metal 101",
+        "headline": "Standing seam vs. corrugated: the two metal roofs"
+      },
+      {
+        "template": "dark",
+        "kicker": "Standing Seam",
+        "headline": "Hidden clips, no holes in the weather surface",
+        "body": "Panels lock together at raised seams and float on concealed clips as temperatures swing. No fastener ever pierces what the rain touches. The premium system."
+      },
+      {
+        "template": "light",
+        "kicker": "Corrugated",
+        "headline": "Thousands of gasketed screws — and that's fine",
+        "body": "Screwed straight through the panel face, each sealed by a rubber washer. Simpler, faster, the least expensive metal. That's its whole argument, and it's a good one."
+      },
+      {
+        "template": "light",
+        "kicker": "Our Plain Take",
+        "headline": "Match the system to the building",
+        "bullets": [
+          "Screw-down → barns, shops, outbuildings",
+          "Standing seam → the house you live in",
+          "Both shed moss and rate Class A"
+        ]
+      }
+    ],
+    "caption": "\"Metal roof\" covers two very different products — one held on by hidden clips, one by thousands of rubber-gasketed screws. The difference is exactly where it matters most in a climate with 130 rainy days: how the panel is attached.\n\nOur plain recommendation for rural Douglas County places: screw-down on the outbuildings, standing seam on the house. A shop is the perfect home for corrugated — low stakes per leak, budget better spent on what's inside. The house is where concealed fasteners earn their premium.\n\nHouse, shop, or both — call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#RoseburgOregon", "#MetalRoof", "#StandingSeam", "#CorrugatedMetal", "#OregonRoofing", "#BarnLife", "#RuralLiving", "#RoofingTips"]
+  },
+  {
+    "id": "d26b",
+    "day": 26,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "stat",
+        "kicker": "Tip · Screw-Down Roofs",
+        "big": "10-15",
+        "headline": "Years in, every screw-down roof wants a fastener check",
+        "body": "Rubber gaskets harden in our soak-then-bake cycle while the panels work screws loose. Re-drive, re-gasket, repeat. Routine — not a defect."
+      }
+    ],
+    "caption": "If you own a screw-down metal roof — house, shop, or barn — put this on the long-term calendar: a fastener inspection around years 10–15, and periodically after.\n\nEvery gasketed screw is a small rubber part doing a big job, and Douglas County's soaked-October-to-May, baked-all-summer cycle ages them while the steel expands and contracts around the shanks. Skip the check and each tired gasket becomes a slow pinhole leak that shows up as a rust streak or a drip on the tractor.\n\nNot sure what year your roof is on? Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#SutherlinOregon", "#MetalRoof", "#CorrugatedMetal", "#RoofMaintenance", "#OregonRoofing", "#RoofingTips", "#ShopLife"]
+  },
+  {
+    "id": "d27a",
+    "day": 27,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "seasonal",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Smoke Season",
+        "headline": "Wildfire ash on your roof: the cleanup nobody explains"
+      },
+      {
+        "template": "dark",
+        "kicker": "What Ash Is",
+        "headline": "Abrasive when dry, caustic when wet",
+        "body": "Hard, gritty particles sand the granules off shingles if scrubbed. Add water and ash turns into an alkaline sludge that's hard on gutters and metal finishes."
+      },
+      {
+        "template": "myth",
+        "kicker": "The Big Mistake",
+        "myth": "A pressure washer is the fast way to clean ash off",
+        "truth": "Blasting strips granules and drives ash slurry under the shingles."
+      },
+      {
+        "template": "light",
+        "kicker": "The Right Way",
+        "headline": "Gentle is the entire game",
+        "bullets": [
+          "N95 on, wait for calm air",
+          "Soft brush or low leaf blower",
+          "Hose rinse, ridge down, low pressure",
+          "Flush gutters before the first rain"
+        ]
+      }
+    ],
+    "caption": "Every smoke season leaves a gray film on Douglas County roofs, and almost nobody talks about what it does up there — or how easy it is to make it worse.\n\nLeft alone, a light dusting mostly rinses away with the first rains. The real damage comes from heavy ash concentrating in gutters, and from well-meaning cleanup done wrong: dry-scrubbing grinds abrasive ash into the granules, and pressure washing does everything wrong at once.\n\nSteep roof, heavy ash, or just done with ladder-work in a mask? We do ash-season flushes every fall. Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#GlideOregon", "#SmokeSeason", "#WildfireSeason", "#GutterCleaning", "#RoofCleaning", "#OregonRoofing", "#HomeMaintenance", "#RoofingTips"]
+  },
+  {
+    "id": "d27b",
+    "day": 27,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Tip · Smoke Season",
+        "headline": "Flush gutters after smoke season — before the first real rain",
+        "body": "Dry ash rinses out of a gutter easily. Wait for the October storms and it mixes with needles into gray cement that packs your downspouts right as the wet season starts."
+      }
+    ],
+    "caption": "Here's the sequence that plays out across the valley every fall: ash collects in gutters through August and September, mixing with fir needles. Then the first storms turn that dry mix into dense, concrete-like sludge that clogs downspouts at the exact moment seven months of rain begin.\n\nThe whole fix is timing. A hose flush in late September or early October takes minutes. The November version has to be dug out by hand, one scoop at a time.\n\nWant it handled — along with a pre-rain roof check in the same visit? Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#WinstonOregon", "#SmokeSeason", "#GutterCleaning", "#FallPrep", "#OregonRain", "#HomeMaintenance", "#RoofingTips"]
+  },
+  {
+    "id": "d28a",
+    "day": 28,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "trust",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Insurance & Your Roof",
+        "headline": "Since 2020, insurers grade Douglas County roofs",
+        "body": "A Class A roof can earn discounts — or be the thing that keeps you insurable. Save the invoice naming the product, the permit, and photos, and send copies to your agent."
+      }
+    ],
+    "caption": "Since the 2020 fires, wildfire has reshaped Oregon homeowners insurance, and Douglas County homeowners are seeing both ends of it. Carrots: some insurers offer discounts or preferred rates for Class A roofs and documented home-hardening. Sticks: in higher-risk areas, carriers increasingly ask about roof material and age at renewal — and nonrenewal pressure is real for old shake roofs and visibly deferred maintenance.\n\nThe homeowners who benefit are the ones who can prove it. Every replacement we do comes with that paperwork — product line, permit record, photos. Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#GreenOregon", "#ClassARoof", "#HomeInsurance", "#FireWise", "#HomeHardening", "#OregonRoofing", "#RoofReplacement"]
+  },
+  {
+    "id": "d28b",
+    "day": 28,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "local",
+    "photo": "work/img_4016.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Glide · North Umpqua",
+        "headline": "Archie Creek changed how this county thinks about roofs"
+      }
+    ],
+    "caption": "September 2020, the Archie Creek Fire tore down the North Umpqua corridor near Glide and burned over a hundred homes. If you live anywhere in Douglas County, you don't need a lecture on wildfire risk — you remember the smoke.\n\nWe won't dress that up as a marketing story, because it isn't one. It's the reason conversations up the river now start with Class A assemblies, screened vents, and clean gutters instead of shingle colors. Roofing is where home-hardening starts.\n\nWe serve Glide and the whole North Umpqua. Straight answers, free estimates: call or text (541) 670-5005.",
+    "hashtags": ["#GlideOregon", "#NorthUmpqua", "#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#ArchieCreekFire", "#FireWise", "#ClassARoof", "#OregonRoofing", "#HomeHardening"]
+  },
+  {
+    "id": "d29a",
+    "day": 29,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "seasonal",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Fire-Smart Yard",
+        "headline": "Lean, clean, green — what the roof needs from the yard"
+      },
+      {
+        "template": "light",
+        "kicker": "The First 5 Feet",
+        "headline": "Keep the ring around the house bare of fuel",
+        "body": "No bark mulch, dry plants, or stacked firewood against the walls. Embers that land here have nothing to start with."
+      },
+      {
+        "template": "dark",
+        "kicker": "Overhead",
+        "headline": "Don't let branches overhang the roof",
+        "body": "They drop the very needle litter embers ignite — and feed the moss problem the rest of the year. Trimming pays twice."
+      },
+      {
+        "template": "light",
+        "kicker": "We'll Say It Plainly",
+        "headline": "We're roofers, not a wildland crew",
+        "body": "The roof works with the ground around it. OSU Extension and your local fire district publish full defensible-space guides — genuinely worth an evening."
+      }
+    ],
+    "caption": "Defensible space isn't our trade, so we'll keep to the parts that meet the roof: keep the first five feet around the house free of bark mulch, dry plants, and stacked firewood; limb up trees near the structure; and don't let branches overhang the roofline.\n\nThat last one is the twofer. Overhanging limbs drop the needle litter that embers ignite in August — and feed the moss that eats shingles from October to May. One afternoon with a pole saw works both seasons.\n\nWant the roof-and-gutter half assessed honestly? Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#CamasValley", "#DefensibleSpace", "#FireWise", "#WildfirePrep", "#HomeHardening", "#OregonRoofing", "#RoofingTips"]
+  },
+  {
+    "id": "d29b",
+    "day": 29,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Tip · Ember Defense",
+        "headline": "A gutter full of dry fir needles is a fuse on your roof edge",
+        "body": "The classic failure: an ember lands in packed needles, ignites, and climbs into the roofline. Clean gutters — or guards that keep needles out — close that door."
+      }
+    ],
+    "caption": "Of all the ember entry points on a Douglas County house, this is the one we'd fix first — because it's the cheapest and the most common.\n\nAn ember doesn't need to defeat your roof covering. It just needs to land in a gutter packed with a summer's worth of dry fir needles, sitting inches from the roof edge. Regular cleaning closes that door; gutter guards keep it closed without the ladder trips.\n\nAsk your insurer, too — clean gutters and screened vents are exactly what they're looking for. Call or text (541) 670-5005 for a free look.",
+    "hashtags": ["#DouglasCounty", "#UmpquaValley", "#RoseburgOregon", "#MyrtleCreekOregon", "#GutterGuards", "#GutterCleaning", "#FireWise", "#EmberDefense", "#OregonRoofing", "#HomeMaintenance"]
+  },
+  {
+    "id": "d30a",
+    "day": 30,
+    "slot": 1,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_3134.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "From the Sample Kit",
+        "headline": "DECRA metal, headed to a kitchen table near you"
+      }
+    ],
+    "caption": "This is what the metal conversation actually looks like: samples on the table, coffee going cold, and a homeowner realizing \"metal roof\" doesn't have to mean barn.\n\nStone-coated panels like these DECRA samples read like traditional roofing from the street while carrying metal's advantages underneath — the long service life, the moss resistance, the Class A fire rating this county has learned to care about. Holding the real product beats squinting at a brochure every time.\n\nWant the sample kit at your table? Free estimate, no pressure either way. Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#RiddleOregon", "#DECRA", "#MetalRoof", "#StoneCoatedSteel", "#RoofReplacement", "#OregonRoofing", "#ClassARoof"]
+  },
+  {
+    "id": "d30b",
+    "day": 30,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "membership",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Home Care Membership",
+        "headline": "We watch your roof through fire season, too",
+        "body": "From $49/month: annual roof and gutter inspection, seasonal debris checks, photo report every visit, 10% off repairs, priority scheduling, emergency tarping included."
+      }
+    ],
+    "caption": "Most people think of roof care as a winter thing — leaks, storms, tarps. But in this county, the summer half matters just as much: needle litter cleared before ember season, gutters flushed before ash sets up, vents checked while the weather's still dry.\n\nThat's what the Home Care Membership covers, from $49/month — annual inspection, seasonal debris checks, priority scheduling, 10% off repairs, and a photo report after every visit so you actually see what's up there. Fire season and rain season, one plan.\n\nSleep better when it rains — and when it doesn't. Call or text (541) 670-5005.",
+    "hashtags": ["#DouglasCounty", "#RoseburgOregon", "#UmpquaValley", "#SutherlinOregon", "#HomeCareMembership", "#RoofMaintenance", "#FireWise", "#GutterCleaning", "#OregonRoofing", "#HomeMaintenance"]
+  }
+]

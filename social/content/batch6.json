@@ -1,0 +1,500 @@
+[
+  {
+    "id": "d51a",
+    "day": 51,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "glossary",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Speak Roofer · Glossary",
+        "headline": "Five words that make your roofing estimate make sense."
+      },
+      {
+        "template": "stat",
+        "kicker": "Term 1 · Square",
+        "big": "100",
+        "headline": "Square feet. That's one \"square.\"",
+        "body": "Shingles, labor, and your bid are all figured per square. A \"25-square roof\" is about 2,500 sq ft of surface — and a good bid states the number."
+      },
+      {
+        "template": "dark",
+        "kicker": "Term 2 · Pitch",
+        "headline": "Pitch: rise over run.",
+        "body": "A 4/12 roof climbs 4 inches per horizontal foot. Pitch decides your materials, your drainage speed, and your price — below 2/12, shingles aren't even allowed."
+      },
+      {
+        "template": "light",
+        "kicker": "Term 3 · Valley",
+        "headline": "Valley: the roof's own gutter.",
+        "body": "Where two roof planes meet, all their water funnels into one channel. Fir needles dam it — which is why so many interior leaks start here."
+      },
+      {
+        "template": "dark",
+        "kicker": "Terms 4 & 5 · The Edge",
+        "headline": "Fascia and drip edge.",
+        "body": "Fascia is the board your gutters hang from. Drip edge is the metal strip that keeps water off it. On older roofs, this edge is the first wood to rot."
+      }
+    ],
+    "caption": "You shouldn't need a translator to read a roofing bid. But five words come up in nearly every estimate — square, pitch, valley, fascia, drip edge — and knowing them makes you a much harder person to confuse.\n\nOur favorite: the square. If one bid says 24 squares and another says 30 for the same house, somebody measured wrong. Or padded.\n\nSave this one for estimate season. And if you'd rather just get a bid written in plain English the first time, that's kind of our thing. Free estimates: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#RiddleOregon", "#RoofingTips", "#RoofingGlossary", "#HomeownerTips", "#RoofReplacement", "#HomeMaintenance"]
+  },
+  {
+    "id": "d51b",
+    "day": 51,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "trust",
+    "slides": [
+      {
+        "kicker": "How We Work · Douglas County",
+        "headline": "Estimates in plain English.",
+        "body": "No jargon fog, no mystery line items. If you can't explain a bid to your neighbor over the fence, it wasn't written honestly enough.",
+        "bullets": [
+          "Squares measured and listed",
+          "Options priced side by side",
+          "Questions answered, not dodged"
+        ]
+      }
+    ],
+    "caption": "A roofing estimate is a document you're supposed to understand. Ours list the measured squares, name the actual materials, and price your options side by side — so you can compare us against anyone and check the math yourself.\n\nWe figure if the numbers can't survive daylight, they weren't good numbers. Twenty-plus years of Douglas County weather is coming for whatever gets installed, so the paperwork should be as solid as the roof.\n\nWant a bid you can actually read? Call or text (541) 670-5005 for a free estimate.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#SutherlinOregon", "#RoofingEstimate", "#HonestContractor", "#RoofingTips", "#SupportLocal", "#CCBLicensed"]
+  },
+  {
+    "id": "d52a",
+    "day": 52,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "kicker": "Myth vs Truth · Skylights",
+        "myth": "Skylights always leak sooner or later.",
+        "truth": "Modern skylights don't leak. Old flashing does.",
+        "body": "When we trace a \"leaking skylight,\" it's almost always failed flashing, 20-year-old seals, or fir needles damming the uphill side. Rarely the glass."
+      }
+    ],
+    "caption": "Ask around Roseburg and you'll hear both stories: \"best thing we ever did for our dark kitchen\" and \"never again — it leaked for years.\" Both true. The difference was never the glass.\n\nOld installs were often done with roofing cement and improvisation instead of a proper flashing kit. Mastic cracks. Seals age. Needles dam up the high side and hold water against the weak spot until it finds a way in.\n\nGot a skylight doing something suspicious? An honest diagnosis starts at the flashing. Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#Skylights", "#RoofLeaks", "#RoofingMyths", "#HomeMaintenance", "#RoofRepair", "#WinstonOregon"]
+  },
+  {
+    "id": "d52b",
+    "day": 52,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "kicker": "Money-Saver · Reroofs",
+        "headline": "Reroofing? Replace a 10-year-old skylight while the roof is open.",
+        "body": "The flashing is already coming off, so the swap adds modest cost. The same job three years later means cutting into your brand-new roof — at several times the price."
+      }
+    ],
+    "caption": "It's the single most common \"wish someone had told me\" we hear.\n\nA new 20–25 year roof wrapped around a skylight with 5 years of seal life left guarantees an awkward choice down the road: live with a leak, or open up a section of roof you just paid for. During the reroof, the swap is cheap. Later, it isn't.\n\nSame logic applies to adding a skylight — with the crew and flashing work already on site, reroof time is when it costs least. Planning a roof? Ask us to price it: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#Skylights", "#RoofReplacement", "#RoofingTips", "#HomeownerTips", "#MyrtleCreekOregon", "#SmartHomeOwner"]
+  },
+  {
+    "id": "d53a",
+    "day": 53,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Buying Guide · Colors",
+        "headline": "Picking a shingle color you'll still like in 2046."
+      },
+      {
+        "template": "dark",
+        "kicker": "Factor 1 · Heat",
+        "headline": "Dark roofs run hotter — but ventilation matters more.",
+        "body": "For summer cooling, the honest ranking is: attic ventilation first, insulation second, shingle color a distant third. We check ventilation on every replacement."
+      },
+      {
+        "template": "light",
+        "kicker": "Factor 2 · Streaks",
+        "headline": "Light colors show every algae streak.",
+        "body": "About 130 rainy days a year feed the algae that paints black streaks down shingles. Weathered-wood browns, grays, and charcoals hide them far longer between cleanings."
+      },
+      {
+        "template": "dark",
+        "kicker": "Factor 3 · The Backdrop",
+        "headline": "Match the valley: fir green, oak gold, basalt gray.",
+        "body": "Weathered wood and slate gray sit naturally against an evergreen backdrop. Strong reds and blues fight the landscape — they can work, but they're commitments."
+      },
+      {
+        "template": "stat",
+        "kicker": "Factor 4 · Resale",
+        "big": "2-3x",
+        "headline": "A roof outlasts two or three exterior paint jobs.",
+        "body": "A neutral roof lets a future owner repaint however they like. If the house might ever sell — and it usually might — boring is beautiful."
+      }
+    ],
+    "caption": "A roof color is a 20-year decision that usually gets made off a palm-sized sample in a parking lot. Backwards.\n\nHere's what should actually drive it in the Umpqua Valley: how your attic handles heat, how the color hides (or displays) our inevitable algae streaks, how it sits against a Douglas-fir backdrop, and what it does to resale. One bonus tip: algae-resistant shingles with copper-infused granules slow the streaking at the source — in this climate, worth it in any color.\n\nWe bring full-size samples to look at in your actual light. Free estimates: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#ShingleColors", "#RoofReplacement", "#CurbAppeal", "#OwensCorning", "#HomeDesign", "#GreenOregon", "#RoofingTips"]
+  },
+  {
+    "id": "d53b",
+    "day": 53,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "seasonal",
+    "slides": [
+      {
+        "kicker": "Climate Fact · Roseburg",
+        "big": "86°F",
+        "headline": "Average July high in Roseburg.",
+        "body": "Dark shingles do run hotter. But a well-vented attic under a dark roof beats a stuffy attic under a light one — every time."
+      }
+    ],
+    "caption": "The light-vs-dark shingle debate gets more airtime than it deserves.\n\nYes, Roseburg summers are genuinely hot, and yes, dark shingles absorb more sun. But if your house runs warm in July, the fix order is ventilation, then insulation, then color. Heat cooks asphalt from below as well as above, which is why we check attic ventilation on every replacement — it affects shingle life, not just comfort.\n\nWhere color earns its keep: vaulted ceilings, exposed south-facing slopes, no tree cover. Then a mid-tone is a sensible nudge cooler. Questions about your roof? (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#WinstonOregon", "#ShingleColors", "#AtticVentilation", "#RoofingFacts", "#HomeMaintenance", "#OregonSummer"]
+  },
+  {
+    "id": "d54a",
+    "day": 54,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "kicker": "Myth vs Truth · Low Slope",
+        "myth": "A good roofer can make shingles work on a flat porch.",
+        "truth": "Below 2:12 pitch, shingles fail. It's physics, not workmanship.",
+        "body": "On a shallow pitch, water sits in the laps and wicks sideways to the nail holes. Low-slope roofs need a membrane — a sealed skin, not overlapping pieces."
+      }
+    ],
+    "caption": "A pattern we see constantly: a solid shingled house with a stubborn leak — and the leak isn't in the main roof at all. It's the nearly-flat porch somebody shingled in 1998.\n\nShingles are a water-shedding system. They work because gravity moves water downhill faster than it can creep sideways. Below about 2:12 pitch, that stops being true, which is why manufacturers won't warranty standard installs down there. Re-shingling it \"better\" won't fix it — TPO or modified bitumen will.\n\nGot a porch or addition roof that never quite stays dry? (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#FlatRoof", "#RoofingMyths", "#RoofLeaks", "#TPO", "#RoofingTips", "#CanyonvilleOregon"]
+  },
+  {
+    "id": "d54b",
+    "day": 54,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "local",
+    "photo": "work/1000002755.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Rural Douglas County",
+        "headline": "The shop out back deserves a real roof too.",
+        "body": "Most rural parcels carry more than one roof — house, shop, hay cover, well house. Match the roof to what's underneath it."
+      }
+    ],
+    "caption": "Out past the city limits — Riddle, Camas Valley, Glide, the properties along Myrtle Creek — the house is rarely the only roof on the parcel.\n\nAnd a lot of those outbuildings were roofed decades ago in whatever was cheap, quietly protecting tractors, tools, and firewood worth far more than the roof over them. Our honest rule: match the system to the stakes. A firewood lean-to can wear rolled roofing without regret. A shop full of equipment deserves a real membrane or metal.\n\nPictured: a metal roof going onto a new build. Got outbuildings that need looking at? (541) 670-5005.",
+    "hashtags": ["#RiddleOregon", "#DouglasCounty", "#UmpquaValley", "#GlideOregon", "#CamasValley", "#OregonRoofing", "#MetalRoof", "#RuralLiving", "#ShopLife", "#FarmLife", "#RoofingTips"]
+  },
+  {
+    "id": "d55a",
+    "day": 55,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Built for Oregon · Decks",
+        "headline": "What a deck needs to survive 30 inches of rain a year."
+      },
+      {
+        "template": "dark",
+        "kicker": "Failure #1",
+        "headline": "The ledger connection is where decks rot first.",
+        "body": "Where the deck bolts to the house, water sneaks behind and quietly eats both structures. We flash the ledger like roofers — because we are."
+      },
+      {
+        "template": "light",
+        "kicker": "Cedar vs Composite",
+        "headline": "Both work here. They trade costs differently.",
+        "bullets": [
+          "Cedar: less up front, looks like Oregon",
+          "Cedar needs cleaning and re-sealing",
+          "Composite: more up front, easy winters",
+          "We price your deck both ways"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "The Details",
+        "headline": "Footings below frost line. Boards gapped to drain.",
+        "body": "Posts set in concrete so nothing heaves or leans in year five. Gapped boards and airflow underneath, so winter rain drains instead of soaking in."
+      }
+    ],
+    "caption": "Decks and roofs fail the same way: water finds the detail somebody skipped.\n\nHere a deck gets soaked from October to May, then baked in July — so the parts that matter are the ones you can't see from the barbecue. The ledger flashing. The footing depth. The drainage gaps. Get those right and the same deck lasts 25 years instead of 12.\n\nOne maintenance note whatever you build: sweep off fir needles before they trap moisture. Debris rots decks the same way it grows moss on roofs.\n\nThinking about a deck? We'll price cedar and composite side by side. (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#DeckBuilder", "#OregonDecks", "#CedarDeck", "#CompositeDeck", "#OutdoorLiving", "#SutherlinOregon", "#HomeImprovement"]
+  },
+  {
+    "id": "d55b",
+    "day": 55,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "tip",
+    "slides": [
+      {
+        "kicker": "Planning Tip · Decks",
+        "headline": "Plan the deck in winter. Break it in by July.",
+        "body": "Late spring through fall is prime build season and the calendar fills fast. Winter planning gets you built — and grilling — before the first 86-degree afternoon."
+      }
+    ],
+    "caption": "Every June, someone calls wanting a deck \"before summer.\" We get it built when we can — but the smart money moves earlier.\n\nWinter and early spring are the best times to design, price, and get on the schedule, so the dry-season build slots are yours instead of somebody else's. Permits, footings, and material lead times all go smoother when nobody's rushing.\n\nSame goes for fences and siding, honestly. The off-season plan gets the on-season build.\n\nWant summer-ready by actual summer? Start the conversation now: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#DeckBuilder", "#OregonDecks", "#OutdoorLiving", "#PlanAhead", "#MyrtleCreekOregon", "#HomeProjects", "#SummerReady"]
+  },
+  {
+    "id": "d56a",
+    "day": 56,
+    "slot": 1,
+    "type": "still",
+    "template": "myth",
+    "category": "myth",
+    "slides": [
+      {
+        "kicker": "Myth vs Truth · Fences",
+        "myth": "A fence fails when the boards go gray and warp.",
+        "truth": "It's almost always the posts — rot right at the ground line.",
+        "body": "30+ inches of rain sits where post meets soil, and a solid privacy fence is a sail in valley wind. The parts you can't see decide how long it stands."
+      }
+    ],
+    "caption": "Gray boards are cosmetic. A leaning fence is structural — and it leans because a post rotted or was set too shallow for the wind load.\n\nThat's why we spend the effort where nobody will ever admire it: pressure-treated or metal posts, set deep in concrete, with the stoutest post in the run reserved for the gate. It's the same philosophy as our roofing work. The invisible parts do the living.\n\nOne more thing: fencing attracts more unlicensed operators than almost any trade. Verify the CCB — ours is #255729. Estimates: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#FenceBuilder", "#OregonFence", "#PrivacyFence", "#RoofingMyths", "#WinstonOregon", "#HomeImprovement", "#CCBLicensed"]
+  },
+  {
+    "id": "d56b",
+    "day": 56,
+    "slot": 2,
+    "type": "still",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "kicker": "Fence Tip · Douglas County",
+        "headline": "Gravel under the concrete. Always.",
+        "body": "A post footing with no gravel base holds water like a cup — and wet feet rot posts in a handful of winters. Concrete over gravel drains, and drained posts stand."
+      }
+    ],
+    "caption": "The cheapest insurance in fence building costs a few dollars a hole.\n\nWater that reaches the bottom of a post footing has to go somewhere. With a gravel base, it drains into the soil. Without one, the concrete forms a cup, the post soaks in it all winter, and even pressure-treated wood eventually gives up. That's the difference between a fence that stays straight for decades and one that leans by winter three.\n\nBuilding or fixing a fence this year? We set posts the unglamorous way. Free estimates: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#FenceBuilder", "#OregonFence", "#FenceTips", "#DIYTips", "#SutherlinOregon", "#HomeMaintenance", "#BuiltToLast"]
+  },
+  {
+    "id": "d57a",
+    "day": 57,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "tip",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Honest Guide · Gutter Guards",
+        "headline": "Most gutter guards lose to Douglas fir needles."
+      },
+      {
+        "template": "dark",
+        "kicker": "The Winner",
+        "headline": "Micro-mesh: fine enough to shed fir needles.",
+        "body": "Fine stainless mesh, installed pitched with the roofline so needles slide off instead of piling up. It's what we recommend under conifers."
+      },
+      {
+        "template": "light",
+        "kicker": "The Half-Measure",
+        "headline": "Screens work for oak leaves. Needles thread right through.",
+        "body": "Screens and perforated covers are fine on open lots. Under evergreens, they're a half-measure that still needs the ladder."
+      },
+      {
+        "template": "myth",
+        "kicker": "The Skip",
+        "myth": "Foam and brush inserts are set-and-forget.",
+        "truth": "They trap needles and turn your gutter into a planter.",
+        "body": "We don't install them — and we'll tell you why on your estimate."
+      },
+      {
+        "template": "dark",
+        "kicker": "The Honest Part",
+        "headline": "Guards cut cleaning dramatically. Nothing makes it zero.",
+        "body": "From two or three ladder sessions a year to an occasional brush-off. Anyone promising zero maintenance is selling something."
+      }
+    ],
+    "caption": "Most gutter guards were designed for places with leaves. Douglas County has Douglas firs — and fir needles slide through screens, mat on foam, and defeat half the products on the market.\n\nSo here's the whole honest hierarchy: micro-mesh wins, screens are a half-measure under evergreens, and foam inserts actively make things worse. We also prep first — cleaning, re-sloping, and repairing gutters before guards go on, fastened without touching your roof's first shingle course.\n\nTired of the November ladder ritual? Let's talk guards that actually work here: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#GutterGuards", "#GutterCleaning", "#FirNeedles", "#OregonRoofing", "#HomeMaintenance", "#OaklandOregon", "#LadderSafety", "#RainySeason"]
+  },
+  {
+    "id": "d57b",
+    "day": 57,
+    "slot": 2,
+    "type": "still",
+    "template": "stat",
+    "category": "cost",
+    "slides": [
+      {
+        "kicker": "Fir Needle Math",
+        "big": "2-3x",
+        "headline": "Gutter clear-outs a treed Douglas County lot needs every year.",
+        "body": "Quality micro-mesh guards typically pay for themselves in skipped cleanings within three to six years — or in one prevented winter overflow."
+      }
+    ],
+    "caption": "Here's the arithmetic nobody puts on the brochure.\n\nA treed lot here needs its gutters cleared at least twice a year — usually more if firs hang over the roofline. Quality guards cut that to an occasional light brush-off, which means they typically recoup their cost in roughly three to six years of skipped cleanings.\n\nThe harder number to price: one clog you don't get in November is an overflow you don't have in January — the kind that rots fascia or floods a crawlspace. One prevented disaster can cover the guards outright.\n\nWant real numbers for your house? (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#GutterGuards", "#FirNeedles", "#HomeMaintenance", "#GreenOregon", "#RainySeason", "#HomeownerTips", "#OregonLife"]
+  },
+  {
+    "id": "d58a",
+    "day": 58,
+    "slot": 1,
+    "type": "still",
+    "template": "dark",
+    "category": "trust",
+    "slides": [
+      {
+        "kicker": "One Call · Whole Home",
+        "headline": "Roof, gutters, deck, fence, siding — one licensed contractor.",
+        "body": "We're a general contractor, Oregon CCB #255729. One schedule, one crew that knows your whole exterior, one number to call when it rains."
+      }
+    ],
+    "caption": "Your roof drains into your gutters, which protect your fascia, which sits over your siding, which meets your deck. It's all one water-management system wearing five different names.\n\nWhich is why juggling five contractors for one exterior gets expensive in ways no single bid shows — mismatched schedules, gaps between trades, and nobody owning the seams where projects meet. As a general contractor, we fold roof work, gutters, decks, fences, and siding under one schedule and one point of accountability.\n\nGot a list of exterior projects? Bring the whole list. (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#GeneralContractor", "#OregonRoofing", "#RiddleOregon", "#HomeImprovement", "#WholeHome", "#CCBLicensed", "#SupportLocal"]
+  },
+  {
+    "id": "d58b",
+    "day": 58,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "photo",
+    "photo": "work/img_2906.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Real Job · Douglas County",
+        "headline": "Papered in and ready for metal.",
+        "body": "Underlayment down and sealed before the panels go on — the layer nobody ever sees, doing half the work."
+      }
+    ],
+    "caption": "This is what a roof looks like the day before it looks like anything.\n\nUnderlayment is the waterproof layer between the deck and the finished roof — the part that never shows up in the after photo but decides how the roof handles the water that inevitably sneaks past the surface someday. On this job, everything papered in tight before the metal went down.\n\nWe photograph this stage on every project, because you deserve proof of the parts you'll never see again.\n\nWant a roofer who documents the invisible work? (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#MetalRoof", "#Underlayment", "#RealJob", "#RoofingLife", "#MyrtleCreekOregon", "#QualityWork"]
+  },
+  {
+    "id": "d59a",
+    "day": 59,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "membership",
+    "slides": [
+      {
+        "template": "dark",
+        "kicker": "Home Care Membership",
+        "headline": "What $49 a month actually buys."
+      },
+      {
+        "template": "light",
+        "kicker": "Everything Included",
+        "headline": "The whole list. No asterisks.",
+        "bullets": [
+          "Annual roof & gutter inspection",
+          "Seasonal debris checks after storms",
+          "Priority scheduling + 10% off repairs",
+          "Photo report after every visit",
+          "Emergency tarping included"
+        ]
+      },
+      {
+        "template": "dark",
+        "kicker": "The Math",
+        "headline": "Most roof disasters start as a $200 problem nobody saw.",
+        "body": "A lifted shingle caught at a membership visit is a reseal. Caught a wet season later, it's rotted decking, stained drywall, and a bill in the thousands."
+      },
+      {
+        "template": "stat",
+        "kicker": "The Storm Test",
+        "big": "11pm",
+        "headline": "November storm. Every roofer's phone in the county ringing.",
+        "body": "Members get emergency tarping — up to 100 sq ft per incident — included, and the front of the line. That's what the $49 is really for."
+      }
+    ],
+    "caption": "Sixty days of posts about moss, valleys, flashing, and fir needles all point at one boring conclusion: this climate rewards whoever's watching.\n\nThe Home Care Membership is us doing the watching. Inspections timed before the rainy season, debris checks after storms, a photo report every visit so you see exactly what we see, and emergency tarping included when the weather wins one anyway.\n\nAround 130 rainy days a year will find whatever nobody's looking at. From $49/month, we look.\n\nJoin or ask questions: (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#OregonRoofing", "#HomeCareMembership", "#RoofInspection", "#HomeMaintenance", "#RainySeason", "#RiddleOregon", "#PeaceOfMind", "#SleepBetterWhenItRains"]
+  },
+  {
+    "id": "d59b",
+    "day": 59,
+    "slot": 2,
+    "type": "still",
+    "template": "light",
+    "category": "trust",
+    "slides": [
+      {
+        "kicker": "No Fine Print",
+        "headline": "No long-term contracts. Cancel anytime.",
+        "body": "Membership is month to month, and final inclusions are confirmed at sign-up — no surprises. If it isn't earning its keep, you cancel. We think it will."
+      }
+    ],
+    "caption": "The membership pitch you'd expect ends with a 24-month commitment and a cancellation fee buried on page four. Ours doesn't, because a maintenance plan should survive on usefulness, not paperwork.\n\nMonth to month. Cancel anytime. Everything included is confirmed with you at sign-up so there's nothing to discover later. We'd rather earn year six the same way we earned month one — by catching the small stuff before it gets expensive and showing you photos to prove it.\n\nQuestions about how it works? Call or text (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#HomeCareMembership", "#NoContracts", "#HonestContractor", "#OregonRoofing", "#SutherlinOregon", "#HomeMaintenance", "#SupportLocal"]
+  },
+  {
+    "id": "d60a",
+    "day": 60,
+    "slot": 1,
+    "type": "carousel",
+    "template": "dark",
+    "category": "trust",
+    "photo": "hero-rain-roof.webp",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "Day 60 · Mistletoe",
+        "headline": "Sleep better when it rains."
+      },
+      {
+        "template": "dark",
+        "kicker": "Local",
+        "headline": "Riddle, Oregon. 595 E Third St.",
+        "body": "Family-owned, serving all of Douglas County — Roseburg, Myrtle Creek, Sutherlin, Winston, Canyonville, Glide, Camas Valley, and everywhere between."
+      },
+      {
+        "template": "light",
+        "kicker": "Licensed & Honest",
+        "headline": "CCB #255729. Estimates in plain English.",
+        "body": "Owens Corning contractor. Squares listed, options priced both ways, and a straight \"no\" when a repair beats a replacement."
+      },
+      {
+        "template": "dark",
+        "kicker": "Watching Your Roof",
+        "headline": "60 days of straight answers. We're just getting started.",
+        "body": "Moss, metal, membranes, memberships — everything we've covered lives on our site. And we're one call away when the rain finds a way in."
+      }
+    ],
+    "caption": "Sixty days ago we started posting with one rule: be useful, or be quiet.\n\nSince then it's been moss and metal, valleys and ventilation, fir needles and flashing — the actual stuff that decides whether an Umpqua Valley roof makes it through winter. No hype, no scare tactics, no \"limited time offers.\" Just what we'd tell a neighbor over the fence, because that's who you are.\n\nThe posts continue. The phone stays on. And when the rain starts drumming this fall, we hope yours is just a nice sound.\n\nSleep better when it rains. (541) 670-5005.",
+    "hashtags": ["#RoseburgOregon", "#DouglasCounty", "#UmpquaValley", "#RiddleOregon", "#OregonRoofing", "#SleepBetterWhenItRains", "#FamilyOwned", "#CCBLicensed", "#SupportLocal", "#HonestContractor", "#RoofingLife"]
+  },
+  {
+    "id": "d60b",
+    "day": 60,
+    "slot": 2,
+    "type": "still",
+    "template": "photo",
+    "category": "local",
+    "photo": "work/img_4016.jpg",
+    "slides": [
+      {
+        "template": "photo",
+        "kicker": "This Is Home",
+        "headline": "The Umpqua. Reason enough.",
+        "body": "Sixty days of roofing talk ends where it started — the valley we live in, raise kids in, and keep dry."
+      }
+    ],
+    "caption": "No tips today. No myths, no stats. Just the river.\n\nThis valley is why we do the work the way we do it. You don't cut corners on your neighbors' houses when you're going to run into them at the store, at the game, on the water. Every roof we touch is a roof we'll drive past for the rest of our lives — and we like it that way.\n\nThanks for following along these sixty days. We'll be here — same valley, same phone number — whenever your place needs looking after.\n\nMistletoe Construction, Riddle, Oregon. (541) 670-5005.",
+    "hashtags": ["#UmpquaValley", "#UmpquaRiver", "#DouglasCounty", "#RoseburgOregon", "#RiddleOregon", "#OregonLife", "#PNW", "#ThisIsHome", "#SupportLocal", "#FamilyOwned"]
+  }
+]
