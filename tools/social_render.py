@@ -46,7 +46,13 @@ def wrap(draw, text, font, maxw):
     if cur: lines.append(cur)
     return lines
 
+def display_safe(text):
+    """Edmund lacks some glyphs — substitute ASCII-safe equivalents."""
+    return (text.replace("–", "-").replace("—", " - ").replace("−", "-")
+                .replace("½", "1/2").replace("¼", "1/4"))
+
 def fit_headline(draw, text, maxw, maxh, start=104, minsize=54, leading=1.04):
+    text = display_safe(text)
     size = start
     while size >= minsize:
         f = edmund(size)
@@ -182,7 +188,7 @@ def render_slide(slide, template, photo, idx, total, is_carousel, post_type):
 
     if template == "stat" and slide.get("big"):
         bf = edmund(300)
-        big = slide["big"]
+        big = display_safe(slide["big"])
         while bf.getlength(big) > maxw: bf = edmund(bf.size - 12)
         d.text((x, y), big, font=bf, fill=GREEN_L)
         y += bf.size + 26
