@@ -29,7 +29,7 @@ STATE_PATH = os.path.join(ROOT, "data", "campaign", "state.json")
 SUPPRESS_PATH = os.path.join(ROOT, "data", "campaign", "unsubscribes.txt")
 
 DAILY_CAP = 90
-UNSUB_MAILTO = "Mistletoeconstructionllc@gmail.com"
+UNSUB_MAILTO = "alex@mistletoeconstruction.com"
 
 WRAPPER = """<!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#f5f6f3;">
