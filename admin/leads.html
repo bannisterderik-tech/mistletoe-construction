@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leads | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html" aria-current="page">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Leads</h1>
+        <p class="sub">Drag cards between stages. Won leads become customers.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-lead">+ New Lead</button>
+    </div>
+
+    <div class="kanban" id="board"></div>
+  </main>
+</div>
+
+<div class="modal-back" id="lead-modal">
+  <div class="modal">
+    <h3>New Lead</h3>
+    <div class="form-row">
+      <div><label for="nl-name">Name *</label><input id="nl-name" required></div>
+      <div><label for="nl-phone">Phone</label><input id="nl-phone" type="tel"></div>
+    </div>
+    <div class="form-row">
+      <div><label for="nl-city">Town</label>
+        <select id="nl-city"><option>Roseburg</option><option>Riddle</option><option>Myrtle Creek</option><option>Winston</option><option>Sutherlin</option><option>Canyonville</option><option>Green</option><option>Oakland</option><option>Glide</option><option>Camas Valley</option><option>Other</option></select>
+      </div>
+      <div><label for="nl-service">Service</label>
+        <select id="nl-service"><option>Roof Replacement</option><option>Roof Repair</option><option>Moss Removal</option><option>Metal Roofing</option><option>Siding</option><option>Gutter Cleaning</option><option>Gutter Guards</option><option>Decks</option><option>Fences</option><option>Flooring</option><option>Landscaping</option><option>Pool Installation</option><option>General Contracting</option><option>Membership</option></select>
+      </div>
+    </div>
+    <div style="margin-bottom:0.4rem"><label for="nl-note">Note</label><textarea id="nl-note" rows="3" placeholder="What did they say?"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="nl-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="nl-save" type="button">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var STAGES = [
+    ["new", "New"], ["contacted", "Contacted"], ["inspection", "Inspection"],
+    ["quoted", "Quoted"], ["won", "Won"], ["lost", "Lost"]
+  ];
+
+  var board = document.getElementById("board");
+
+  function render() {
+    board.innerHTML = "";
+    var leads = MC.list("leads");
+    STAGES.forEach(function (s) {
+      var stage = s[0], label = s[1];
+      var col = document.createElement("div");
+      col.className = "kcol"; col.dataset.stage = stage;
+      var items = leads.filter(function (l) { return l.stage === stage; });
+      col.innerHTML = "<div class='kcol-head'><span>" + label + "</span><span class='count'>" + items.length + "</span></div>";
+      items.forEach(function (l) {
+        var card = document.createElement("div");
+        card.className = "kcard"; card.draggable = true; card.dataset.id = l.id;
+        card.innerHTML =
+          "<div class='k-name'>" + l.name + "</div>" +
+          "<div class='k-meta'>" + (l.phone || "") + (l.phone ? " · " : "") + l.city + "</div>" +
+          (l.note ? "<div class='k-meta'>" + l.note + "</div>" : "") +
+          "<div class='k-tags'><span class='badge pine'>" + l.service + "</span><span class='badge gray'>" + MC.fmtDate(l.created) + "</span></div>";
+        col.appendChild(card);
+      });
+      board.appendChild(col);
+    });
+  }
+  render();
+
+  /* Drag & drop */
+  var draggedId = null;
+  board.addEventListener("dragstart", function (e) {
+    var card = e.target.closest(".kcard"); if (!card) return;
+    draggedId = card.dataset.id; card.classList.add("dragging");
+  });
+  board.addEventListener("dragend", function (e) {
+    var card = e.target.closest(".kcard"); if (card) card.classList.remove("dragging");
+    document.querySelectorAll(".kcol.dragover").forEach(function (c) { c.classList.remove("dragover"); });
+  });
+  board.addEventListener("dragover", function (e) {
+    var col = e.target.closest(".kcol"); if (!col) return;
+    e.preventDefault();
+    document.querySelectorAll(".kcol.dragover").forEach(function (c) { c.classList.remove("dragover"); });
+    col.classList.add("dragover");
+  });
+  board.addEventListener("drop", function (e) {
+    var col = e.target.closest(".kcol"); if (!col || !draggedId) return;
+    e.preventDefault();
+    var stage = col.dataset.stage;
+    MC.update("leads", draggedId, { stage: stage });
+    /* Winning a lead promotes them to a customer automatically */
+    if (stage === "won") {
+      var l = MC.get("leads", draggedId);
+      var exists = MC.list("customers").some(function (c) { return c.name === l.name; });
+      if (!exists) MC.add("customers", { name: l.name, phone: l.phone || "", email: "", address: "", city: l.city, member: false, notes: "Won lead — " + l.service + ". " + (l.note || "") });
+    }
+    draggedId = null; render();
+  });
+
+  /* New lead modal */
+  var modal = document.getElementById("lead-modal");
+  document.getElementById("add-lead").addEventListener("click", function () { modal.classList.add("open"); });
+  document.getElementById("nl-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("nl-save").addEventListener("click", function () {
+    var name = document.getElementById("nl-name").value.trim();
+    if (!name) { document.getElementById("nl-name").focus(); return; }
+    MC.add("leads", {
+      name: name,
+      phone: document.getElementById("nl-phone").value.trim(),
+      city: document.getElementById("nl-city").value,
+      service: document.getElementById("nl-service").value,
+      note: document.getElementById("nl-note").value.trim(),
+      stage: "new",
+      created: new Date().toISOString().slice(0, 10)
+    });
+    modal.classList.remove("open");
+    ["nl-name", "nl-phone", "nl-note"].forEach(function (id) { document.getElementById(id).value = ""; });
+    render();
+  });
+})();
+</script>
+</body>
+</html>

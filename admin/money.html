@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html" aria-current="page">Money</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Money</h1>
+        <p class="sub">Estimates and invoices — send, approve, convert, collect.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-estimate">+ New Estimate</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Pipeline</div><div class="stat-num" id="st-pipeline">$0</div><div class="stat-sub">Estimates out for review</div></div>
+      <div class="stat"><div class="stat-label">Owed</div><div class="stat-num" id="st-owed">$0</div><div class="stat-sub">Invoices awaiting payment</div></div>
+      <div class="stat"><div class="stat-label">Collected this month</div><div class="stat-num" id="st-collected">$0</div><div class="stat-sub">Paid invoices</div></div>
+      <div class="stat"><div class="stat-label">Drafts</div><div class="stat-num" id="st-drafts">0</div><div class="stat-sub">Not yet sent</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Documents</h2>
+        <div class="login-tabs" id="filters" style="margin-bottom:0">
+          <button type="button" class="active" data-filter="all">All</button>
+          <button type="button" data-filter="estimates">Estimates</button>
+          <button type="button" data-filter="invoices">Invoices</button>
+          <button type="button" data-filter="unpaid">Unpaid</button>
+        </div>
+      </div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Document</th><th>Kind</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-back" id="est-modal">
+  <div class="modal">
+    <h3>New Estimate</h3>
+    <div style="margin-bottom:0.9rem"><label for="ne-customer">Customer *</label><select id="ne-customer"></select></div>
+    <div class="form-row">
+      <div><label for="ne-desc">Description *</label><input id="ne-desc" placeholder="e.g. Moss removal + treatment"></div>
+      <div><label for="ne-amount">Amount ($) *</label><input id="ne-amount" type="number" min="0" step="1" placeholder="0"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="ne-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="ne-save" type="button">Create Draft</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var rows = document.getElementById("rows");
+  var filter = "all";
+
+  var STATUS_BADGE = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red" };
+
+  function actionFor(doc) {
+    if (doc.status === "draft") return ["send", "Send"];
+    if (doc.kind === "estimate" && doc.status === "sent") return ["approve", "Mark Approved"];
+    if (doc.kind === "estimate" && doc.status === "approved") return ["convert", "Convert to Invoice"];
+    if (doc.kind === "invoice" && doc.status === "sent") return ["paid", "Mark Paid"];
+    return null;
+  }
+
+  function renderStats() {
+    var docs = MC.list("invoices");
+    var now = new Date(), thisMonth = now.toISOString().slice(0, 7);
+    var pipeline = 0, owed = 0, collected = 0, drafts = 0;
+    docs.forEach(function (d) {
+      if (d.kind === "estimate" && d.status === "sent") pipeline += d.amount;
+      if (d.kind === "invoice" && d.status === "sent") owed += d.amount;
+      if (d.kind === "invoice" && d.status === "paid" && (d.date || "").slice(0, 7) === thisMonth) collected += d.amount;
+      if (d.status === "draft") drafts++;
+    });
+    document.getElementById("st-pipeline").textContent = MC.money(pipeline);
+    document.getElementById("st-owed").textContent = MC.money(owed);
+    document.getElementById("st-collected").textContent = MC.money(collected);
+    document.getElementById("st-drafts").textContent = drafts;
+  }
+
+  function renderTable() {
+    var docs = MC.list("invoices").filter(function (d) {
+      if (filter === "estimates") return d.kind === "estimate";
+      if (filter === "invoices") return d.kind === "invoice";
+      if (filter === "unpaid") return d.kind === "invoice" && d.status !== "paid";
+      return true;
+    });
+    docs.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+
+    if (!docs.length) {
+      rows.innerHTML = "<tr><td colspan='6'><span class='t-sub'>Nothing here yet.</span></td></tr>";
+      return;
+    }
+    rows.innerHTML = docs.map(function (d) {
+      var kindBadge = d.kind === "estimate" ? "<span class='badge pine'>Estimate</span>" : "<span class='badge gray'>Invoice</span>";
+      var statusBadge = "<span class='badge " + (STATUS_BADGE[d.status] || "gray") + "'>" + d.status + "</span>";
+      var act = actionFor(d);
+      return "<tr>" +
+        "<td><span class='t-strong'>" + d.label + "</span><span class='t-sub'>" + MC.customerName(d.customerId) + "</span></td>" +
+        "<td>" + kindBadge + "</td>" +
+        "<td>" + MC.fmtDate(d.date) + "</td>" +
+        "<td>" + MC.money(d.amount) + "</td>" +
+        "<td>" + statusBadge + "</td>" +
+        "<td>" + (act ? "<button class='btn-icon' data-id='" + d.id + "' data-act='" + act[0] + "'>" + act[1] + "</button>" : "") + "</td>" +
+        "</tr>";
+    }).join("");
+  }
+
+  function render() { renderStats(); renderTable(); }
+  render();
+
+  /* Row actions */
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]"); if (!btn) return;
+    var id = btn.dataset.id, act = btn.dataset.act;
+    if (act === "send") MC.update("invoices", id, { status: "sent" });
+    if (act === "approve") MC.update("invoices", id, { status: "approved" });
+    if (act === "paid") MC.update("invoices", id, { status: "paid" });
+    if (act === "convert") {
+      var d = MC.get("invoices", id);
+      MC.update("invoices", id, { kind: "invoice", status: "sent", label: d.label.replace(/^EST/, "INV") });
+    }
+    render();
+  });
+
+  /* Filter pills */
+  document.getElementById("filters").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-filter]"); if (!btn) return;
+    filter = btn.dataset.filter;
+    this.querySelectorAll("button").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    renderTable();
+  });
+
+  /* New estimate modal */
+  var modal = document.getElementById("est-modal");
+  document.getElementById("add-estimate").addEventListener("click", function () {
+    document.getElementById("ne-customer").innerHTML = MC.list("customers").map(function (c) {
+      return "<option value='" + c.id + "'>" + c.name + "</option>";
+    }).join("");
+    modal.classList.add("open");
+  });
+  document.getElementById("ne-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("ne-save").addEventListener("click", function () {
+    var desc = document.getElementById("ne-desc").value.trim();
+    if (!desc) { document.getElementById("ne-desc").focus(); return; }
+    var num = 1000 + Math.floor(Math.random() * 9000);
+    MC.add("invoices", {
+      customerId: document.getElementById("ne-customer").value,
+      kind: "estimate",
+      label: "EST-" + num + " · " + desc,
+      amount: Number(document.getElementById("ne-amount").value) || 0,
+      status: "draft",
+      date: new Date().toISOString().slice(0, 10)
+    });
+    modal.classList.remove("open");
+    document.getElementById("ne-desc").value = "";
+    document.getElementById("ne-amount").value = "";
+    render();
+  });
+})();
+</script>
+</body>
+</html>

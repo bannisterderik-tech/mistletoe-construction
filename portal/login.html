@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log In | Mistletoe Construction</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="rain" aria-hidden="true"></div>
+  <div class="login-card">
+    <img class="brand-badge" src="../images/logo-badge.png" alt="Mistletoe Construction LLC">
+    <h1 style="text-align:center;font-size:1.5rem">Welcome back.</h1>
+    <p style="text-align:center;color:var(--ink-soft);font-size:0.95rem;margin-top:-0.4rem">Sign in to your Mistletoe account.</p>
+
+    <div class="login-tabs" role="tablist">
+      <button type="button" class="active" data-role="client">Homeowner</button>
+      <button type="button" data-role="admin">Team</button>
+    </div>
+
+    <form id="login-form">
+      <div style="margin-bottom:0.9rem">
+        <label for="lg-email">Email</label>
+        <input id="lg-email" type="email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%">Email Me a Sign-In Link</button>
+      <p class="login-note">No passwords to remember — we email you a secure one-tap link.</p>
+    </form>
+
+    <hr style="border:0;border-top:1px solid rgba(28,36,29,0.12);margin:1.3rem 0">
+    <button class="btn btn-outline" id="demo-btn" type="button" style="width:100%">Preview the demo →</button>
+    <p class="login-note">Demo mode — no real accounts yet. Homeowner tab opens the client portal, Team opens the CRM.</p>
+    <p class="login-note"><a href="../index.html">← Back to mistletoeconstruction.com</a></p>
+  </div>
+</div>
+
+<script src="../js/main.js" defer></script>
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var role = "client";
+  var tabs = document.querySelectorAll(".login-tabs button");
+  tabs.forEach(function (b) {
+    b.addEventListener("click", function () {
+      tabs.forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active"); role = b.dataset.role;
+    });
+  });
+  function go() {
+    MC.auth.login(role);
+    location.href = role === "admin" ? "../admin/index.html" : "index.html";
+  }
+  /* Demo: both the form and the demo button just enter demo mode.
+     Later: form submit -> supabase.auth.signInWithOtp({ email }) */
+  document.getElementById("login-form").addEventListener("submit", function (e) { e.preventDefault(); go(); });
+  document.getElementById("demo-btn").addEventListener("click", go);
+})();
+</script>
+</body>
+</html>

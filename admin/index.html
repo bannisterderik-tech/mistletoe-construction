@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html" aria-current="page">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Good morning, Alex.</h1>
+        <p class="sub" id="today-line">Here's the state of the business.</p>
+      </div>
+      <span class="demo-badge">Demo preview · <a href="#" id="reset-demo" style="color:inherit">reset data</a></span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">New Leads</div><div class="stat-num" id="s-leads">0</div><div class="stat-sub">need first contact</div></div>
+      <div class="stat"><div class="stat-label">Jobs In Progress</div><div class="stat-num" id="s-jobs">0</div><div class="stat-sub" id="s-jobs-val"></div></div>
+      <div class="stat"><div class="stat-label">Pipeline (Quoted)</div><div class="stat-num" id="s-pipe">$0</div><div class="stat-sub">estimates awaiting a yes</div></div>
+      <div class="stat"><div class="stat-label">Owed To You</div><div class="stat-num" id="s-owed">$0</div><div class="stat-sub">sent invoices unpaid</div></div>
+      <div class="stat"><div class="stat-label">Members</div><div class="stat-num" id="s-members">0</div><div class="stat-sub" id="s-mrr"></div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Needs your attention</h2></div>
+      <div class="panel-body" id="attention"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>This week</h2><a class="btn btn-outline btn-sm" href="schedule.html">Full schedule →</a></div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>When</th><th>What</th><th>Who / Where</th><th>Type</th></tr></thead>
+          <tbody id="week"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+  document.getElementById("reset-demo").addEventListener("click", function (e) { e.preventDefault(); MC.resetDemo(); });
+
+  var today = new Date();
+  document.getElementById("today-line").textContent = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + " — here's the state of the business.";
+  var iso = today.toISOString().slice(0, 10);
+
+  var leads = MC.list("leads"), jobs = MC.list("jobs"), inv = MC.list("invoices"),
+      cust = MC.list("customers"), visits = MC.list("visits");
+
+  var newLeads = leads.filter(function (l) { return l.stage === "new"; });
+  document.getElementById("s-leads").textContent = newLeads.length;
+
+  var inprog = jobs.filter(function (j) { return j.status === "in-progress"; });
+  document.getElementById("s-jobs").textContent = inprog.length;
+  document.getElementById("s-jobs-val").textContent = MC.money(inprog.reduce(function (a, j) { return a + j.value; }, 0)) + " in flight";
+
+  var quoted = inv.filter(function (i) { return i.kind === "estimate" && i.status === "sent"; });
+  var pipeLeadVal = leads.filter(function (l) { return l.stage === "quoted"; }).length;
+  document.getElementById("s-pipe").textContent = MC.money(quoted.reduce(function (a, i) { return a + i.amount; }, 0));
+
+  var owed = inv.filter(function (i) { return i.kind === "invoice" && i.status === "sent"; });
+  document.getElementById("s-owed").textContent = MC.money(owed.reduce(function (a, i) { return a + i.amount; }, 0));
+
+  var members = cust.filter(function (c) { return c.member; });
+  document.getElementById("s-members").textContent = members.length;
+  document.getElementById("s-mrr").textContent = MC.money(members.length * 49) + "/mo recurring";
+
+  /* Attention list */
+  var att = [];
+  newLeads.forEach(function (l) { att.push(["red", "New lead: <strong>" + l.name + "</strong> (" + l.city + ", " + l.service + ") — call them today", "leads.html"]); });
+  owed.forEach(function (i) { att.push(["amber", "Unpaid: <strong>" + i.label + "</strong> · " + MC.money(i.amount) + " · " + MC.customerName(i.customerId), "money.html"]); });
+  visits.filter(function (v) { return v.date >= iso && v.summary === ""; }).forEach(function (v) {
+    att.push(["blue", "Member visit due " + MC.fmtDate(v.date) + ": <strong>" + MC.customerName(v.customerId) + "</strong> · " + v.type, "members.html"]);
+  });
+  var ah = document.getElementById("attention");
+  if (!att.length) ah.innerHTML = "<p style='color:var(--ink-soft)'>All clear. Go build something.</p>";
+  att.slice(0, 6).forEach(function (a) {
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex;align-items:center;gap:0.7rem;padding:0.45rem 0";
+    row.innerHTML = "<span class='badge " + a[0] + "'>•</span><span style='flex:1'>" + a[1] + "</span><a class='btn-icon' href='" + a[2] + "'>Open →</a>";
+    ah.appendChild(row);
+  });
+
+  /* Week table: jobs starting + member visits in next 7 days */
+  var week = [];
+  var in7 = new Date(today); in7.setDate(in7.getDate() + 7);
+  var iso7 = in7.toISOString().slice(0, 10);
+  jobs.forEach(function (j) {
+    if (j.start >= iso && j.start <= iso7) week.push({ d: j.start, what: j.title, who: MC.customerName(j.customerId), type: "Job", badge: "pine" });
+  });
+  visits.forEach(function (v) {
+    if (v.date >= iso && v.date <= iso7) week.push({ d: v.date, what: v.type, who: MC.customerName(v.customerId), type: "Member visit", badge: "green" });
+  });
+  week.sort(function (a, b) { return a.d < b.d ? -1 : 1; });
+  var wb = document.getElementById("week");
+  if (!week.length) wb.innerHTML = "<tr><td colspan='4' style='color:var(--ink-soft)'>Nothing scheduled in the next 7 days.</td></tr>";
+  week.forEach(function (w) {
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td class='t-strong'>" + MC.fmtDate(w.d) + "</td><td>" + w.what + "</td><td>" + w.who + "</td><td><span class='badge " + w.badge + "'>" + w.type + "</span></td>";
+    wb.appendChild(tr);
+  });
+})();
+</script>
+</body>
+</html>

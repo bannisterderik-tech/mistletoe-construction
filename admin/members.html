@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Members | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html" aria-current="page">Members</a>
+      <a href="money.html">Money</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Members</h1>
+        <p class="sub">The Home Care roster — recurring revenue and the visits that earn it.</p>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-label">Active Members</div>
+        <div class="stat-num" id="st-members">0</div>
+        <div class="stat-sub">Home Care plans</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Monthly Recurring</div>
+        <div class="stat-num" id="st-mrr">$0</div>
+        <div class="stat-sub">$49 per member</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Visits Due</div>
+        <div class="stat-num" id="st-due">0</div>
+        <div class="stat-sub">Scheduled, not yet logged</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead>
+            <tr><th>Member</th><th>City</th><th>Next Visit</th><th>Last Visit</th><th></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Upcoming member visits</h2></div>
+      <div class="panel-body" id="upcoming"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Log visit modal -->
+<div class="modal-back" id="visit-modal">
+  <div class="modal">
+    <h3 id="lv-title">Log Visit</h3>
+    <div class="form-row">
+      <div><label for="lv-date">Date</label><input id="lv-date" type="date"></div>
+      <div><label for="lv-type">Type</label>
+        <select id="lv-type"><option>Annual inspection</option><option>Seasonal debris check</option><option>Moss treatment</option><option>Gutter cleaning</option><option>Emergency tarping</option></select>
+      </div>
+    </div>
+    <div style="margin-bottom:0.9rem"><label for="lv-summary">Summary</label><textarea id="lv-summary" rows="3" placeholder="What did the crew find and do?"></textarea></div>
+    <div style="margin-bottom:0.4rem; max-width:8rem"><label for="lv-photos">Photos</label><input id="lv-photos" type="number" min="0" step="1" value="0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="lv-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="lv-save" type="button">Log Visit</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var rows = document.getElementById("rows");
+
+  function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+  function render() {
+    var today = todayISO();
+    var members = MC.list("customers").filter(function (c) { return c.member; });
+    var visits = MC.list("visits");
+
+    /* Stats */
+    document.getElementById("st-members").textContent = members.length;
+    document.getElementById("st-mrr").textContent = MC.money(members.length * 49);
+    document.getElementById("st-due").textContent = visits.filter(function (v) {
+      return !v.summary && v.date >= today;
+    }).length;
+
+    /* Roster */
+    rows.innerHTML = "";
+    members.forEach(function (c) {
+      var mine = visits.filter(function (v) { return v.customerId === c.id; });
+      var future = mine.filter(function (v) { return v.date >= today; })
+        .sort(function (a, b) { return a.date.localeCompare(b.date); })[0];
+      var past = mine.filter(function (v) { return v.date < today; })
+        .sort(function (a, b) { return b.date.localeCompare(a.date); })[0];
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span></td>" +
+        "<td>" + c.city + "</td>" +
+        "<td>" + (future
+          ? MC.fmtDate(future.date) + "<span class='t-sub'>" + future.type + "</span>"
+          : "<span class='badge amber'>Not scheduled</span>") + "</td>" +
+        "<td>" + (past
+          ? MC.fmtDate(past.date) + "<span class='t-sub'>" + past.type + "</span>"
+          : "—") + "</td>" +
+        "<td><button class='btn-icon' data-log='" + c.id + "'>Log Visit</button></td>";
+      rows.appendChild(tr);
+    });
+    if (!members.length) {
+      rows.innerHTML = "<tr><td colspan='5' style='color:var(--ink-soft)'>No members yet.</td></tr>";
+    }
+
+    /* Upcoming visits panel */
+    var upcoming = visits.filter(function (v) { return v.date >= today; })
+      .sort(function (a, b) { return a.date.localeCompare(b.date); });
+    document.getElementById("upcoming").innerHTML = upcoming.length
+      ? upcoming.map(function (v) {
+          return "<div class='visit'><div class='visit-date'><strong>" + MC.fmtDate(v.date).split(" ")[1] + "</strong>" +
+            MC.fmtDate(v.date).split(" ")[0] + "</div><div class='visit-body'><h4>" + MC.customerName(v.customerId) +
+            "</h4><p>" + v.type + "</p></div></div>";
+        }).join("")
+      : "<span style='color:var(--ink-soft)'>Nothing on the books.</span>";
+  }
+  render();
+
+  /* Log visit modal */
+  var modal = document.getElementById("visit-modal");
+  var currentId = null;
+
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-log]"); if (!btn) return;
+    var c = MC.get("customers", btn.dataset.log); if (!c) return;
+    currentId = c.id;
+    document.getElementById("lv-title").textContent = "Log Visit — " + c.name;
+    document.getElementById("lv-date").value = todayISO();
+    document.getElementById("lv-summary").value = "";
+    document.getElementById("lv-photos").value = "0";
+    modal.classList.add("open");
+  });
+
+  document.getElementById("lv-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("lv-save").addEventListener("click", function () {
+    if (!currentId) return;
+    MC.add("visits", {
+      customerId: currentId,
+      date: document.getElementById("lv-date").value || todayISO(),
+      type: document.getElementById("lv-type").value,
+      summary: document.getElementById("lv-summary").value.trim(),
+      photos: Number(document.getElementById("lv-photos").value || 0)
+    });
+    modal.classList.remove("open");
+    currentId = null;
+    render();
+  });
+})();
+</script>
+</body>
+</html>

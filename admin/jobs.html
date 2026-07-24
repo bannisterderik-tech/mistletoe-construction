@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jobs | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html" aria-current="page">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Jobs</h1>
+        <p class="sub">Every job from booked to done — advance the status as crews move.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-job">+ New Job</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-label">Scheduled</div>
+        <div class="stat-num" id="st-scheduled">0</div>
+        <div class="stat-sub">On the calendar</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-num" id="st-progress">0</div>
+        <div class="stat-sub" id="st-progress-val">$0 in flight</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Done This Month</div>
+        <div class="stat-num" id="st-done">0</div>
+        <div class="stat-sub">Wrapped and billed</div>
+      </div>
+    </div>
+
+    <div id="filters" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem">
+      <button class="btn btn-primary btn-sm" data-filter="all" type="button">All</button>
+      <button class="btn btn-outline btn-sm" data-filter="scheduled" type="button">Scheduled</button>
+      <button class="btn btn-outline btn-sm" data-filter="in-progress" type="button">In Progress</button>
+      <button class="btn btn-outline btn-sm" data-filter="done" type="button">Done</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead>
+            <tr><th>Job</th><th>Start</th><th>Value</th><th>Status</th><th>Note</th><th></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- New job modal -->
+<div class="modal-back" id="job-modal">
+  <div class="modal">
+    <h3>New Job</h3>
+    <div style="margin-bottom:0.9rem"><label for="nj-title">Title *</label><input id="nj-title" required placeholder="e.g. Full roof replacement — Oak St"></div>
+    <div class="form-row">
+      <div><label for="nj-customer">Customer</label><select id="nj-customer"></select></div>
+      <div><label for="nj-start">Start date</label><input id="nj-start" type="date"></div>
+    </div>
+    <div class="form-row">
+      <div><label for="nj-value">Value ($)</label><input id="nj-value" type="number" min="0" step="1"></div>
+    </div>
+    <div style="margin-bottom:0.4rem"><label for="nj-note">Note</label><textarea id="nj-note" rows="2"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="nj-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="nj-save" type="button">Add Job</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var STATUS_BADGE = { scheduled: "blue", "in-progress": "amber", done: "green" };
+  var STATUS_LABEL = { scheduled: "Scheduled", "in-progress": "In Progress", done: "Done" };
+
+  var rows = document.getElementById("rows");
+  var filter = "all";
+
+  function renderStats() {
+    var jobs = MC.list("jobs");
+    var scheduled = jobs.filter(function (j) { return j.status === "scheduled"; });
+    var progress = jobs.filter(function (j) { return j.status === "in-progress"; });
+    var thisMonth = new Date().toISOString().slice(0, 7);
+    var done = jobs.filter(function (j) { return j.status === "done" && (j.start || "").slice(0, 7) === thisMonth; });
+    document.getElementById("st-scheduled").textContent = scheduled.length;
+    document.getElementById("st-progress").textContent = progress.length;
+    document.getElementById("st-progress-val").textContent =
+      MC.money(progress.reduce(function (sum, j) { return sum + Number(j.value || 0); }, 0)) + " in flight";
+    document.getElementById("st-done").textContent = done.length;
+  }
+
+  function render() {
+    renderStats();
+    var jobs = MC.list("jobs").filter(function (j) { return filter === "all" || j.status === filter; });
+    jobs.sort(function (a, b) { return (a.start || "").localeCompare(b.start || ""); });
+    rows.innerHTML = "";
+    jobs.forEach(function (j) {
+      var action = "";
+      if (j.status === "scheduled") action = "<button class='btn-icon' data-advance='" + j.id + "'>Start</button>";
+      else if (j.status === "in-progress") action = "<button class='btn-icon' data-advance='" + j.id + "'>Complete</button>";
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td class='t-strong'>" + j.title + "<span class='t-sub'>" + MC.customerName(j.customerId) + "</span></td>" +
+        "<td>" + MC.fmtDate(j.start) + "</td>" +
+        "<td>" + MC.money(j.value) + "</td>" +
+        "<td><span class='badge " + (STATUS_BADGE[j.status] || "gray") + "'>" + (STATUS_LABEL[j.status] || j.status) + "</span></td>" +
+        "<td style='max-width:16rem'>" + (j.note || "—") + "</td>" +
+        "<td>" + action + "</td>";
+      rows.appendChild(tr);
+    });
+    if (!jobs.length) {
+      rows.innerHTML = "<tr><td colspan='6' style='color:var(--ink-soft)'>No jobs in this view.</td></tr>";
+    }
+  }
+  render();
+
+  /* Status advance */
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-advance]"); if (!btn) return;
+    var j = MC.get("jobs", btn.dataset.advance); if (!j) return;
+    MC.update("jobs", j.id, { status: j.status === "scheduled" ? "in-progress" : "done" });
+    render();
+  });
+
+  /* Filter pills */
+  var filters = document.getElementById("filters");
+  filters.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-filter]"); if (!btn) return;
+    filter = btn.dataset.filter;
+    filters.querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("btn-primary", b === btn);
+      b.classList.toggle("btn-outline", b !== btn);
+    });
+    render();
+  });
+
+  /* New job modal */
+  var modal = document.getElementById("job-modal");
+  var custSelect = document.getElementById("nj-customer");
+  document.getElementById("add-job").addEventListener("click", function () {
+    custSelect.innerHTML = MC.list("customers").map(function (c) {
+      return "<option value='" + c.id + "'>" + c.name + "</option>";
+    }).join("");
+    document.getElementById("nj-start").value = new Date().toISOString().slice(0, 10);
+    modal.classList.add("open");
+  });
+  document.getElementById("nj-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("nj-save").addEventListener("click", function () {
+    var title = document.getElementById("nj-title").value.trim();
+    if (!title) { document.getElementById("nj-title").focus(); return; }
+    MC.add("jobs", {
+      customerId: custSelect.value,
+      title: title,
+      status: "scheduled",
+      start: document.getElementById("nj-start").value || new Date().toISOString().slice(0, 10),
+      value: Number(document.getElementById("nj-value").value || 0),
+      note: document.getElementById("nj-note").value.trim()
+    });
+    modal.classList.remove("open");
+    ["nj-title", "nj-value", "nj-note"].forEach(function (id) { document.getElementById(id).value = ""; });
+    render();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html" aria-current="page">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Schedule</h1>
+        <p class="sub">Jobs and member visits over the next two weeks.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-event">+ Add to schedule</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Next 14 days</h2></div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl"><tbody id="agenda"></tbody></table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Beyond 14 days</h2></div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl"><tbody id="beyond"></tbody></table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-back" id="event-modal">
+  <div class="modal">
+    <h3>Add to schedule</h3>
+    <div style="margin-bottom:0.9rem"><label for="ae-kind">What are you scheduling?</label>
+      <select id="ae-kind"><option value="visit">Member visit</option><option value="job">Job</option></select>
+    </div>
+
+    <fieldset id="fs-visit" style="border:0;padding:0;margin:0">
+      <div class="form-row">
+        <div><label for="av-customer">Customer *</label><select id="av-customer"></select></div>
+        <div><label for="av-date">Date *</label><input id="av-date" type="date" required></div>
+      </div>
+      <div style="margin-bottom:0.4rem"><label for="av-type">Visit type</label>
+        <select id="av-type"><option>Annual inspection</option><option>Seasonal debris check</option><option>Gutter cleaning</option><option>Moss treatment</option><option>Repair follow-up</option></select>
+      </div>
+    </fieldset>
+
+    <fieldset id="fs-job" style="border:0;padding:0;margin:0;display:none">
+      <div style="margin-bottom:0.9rem"><label for="aj-title">Job title *</label><input id="aj-title" placeholder="e.g. Valley + flashing repair"></div>
+      <div class="form-row">
+        <div><label for="aj-customer">Customer *</label><select id="aj-customer"></select></div>
+        <div><label for="aj-date">Start date *</label><input id="aj-date" type="date" required></div>
+      </div>
+      <div style="margin-bottom:0.4rem"><label for="aj-value">Value ($)</label><input id="aj-value" type="number" min="0" step="1" placeholder="0"></div>
+    </fieldset>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="ae-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="ae-save" type="button">Add</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var agenda = document.getElementById("agenda");
+  var beyond = document.getElementById("beyond");
+
+  function isoOffset(offset) {
+    var x = new Date(); x.setDate(x.getDate() + offset);
+    return x.toISOString().slice(0, 10);
+  }
+  function weekday(iso) {
+    return new Date(iso + "T12:00:00").toLocaleDateString("en-US", { weekday: "long" });
+  }
+
+  function allEvents() {
+    var events = [];
+    MC.list("jobs").forEach(function (j) {
+      if (!j.start) return;
+      events.push({ date: j.start, label: j.title, customer: MC.customerName(j.customerId), kind: "job", extra: MC.money(j.value || 0) });
+    });
+    MC.list("visits").forEach(function (v) {
+      if (!v.date) return;
+      events.push({ date: v.date, label: v.type, customer: MC.customerName(v.customerId), kind: "visit", extra: "" });
+    });
+    events.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    return events;
+  }
+
+  function eventRow(ev) {
+    var badge = ev.kind === "job"
+      ? "<span class='badge pine'>Job</span>"
+      : "<span class='badge green'>Member visit</span>";
+    return "<tr><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
+      "<td>" + badge + "</td><td>" + ev.extra + "</td></tr>";
+  }
+
+  function dayHeadRow(iso, isToday) {
+    return "<tr><td colspan='3' style='background:var(--parchment-deep);font-size:0.78rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--pine-800)'>" +
+      weekday(iso) + " · " + MC.fmtDate(iso) +
+      (isToday ? " <span class='badge amber'>Today</span>" : "") + "</td></tr>";
+  }
+
+  function render() {
+    var events = allEvents();
+    var html = "";
+    for (var i = 0; i < 14; i++) {
+      var iso = isoOffset(i);
+      var dayEvents = events.filter(function (ev) { return ev.date === iso; });
+      if (!dayEvents.length && i !== 0) continue; /* skip empty days, but always show today */
+      html += dayHeadRow(iso, i === 0);
+      if (!dayEvents.length) {
+        html += "<tr><td colspan='3'><span class='t-sub'>Nothing scheduled</span></td></tr>";
+      } else {
+        dayEvents.forEach(function (ev) { html += eventRow(ev); });
+      }
+    }
+    agenda.innerHTML = html;
+
+    var lastDay = isoOffset(13);
+    var later = events.filter(function (ev) { return ev.date > lastDay; });
+    if (!later.length) {
+      beyond.innerHTML = "<tr><td colspan='3'><span class='t-sub'>Nothing scheduled beyond the next two weeks.</span></td></tr>";
+    } else {
+      beyond.innerHTML = later.map(function (ev) {
+        var badge = ev.kind === "job" ? "<span class='badge pine'>Job</span>" : "<span class='badge green'>Member visit</span>";
+        return "<tr><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
+          "<td>" + badge + "</td><td>" + MC.fmtDate(ev.date) + "</td></tr>";
+      }).join("");
+    }
+  }
+  render();
+
+  /* Modal */
+  var modal = document.getElementById("event-modal");
+  var kindSel = document.getElementById("ae-kind");
+  var fsVisit = document.getElementById("fs-visit");
+  var fsJob = document.getElementById("fs-job");
+
+  function fillCustomers(selectId) {
+    var sel = document.getElementById(selectId);
+    sel.innerHTML = MC.list("customers").map(function (c) {
+      return "<option value='" + c.id + "'>" + c.name + "</option>";
+    }).join("");
+  }
+
+  kindSel.addEventListener("change", function () {
+    var isVisit = kindSel.value === "visit";
+    fsVisit.style.display = isVisit ? "" : "none";
+    fsJob.style.display = isVisit ? "none" : "";
+  });
+
+  document.getElementById("add-event").addEventListener("click", function () {
+    fillCustomers("av-customer"); fillCustomers("aj-customer");
+    document.getElementById("av-date").value = isoOffset(0);
+    document.getElementById("aj-date").value = isoOffset(0);
+    modal.classList.add("open");
+  });
+  document.getElementById("ae-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+
+  document.getElementById("ae-save").addEventListener("click", function () {
+    if (kindSel.value === "visit") {
+      var vDate = document.getElementById("av-date").value;
+      if (!vDate) { document.getElementById("av-date").focus(); return; }
+      MC.add("visits", {
+        customerId: document.getElementById("av-customer").value,
+        date: vDate,
+        type: document.getElementById("av-type").value,
+        summary: "",
+        photos: 0
+      });
+    } else {
+      var title = document.getElementById("aj-title").value.trim();
+      if (!title) { document.getElementById("aj-title").focus(); return; }
+      var jDate = document.getElementById("aj-date").value;
+      if (!jDate) { document.getElementById("aj-date").focus(); return; }
+      MC.add("jobs", {
+        customerId: document.getElementById("aj-customer").value,
+        title: title,
+        status: "scheduled",
+        start: jDate,
+        value: Number(document.getElementById("aj-value").value) || 0,
+        note: ""
+      });
+      document.getElementById("aj-title").value = "";
+      document.getElementById("aj-value").value = "";
+    }
+    modal.classList.remove("open");
+    render();
+  });
+})();
+</script>
+</body>
+</html>

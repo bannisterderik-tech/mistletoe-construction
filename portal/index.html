@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Home | Mistletoe Client Portal</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="../index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="Portal">
+      <a href="index.html" aria-current="page">My Home</a>
+      <a href="../membership.html">Membership Details</a>
+      <a href="../guides/">Guides</a>
+      <a href="../contact.html">Contact Us</a>
+      <a href="#" class="nav-sep" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1 id="hello">Welcome back.</h1>
+        <p class="sub">1210 SE Rice Hill Rd, Riddle — Home Care Member</p>
+      </div>
+      <span class="demo-badge">Demo preview</span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Membership</div><div class="stat-num" style="font-size:1.4rem;padding-top:0.4rem">Essential · Active</div><div class="stat-sub">$49/month · member since 2025</div></div>
+      <div class="stat"><div class="stat-label">Next Visit</div><div class="stat-num" id="next-visit">—</div><div class="stat-sub" id="next-visit-type"></div></div>
+      <div class="stat"><div class="stat-label">Member Savings</div><div class="stat-num">10%</div><div class="stat-sub">off all repair work</div></div>
+      <div class="stat"><div class="stat-label">Emergency Tarping</div><div class="stat-num" style="font-size:1.4rem;padding-top:0.4rem">Included</div><div class="stat-sub">up to 100 sq ft per incident</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Need something?</h2>
+      </div>
+      <div class="panel-body" style="display:flex;gap:0.8rem;flex-wrap:wrap">
+        <a class="btn btn-primary btn-sm" href="tel:+15416705005">☎ Emergency — Call Now</a>
+        <button class="btn btn-outline btn-sm" data-req="Repair request">Request a Repair</button>
+        <button class="btn btn-outline btn-sm" data-req="Extra visit">Request an Extra Visit</button>
+        <button class="btn btn-outline btn-sm" data-req="Question">Ask a Question</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Your Visit History &amp; Photo Reports</h2></div>
+      <div class="panel-body" id="visits"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Estimates &amp; Invoices</h2></div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Document</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody id="docs"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-back" id="req-modal">
+  <div class="modal">
+    <h3 id="req-title">Request</h3>
+    <p style="color:var(--ink-soft);font-size:0.92rem">Tell us what's going on — we'll reply within one business day. Members get priority scheduling.</p>
+    <div style="margin-bottom:0.9rem"><label for="req-msg">What do you need?</label><textarea id="req-msg" rows="4" placeholder="Describe the issue or request…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="req-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="req-send" type="button">Send Request</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("client", "login.html"); if (!ses) return;
+  document.getElementById("hello").textContent = "Welcome back, " + ses.name.split(" ")[0] + ".";
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("login.html"); });
+
+  var ME = "c1"; /* demo: logged-in customer. Later: from auth session. */
+
+  /* Next visit */
+  var visits = MC.list("visits").filter(function (v) { return v.customerId === ME; })
+    .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  var today = new Date().toISOString().slice(0, 10);
+  var upcoming = visits.filter(function (v) { return v.date >= today; })[0];
+  if (upcoming) {
+    document.getElementById("next-visit").textContent = MC.fmtDate(upcoming.date);
+    document.getElementById("next-visit-type").textContent = upcoming.type.replace(" (due)", "");
+  } else {
+    document.getElementById("next-visit").textContent = "TBD";
+    document.getElementById("next-visit-type").textContent = "we'll reach out to schedule";
+  }
+
+  /* Visit history */
+  var wrap = document.getElementById("visits");
+  var past = visits.filter(function (v) { return v.date < today; }).reverse();
+  if (!past.length) wrap.innerHTML = "<p style='color:var(--ink-soft)'>No visits yet — your first inspection will appear here with photos.</p>";
+  past.forEach(function (v) {
+    var el = document.createElement("div"); el.className = "visit";
+    el.innerHTML =
+      '<div class="visit-date"><strong>' + MC.fmtDate(v.date).split(" ")[1] + "</strong>" + MC.fmtDate(v.date).split(" ")[0] + "</div>" +
+      '<div class="visit-body"><h4>' + v.type + "</h4><p>" + v.summary + "</p>" +
+      (v.photos ? '<div class="visit-thumbs">' +
+        '<img src="../images/work/img_2309.jpg" alt="Report photo">' +
+        '<img src="../images/work/img_2311.jpg" alt="Report photo">' +
+        '<img src="../images/work/img_2320.jpg" alt="Report photo">' +
+        '<span style="align-self:center;font-size:0.82rem;color:var(--ink-soft)">+' + v.photos + " photos</span></div>" : "") +
+      "</div>";
+    wrap.appendChild(el);
+  });
+
+  /* Docs */
+  var badge = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red" };
+  var tb = document.getElementById("docs");
+  MC.list("invoices").filter(function (i) { return i.customerId === ME; }).forEach(function (i) {
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td class='t-strong'>" + i.label + "</td><td>" + MC.fmtDate(i.date) + "</td><td>" + MC.money(i.amount) +
+      "</td><td><span class='badge " + (badge[i.status] || "gray") + "'>" + i.status + "</span></td>" +
+      "<td>" + (i.kind === "estimate" && i.status === "sent" ? "<button class='btn btn-primary btn-sm' data-approve='" + i.id + "'>Approve</button>" : "") + "</td>";
+    tb.appendChild(tr);
+  });
+  tb.addEventListener("click", function (e) {
+    var id = e.target.getAttribute("data-approve");
+    if (id) { MC.update("invoices", id, { status: "approved" }); location.reload(); }
+  });
+
+  /* Request modal */
+  var modal = document.getElementById("req-modal");
+  document.querySelectorAll("[data-req]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.getElementById("req-title").textContent = b.getAttribute("data-req");
+      modal.classList.add("open");
+    });
+  });
+  document.getElementById("req-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("req-send").addEventListener("click", function () {
+    modal.classList.remove("open");
+    document.getElementById("req-msg").value = "";
+    alert("Request sent! (Demo — later this lands in the CRM automatically.)");
+  });
+})();
+</script>
+</body>
+</html>
