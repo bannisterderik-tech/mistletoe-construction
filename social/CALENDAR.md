@@ -18,11 +18,11 @@ Sleep better when it rains. Call or text (541) 670-5005.
 ## Day 1 · Post 2 — Still (photo)
 **Images:** d01b.png
 
-First post, so here's the work. Architectural shingles on a Douglas County home — straight courses, clean ridge lines, flashing done right. No stock photos on this page: if we post a roof, we nailed it ourselves.
+Architectural shingles on a Douglas County home — straight courses, clean ridge lines, flashing done right. Every photo on this page is a roof we nailed ourselves. No stock photos, ever.
 
-We're a family-owned crew out of Riddle serving all of Douglas County, licensed and insured (Oregon CCB #255729). Have a roof that needs looking at? Free estimates, honest answers.
+We're a family-owned crew out of Riddle serving all of Douglas County, licensed and insured (Oregon CCB #255729) and proud Owens Corning contractors.
 
-Call or text (541) 670-5005.
+Have a roof that needs looking at? Free estimates, honest answers. Call or text (541) 670-5005.
 
 #RoseburgOregon #DouglasCounty #RiddleOregon #OregonRoofing #AsphaltShingles #RoofReplacement #Craftsmanship #UmpquaValley #FamilyOwned
 
