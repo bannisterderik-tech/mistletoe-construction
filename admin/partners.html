@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partners | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="partners.html" aria-current="page">Partners</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Realtor Partners</h1>
+        <p class="sub">Every active broker in Douglas County — the referral engine. Statuses save locally in demo mode.</p>
+      </div>
+      <a class="btn btn-outline btn-sm" href="../data/realtors-douglas-county.csv" download>Download CSV</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Total Agents</div><div class="stat-num" id="s-total">0</div><div class="stat-sub" id="s-cities"></div></div>
+      <div class="stat"><div class="stat-label">With Email</div><div class="stat-num" id="s-email">0</div><div class="stat-sub" id="s-email-sub"></div></div>
+      <div class="stat"><div class="stat-label">With Phone</div><div class="stat-num" id="s-phone">0</div><div class="stat-sub">callable today</div></div>
+      <div class="stat"><div class="stat-label">Marked Partner</div><div class="stat-num" id="s-partner">0</div><div class="stat-sub">actively referring</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head" style="gap:0.8rem">
+        <input id="q" placeholder="Search name, brokerage, city…" style="max-width:22rem">
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+          <button class="btn-icon f-btn" data-f="all">All</button>
+          <button class="btn-icon f-btn" data-f="email">Has Email</button>
+          <button class="btn-icon f-btn" data-f="phone">Has Phone</button>
+          <button class="btn-icon f-btn" data-f="partner">Partners</button>
+        </div>
+      </div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Agent</th><th>Brokerage</th><th>City</th><th>Phone</th><th>Email</th><th>Status</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/app-data.js"></script>
+<script src="../js/partners-data.js"></script>
+<script>
+(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var P = window.MC_PARTNERS || [];
+  var ST_KEY = "mc_partner_status_v1";
+  var statuses = {};
+  try { statuses = JSON.parse(localStorage.getItem(ST_KEY)) || {}; } catch (e) {}
+  function saveSt() { localStorage.setItem(ST_KEY, JSON.stringify(statuses)); }
+
+  var STATUS_OPTS = ["new", "emailed", "called", "met", "partner", "not interested"];
+  var badgeFor = { "new": "gray", "emailed": "blue", "called": "blue", "met": "amber", "partner": "green", "not interested": "red" };
+
+  /* stats */
+  document.getElementById("s-total").textContent = P.length;
+  var cities = {}; P.forEach(function (p) { if (p.city) cities[p.city] = 1; });
+  document.getElementById("s-cities").textContent = Object.keys(cities).length + " towns";
+  var we = P.filter(function (p) { return p.email; });
+  document.getElementById("s-email").textContent = we.length;
+  var inf = we.filter(function (p) { return p.confidence === "inferred"; }).length;
+  document.getElementById("s-email-sub").textContent = (we.length - inf) + " published · " + inf + " inferred";
+  document.getElementById("s-phone").textContent = P.filter(function (p) { return p.phone; }).length;
+  function refreshPartnerStat() {
+    var n = Object.values(statuses).filter(function (s) { return s === "partner"; }).length;
+    document.getElementById("s-partner").textContent = n;
+  }
+  refreshPartnerStat();
+
+  /* table */
+  var filter = "all", query = "";
+  var tb = document.getElementById("rows");
+  function render() {
+    tb.innerHTML = "";
+    var q = query.toLowerCase();
+    P.forEach(function (p, i) {
+      var st = statuses[p.name] || "new";
+      if (filter === "email" && !p.email) return;
+      if (filter === "phone" && !p.phone) return;
+      if (filter === "partner" && st !== "partner") return;
+      if (q && (p.name + " " + p.brokerage + " " + p.city).toLowerCase().indexOf(q) === -1) return;
+      var tr = document.createElement("tr");
+      var emailCell = p.email
+        ? "<a href='mailto:" + p.email + "'>" + p.email + "</a>" + (p.confidence === "inferred" ? " <span class='badge amber'>inferred</span>" : "")
+        : "<span style='color:var(--ink-soft)'>—</span>";
+      var opts = STATUS_OPTS.map(function (o) {
+        return "<option" + (o === st ? " selected" : "") + ">" + o + "</option>";
+      }).join("");
+      tr.innerHTML = "<td class='t-strong'>" + p.name + (p.title ? "<span class='t-sub'>" + p.title + "</span>" : "") + "</td>" +
+        "<td>" + (p.brokerage || "—") + "</td><td>" + (p.city || "—") + "</td>" +
+        "<td>" + (p.phone ? "<a href='tel:" + p.phone.replace(/\D/g, "") + "'>" + p.phone + "</a>" : "—") + "</td>" +
+        "<td>" + emailCell + "</td>" +
+        "<td><span class='badge " + badgeFor[st] + "' style='margin-right:0.4rem'>" + st + "</span>" +
+        "<select data-name='" + p.name.replace(/'/g, "&#39;") + "' style='width:auto;padding:0.3rem 0.5rem;font-size:0.85rem'>" + opts + "</select></td>";
+      tb.appendChild(tr);
+    });
+  }
+  tb.addEventListener("change", function (e) {
+    var n = e.target.getAttribute("data-name");
+    if (!n) return;
+    statuses[n] = e.target.value; saveSt(); refreshPartnerStat(); render();
+  });
+  document.getElementById("q").addEventListener("input", function (e) { query = e.target.value; render(); });
+  document.querySelectorAll(".f-btn").forEach(function (b) {
+    b.addEventListener("click", function () { filter = b.dataset.f; render(); });
+  });
+  render();
+})();
+</script>
+</body>
+</html>

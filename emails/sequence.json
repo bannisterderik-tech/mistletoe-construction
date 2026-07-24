@@ -1,0 +1,37 @@
+{
+  "from": "Alex Smith — Mistletoe Construction <alex@mistletoeconstruction.com>",
+  "reply_to": "Mistletoeconstructionllc@gmail.com",
+  "schedule_days": [0, 4, 9, 15, 21, 28],
+  "steps": [
+    {
+      "id": "e1-intro",
+      "subject": "A roofer your Douglas County deals can actually count on",
+      "body_file": "e1-intro.html"
+    },
+    {
+      "id": "e2-prelisting",
+      "subject": "Price the roof before the buyer's inspector does",
+      "body_file": "e2-prelisting.html"
+    },
+    {
+      "id": "e3-repair-credit",
+      "subject": "Repair credit vs. price cut: the roof math that saves deals",
+      "body_file": "e3-repair-credit.html"
+    },
+    {
+      "id": "e4-moss",
+      "subject": "That green roof is costing your seller money",
+      "body_file": "e4-moss.html"
+    },
+    {
+      "id": "e5-certification",
+      "subject": "\"How old is that roof?\" — what underwriters want to see",
+      "body_file": "e5-certification.html"
+    },
+    {
+      "id": "e6-pocket-roofer",
+      "subject": "Your pocket roofer for pending sales (tarps included)",
+      "body_file": "e6-pocket-roofer.html"
+    }
+  ]
+}
