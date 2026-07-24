@@ -147,19 +147,34 @@ MC.ready.then(function () {
     if (id) { MC.update("invoices", id, { status: "approved" }); location.reload(); }
   });
 
-  /* Request modal */
+  /* Request modal — lands in the CRM leads pipeline */
   var modal = document.getElementById("req-modal");
+  var reqTitle = "Request";
   document.querySelectorAll("[data-req]").forEach(function (b) {
     b.addEventListener("click", function () {
-      document.getElementById("req-title").textContent = b.getAttribute("data-req");
+      reqTitle = b.getAttribute("data-req");
+      document.getElementById("req-title").textContent = reqTitle;
       modal.classList.add("open");
     });
   });
   document.getElementById("req-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
   document.getElementById("req-send").addEventListener("click", function () {
+    var msg = document.getElementById("req-msg").value.trim();
+    var meC = MC.get("customers", ME);
+    var serviceMap = { "Repair request": "Roof Repair", "Extra visit": "Free Roof Inspection", "Question": "Something else" };
+    MC.add("leads", {
+      name: (meC ? meC.name : ses.name) + " (member)",
+      phone: meC ? meC.phone : "",
+      city: meC ? meC.city : "",
+      service: serviceMap[reqTitle] || "Home Care Membership",
+      note: "[Portal · " + reqTitle + "] " + msg,
+      stage: "new"
+    });
     modal.classList.remove("open");
     document.getElementById("req-msg").value = "";
-    alert("Request sent! (Demo — later this lands in the CRM automatically.)");
+    var btn = document.getElementById("req-send");
+    btn.textContent = "Sent ✓";
+    setTimeout(function () { btn.textContent = "Send Request"; }, 2500);
   });
 });
 </script>
