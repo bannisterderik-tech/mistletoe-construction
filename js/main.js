@@ -35,19 +35,48 @@
     }
   }
 
-  // Contact form → mailto fallback (no backend required)
+  // Contact form → CRM leads (Supabase) with mailto fallback
   var form = document.querySelector('form[data-estimate]');
   if (form) {
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var g = function (n) { var f = form.querySelector('[name="' + n + '"]'); return f ? f.value : ''; };
-      var body = 'Name: ' + g('name') + '\nPhone: ' + g('phone') + '\nEmail: ' + g('email') +
-        '\nService: ' + g('service') + '\n\n' + g('message');
-      var subject = 'Free Estimate Request — ' + (g('service') || 'General') + ' — ' + g('name');
-      window.location.href = 'mailto:Mistletoeconstructionllc@gmail.com?subject=' +
-        encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
       var note = form.querySelector('.form-note');
-      if (note) { note.textContent = 'Opening your email app… or just call/text (541) 670-5005.'; }
+
+      function mailtoFallback() {
+        var body = 'Name: ' + g('name') + '\nPhone: ' + g('phone') + '\nEmail: ' + g('email') +
+          '\nService: ' + g('service') + '\n\n' + g('message');
+        var subject = 'Free Estimate Request — ' + (g('service') || 'General') + ' — ' + g('name');
+        window.location.href = 'mailto:Mistletoeconstructionllc@gmail.com?subject=' +
+          encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+        if (note) { note.textContent = 'Opening your email app… or just call/text (541) 670-5005.'; }
+      }
+
+      var cfg = window.MC_CONFIG;
+      if (!cfg) return mailtoFallback();
+
+      var lead = {
+        id: 'l' + Date.now().toString(36),
+        name: g('name'), phone: g('phone'),
+        service: g('service') || 'Something else',
+        note: (g('message') || '') + (g('email') ? '  [email: ' + g('email') + ']' : ''),
+        stage: 'new'
+      };
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      fetch(cfg.url + '/rest/v1/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': cfg.key, 'Authorization': 'Bearer ' + cfg.key },
+        body: JSON.stringify(lead)
+      }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        form.reset();
+        if (btn) { btn.textContent = 'Request Sent ✓'; }
+        if (note) { note.textContent = "Got it! We'll reply within one business day. Urgent? Call or text (541) 670-5005."; }
+      }).catch(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Request My Free Estimate'; }
+        mailtoFallback();
+      });
     });
   }
 })();

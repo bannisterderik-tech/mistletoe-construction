@@ -1,19 +1,29 @@
 /* ============================================================
-   Mistletoe data layer — DEMO MODE (localStorage).
-   Later: swap the internals of these functions for Supabase
-   calls. Page code never changes — only this file.
+   Mistletoe data layer — dual mode.
+   - Supabase mode: when js/config.js defines window.MC_CONFIG.
+     Reads are served from an in-memory cache filled at startup
+     (RLS in Postgres decides what each role can see); writes
+     update the cache instantly and sync to Supabase.
+   - Demo mode: no config -> localStorage, seeded sample data.
+   Pages call the same MC.* API either way and wrap their init
+   in MC.ready.then(...).
    ============================================================ */
 (function () {
   var DB_KEY = "mc_demo_db_v1";
   var SES_KEY = "mc_session_v1";
+  var CFG = window.MC_CONFIG || null;
 
-  /* ---------- Seed data (loaded once) ---------- */
+  /* ---------- shared helpers ---------- */
+  function money(n) { return "$" + Number(n || 0).toLocaleString("en-US"); }
+  function fmtDate(iso) {
+    var dt = new Date(String(iso).slice(0, 10) + "T12:00:00");
+    return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+
+  /* ================= DEMO MODE ================= */
   function seed() {
     var today = new Date();
-    function d(offsetDays) {
-      var x = new Date(today); x.setDate(x.getDate() + offsetDays);
-      return x.toISOString().slice(0, 10);
-    }
+    function d(off) { var x = new Date(today); x.setDate(x.getDate() + off); return x.toISOString().slice(0, 10); }
     return {
       customers: [
         { id: "c1", name: "Dana Whitfield", phone: "(541) 555-0141", email: "dana@example.com", address: "1210 SE Rice Hill Rd", city: "Riddle", member: true, notes: "Gate code 4412. Dog is friendly." },
@@ -48,67 +58,145 @@
         { id: "i3", customerId: "c2", kind: "invoice", label: "INV-2031 · Gutter guards", amount: 1980, status: "paid", date: d(-12) },
         { id: "i4", customerId: "c5", kind: "invoice", label: "INV-2032 · Metal roof progress", amount: 6200, status: "sent", date: d(-1) },
         { id: "i5", customerId: "c1", kind: "estimate", label: "EST-1043 · Zinc strips + treatment", amount: 640, status: "draft", date: d(0) }
-      ]
+      ],
+      partners: []
     };
   }
 
-  /* ---------- Store ---------- */
-  function load() {
-    try { var raw = localStorage.getItem(DB_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
-    var s = seed(); save(s); return s;
-  }
-  function save(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-
-  var db = load();
-
-  var MC = {
-    /* read */
-    list: function (entity) { return (db[entity] || []).slice(); },
-    get: function (entity, id) { return (db[entity] || []).find(function (x) { return x.id === id; }) || null; },
-    customerName: function (id) { var c = MC.get("customers", id); return c ? c.name : "—"; },
-
-    /* write */
-    add: function (entity, obj) {
-      obj.id = obj.id || entity.slice(0, 1) + Date.now().toString(36);
-      db[entity] = db[entity] || []; db[entity].push(obj); save(db); return obj;
-    },
-    update: function (entity, id, patch) {
-      var x = MC.get(entity, id); if (!x) return null;
-      Object.keys(patch).forEach(function (k) { x[k] = patch[k]; }); save(db); return x;
-    },
-    remove: function (entity, id) {
-      db[entity] = (db[entity] || []).filter(function (x) { return x.id !== id; }); save(db);
-    },
-    resetDemo: function () { localStorage.removeItem(DB_KEY); location.reload(); },
-
-    /* helpers */
-    money: function (n) { return "$" + Number(n).toLocaleString("en-US"); },
-    fmtDate: function (iso) {
-      var dt = new Date(iso + "T12:00:00");
-      return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    },
-
-    /* auth (demo). Later: Supabase auth — same signatures. */
-    auth: {
-      session: function () {
-        try { return JSON.parse(localStorage.getItem(SES_KEY)); } catch (e) { return null; }
-      },
-      login: function (role, name) {
-        var s = { role: role, name: name || (role === "admin" ? "Alex Smith" : "Dana Whitfield"), t: Date.now() };
-        localStorage.setItem(SES_KEY, JSON.stringify(s)); return s;
-      },
-      logout: function (redirect) {
-        localStorage.removeItem(SES_KEY);
-        location.href = redirect || "../portal/login.html";
-      },
-      /* Redirect to login if no session / wrong role. Call at top of protected pages. */
-      require: function (role, loginPath) {
-        var s = MC.auth.session();
-        if (!s || (role && s.role !== role)) { location.href = loginPath; return null; }
-        return s;
-      }
+  function demoMode() {
+    function load() {
+      try { var raw = localStorage.getItem(DB_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+      var s = seed(); localStorage.setItem(DB_KEY, JSON.stringify(s)); return s;
     }
-  };
+    var db = load();
+    function save() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-  window.MC = MC;
+    return {
+      mode: "demo",
+      ready: Promise.resolve(),
+      list: function (e) { return (db[e] || []).slice(); },
+      get: function (e, id) { return (db[e] || []).find(function (x) { return String(x.id) === String(id); }) || null; },
+      customerName: function (id) { var c = this.get("customers", id); return c ? c.name : "—"; },
+      add: function (e, obj) { obj.id = obj.id || e.slice(0, 1) + Date.now().toString(36); (db[e] = db[e] || []).push(obj); save(); return obj; },
+      update: function (e, id, patch) {
+        var x = this.get(e, id); if (!x) return null;
+        Object.keys(patch).forEach(function (k) { x[k] = patch[k]; }); save(); return x;
+      },
+      remove: function (e, id) { db[e] = (db[e] || []).filter(function (x) { return String(x.id) !== String(id); }); save(); },
+      resetDemo: function () { localStorage.removeItem(DB_KEY); location.reload(); },
+      money: money, fmtDate: fmtDate,
+      auth: {
+        session: function () { try { return JSON.parse(localStorage.getItem(SES_KEY)); } catch (e) { return null; } },
+        login: function (role, name) {
+          var s = { role: role, name: name || (role === "admin" ? "Alex Smith" : "Dana Whitfield"), customerId: role === "client" ? "c1" : null, t: Date.now() };
+          localStorage.setItem(SES_KEY, JSON.stringify(s)); return s;
+        },
+        logout: function (redirect) { localStorage.removeItem(SES_KEY); location.href = redirect || "../portal/login.html"; },
+        require: function (role, loginPath) {
+          var s = this.session();
+          if (!s || (role && s.role !== role)) { location.href = loginPath; return null; }
+          return s;
+        },
+        sendMagicLink: function () { return Promise.resolve({ demo: true }); }
+      }
+    };
+  }
+
+  /* ================= SUPABASE MODE ================= */
+  function supabaseMode() {
+    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners"];
+    var cache = {}; TABLES.forEach(function (t) { cache[t] = []; });
+    var sb = null;
+    var sessionInfo = null; /* { role, name, email, customerId } */
+
+    function loadLib() {
+      return new Promise(function (res, rej) {
+        if (window.supabase) return res();
+        var s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+
+    function fetchAll() {
+      return Promise.all(TABLES.map(function (t) {
+        return sb.from(t).select("*").then(function (r) {
+          cache[t] = r.data || []; /* RLS decides what we can see; errors -> empty */
+        }).catch(function () { cache[t] = []; });
+      }));
+    }
+
+    var ready = loadLib().then(function () {
+      sb = window.supabase.createClient(CFG.url, CFG.key);
+      return sb.auth.getSession();
+    }).then(function (r) {
+      var sess = r.data && r.data.session;
+      if (!sess) return;
+      return sb.from("profiles").select("*").eq("id", sess.user.id).single().then(function (p) {
+        var prof = p.data || {};
+        sessionInfo = {
+          role: prof.role || "client",
+          email: sess.user.email,
+          name: (sess.user.email || "").split("@")[0],
+          customerId: prof.customerId || null
+        };
+        /* friendlier display name for linked clients */
+        return fetchAll().then(function () {
+          if (sessionInfo.customerId) {
+            var c = cache.customers.find(function (x) { return x.id === sessionInfo.customerId; });
+            if (c) sessionInfo.name = c.name;
+          }
+        });
+      });
+    }).catch(function (e) { console.error("MC init:", e); });
+
+    function syncErr(r) { if (r && r.error) console.error("MC sync:", r.error.message); }
+
+    return {
+      mode: "supabase",
+      ready: ready,
+      client: function () { return sb; },
+      list: function (e) { return (cache[e] || []).slice(); },
+      get: function (e, id) { return (cache[e] || []).find(function (x) { return String(x.id) === String(id); }) || null; },
+      customerName: function (id) { var c = this.get("customers", id); return c ? c.name : "—"; },
+      add: function (e, obj) {
+        if (obj.id === undefined && e !== "partners") obj.id = e.slice(0, 1) + Date.now().toString(36);
+        (cache[e] = cache[e] || []).push(obj);
+        sb.from(e).insert(obj).select().then(function (r) {
+          syncErr(r);
+          if (r.data && r.data[0] && obj.id === undefined) obj.id = r.data[0].id;
+        });
+        return obj;
+      },
+      update: function (e, id, patch) {
+        var x = this.get(e, id); if (!x) return null;
+        Object.keys(patch).forEach(function (k) { x[k] = patch[k]; });
+        sb.from(e).update(patch).eq("id", id).then(syncErr);
+        return x;
+      },
+      remove: function (e, id) {
+        cache[e] = (cache[e] || []).filter(function (x) { return String(x.id) !== String(id); });
+        sb.from(e).delete().eq("id", id).then(syncErr);
+      },
+      resetDemo: function () { alert("Live mode — connected to the real database."); },
+      money: money, fmtDate: fmtDate,
+      auth: {
+        session: function () { return sessionInfo; },
+        login: function () { location.href = "login.html"; },
+        logout: function (redirect) {
+          sb.auth.signOut().then(function () { location.href = redirect || "../portal/login.html"; });
+        },
+        require: function (role, loginPath) {
+          if (!sessionInfo || (role && sessionInfo.role !== role)) { location.href = loginPath; return null; }
+          return sessionInfo;
+        },
+        sendMagicLink: function (email, redirectTo) {
+          return sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: redirectTo } });
+        }
+      }
+    };
+  }
+
+  window.MC = CFG ? supabaseMode() : demoMode();
 })();

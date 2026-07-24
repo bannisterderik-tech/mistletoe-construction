@@ -102,9 +102,10 @@
   </div>
 </div>
 
+<script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script>
-(function () {
+MC.ready.then(function () {
   var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
@@ -211,7 +212,7 @@
     document.getElementById("nc-member").checked = false;
     render();
   });
-})();
+});
 </script>
 </body>
 </html>
