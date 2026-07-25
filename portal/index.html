@@ -135,17 +135,41 @@ MC.ready.then(function () {
   /* Docs */
   var badge = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red" };
   var tb = document.getElementById("docs");
+  var meCust = MC.get("customers", ME);
   MC.list("invoices").filter(function (i) { return i.customerId === ME; }).forEach(function (i) {
     var tr = document.createElement("tr");
+    var action = "";
+    if (i.kind === "estimate" && i.status === "sent") {
+      action = "<button class='btn btn-primary btn-sm' data-approve='" + i.id + "'>Approve</button>";
+    } else if (i.kind === "invoice" && (i.status === "sent" || i.status === "overdue")) {
+      action = "<button class='btn btn-primary btn-sm' data-pay='" + i.id + "'>Pay Now</button>";
+    }
     tr.innerHTML = "<td class='t-strong'>" + i.label + "</td><td>" + MC.fmtDate(i.date) + "</td><td>" + MC.money(i.amount) +
-      "</td><td><span class='badge " + (badge[i.status] || "gray") + "'>" + i.status + "</span></td>" +
-      "<td>" + (i.kind === "estimate" && i.status === "sent" ? "<button class='btn btn-primary btn-sm' data-approve='" + i.id + "'>Approve</button>" : "") + "</td>";
+      "</td><td><span class='badge " + (badge[i.status] || "gray") + "'>" + i.status + "</span></td><td>" + action + "</td>";
     tb.appendChild(tr);
   });
   tb.addEventListener("click", function (e) {
-    var id = e.target.getAttribute("data-approve");
-    if (id) { MC.update("invoices", id, { status: "approved" }); location.reload(); }
+    var approveId = e.target.getAttribute("data-approve");
+    if (approveId) { MC.update("invoices", approveId, { status: "approved" }); location.reload(); return; }
+    var payId = e.target.getAttribute("data-pay");
+    if (payId) {
+      var inv = MC.get("invoices", payId);
+      if (!inv) return;
+      var btn = e.target; btn.textContent = "Opening secure checkout…"; btn.disabled = true;
+      fetch("/api/create-checkout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "invoice", amount: inv.amount, label: inv.label, invoiceId: inv.id, email: meCust ? meCust.email : "" })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.url) { window.location = d.url; return; }
+        btn.textContent = "Pay Now"; btn.disabled = false;
+        alert((d && d.error) || "Payments are warming up — call (541) 670-5005.");
+      }).catch(function () { btn.textContent = "Pay Now"; btn.disabled = false; alert("Couldn't reach checkout. Call (541) 670-5005."); });
+    }
   });
+  if (/[?&]paid=1/.test(location.search)) {
+    var top = document.querySelector(".app-topbar .sub");
+    if (top) top.innerHTML = "<strong style='color:var(--pine-700)'>Payment received — thank you!</strong> Your invoice is marked paid.";
+  }
 
   /* Request modal — lands in the CRM leads pipeline */
   var modal = document.getElementById("req-modal");

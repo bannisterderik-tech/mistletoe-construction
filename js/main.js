@@ -35,6 +35,33 @@
     }
   }
 
+  // Membership "Join" buttons → Stripe Checkout (subscription)
+  document.querySelectorAll('[data-join-membership]').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      var orig = b.textContent;
+      b.textContent = 'Opening secure checkout…';
+      b.style.pointerEvents = 'none';
+      fetch('/api/create-checkout', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'membership' })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.url) { window.location = d.url; return; }
+        b.textContent = orig; b.style.pointerEvents = '';
+        alert((d && d.error) || 'Checkout is warming up — call or text (541) 670-5005 and we\'ll set you up.');
+      }).catch(function () {
+        // Payments not wired yet / offline → fall back to the contact form.
+        window.location = 'contact.html';
+      });
+    });
+  });
+
+  // Post-checkout thank-you on membership page
+  if (/[?&]joined=1/.test(location.search)) {
+    var hero = document.querySelector('.hero .hero-lede') || document.querySelector('.hero-lede');
+    if (hero) hero.innerHTML = '<strong>You\'re in — welcome to the Home Care family!</strong> Your membership is active. We\'ll reach out within one business day to schedule your first inspection. Questions? (541) 670-5005.';
+  }
+
   // Contact form → CRM leads (Supabase) with mailto fallback
   var form = document.querySelector('form[data-estimate]');
   if (form) {

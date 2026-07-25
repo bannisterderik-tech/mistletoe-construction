@@ -1,0 +1,8 @@
+{
+  "name": "mistletoe-construction",
+  "private": true,
+  "description": "Mistletoe Construction site + serverless payment functions",
+  "dependencies": {
+    "stripe": "^17.7.0"
+  }
+}
