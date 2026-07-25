@@ -159,6 +159,8 @@ MC.ready.then(function () {
     customers.forEach(function (c) {
       var jobCount = jobs.filter(function (j) { return j.customerId === c.id; }).length;
       var tr = document.createElement("tr");
+      tr.dataset.id = c.id;
+      tr.style.cursor = "pointer";
       tr.innerHTML =
         "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span>" +
         (c.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(c.assigned_to) + "</span>" : "") + "</td>" +
@@ -175,6 +177,185 @@ MC.ready.then(function () {
   }
   render();
   search.addEventListener("input", render);
+
+  /* ---------- Click-through profile panel (MCUI) ---------- */
+  var payLink = function (rec) {
+    var url = rec.hosted_invoice_url || rec.stripe_invoice_url;
+    return url ? " <a href='" + MCUI.esc(url) + "' target='_blank' rel='noopener'>Pay &#8599;</a>" : "";
+  };
+  var statusLabel = function (s) { s = String(s || ""); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; };
+
+  function openProfile(c) {
+    if (!c) return;
+    var jobs = MC.list("jobs").filter(function (j) { return j.customerId === c.id; });
+    var proposals = MC.list("proposals").filter(function (p) { return p.customerId === c.id; });
+    var invoices = MC.list("invoices").filter(function (i) { return i.customerId === c.id; });
+    var visits = MC.list("visits").filter(function (v) { return v.customerId === c.id; });
+
+    /* Details */
+    var details = MCUI.kv([
+      ["Phone", c.phone ? "<a href='tel:" + MCUI.esc(c.phone) + "'>" + MCUI.esc(c.phone) + "</a>" : "", "raw"],
+      ["Email", c.email ? "<a href='mailto:" + MCUI.esc(c.email) + "'>" + MCUI.esc(c.email) + "</a>" : "", "raw"],
+      ["Address", c.address || ""],
+      ["City", c.city || ""],
+      ["Member", c.member ? "Yes" : "No"],
+      ["Assigned to", MC.memberName(c.assigned_to)],
+      ["Notes", c.notes || ""]
+    ]);
+
+    /* Jobs */
+    var jobsList = MCUI.list(jobs.map(function (j) {
+      return { main: j.title, sub: j.status + (j.start ? " · " + MC.fmtDate(j.start) : ""), right: MC.money(j.value) };
+    }), "No jobs yet.");
+
+    /* Proposals */
+    var propList = MCUI.list(proposals.map(function (p) {
+      var it = { main: p.title, sub: statusLabel(p.status), rightRaw: MC.money(p.amount) };
+      if (p.token) it.mainRaw = "<a href='/proposal.html?t=" + MCUI.esc(p.token) + "' target='_blank' rel='noopener'>" + MCUI.esc(p.title) + "</a>";
+      return it;
+    }), "No proposals yet.");
+
+    /* Invoices & payments — invoices table + proposals invoiced/paid */
+    var payRows = invoices.map(function (i) {
+      return { label: i.label, status: i.status, amount: i.amount, rec: i };
+    }).concat(proposals.filter(function (p) {
+      return p.status === "invoiced" || p.status === "paid";
+    }).map(function (p) {
+      return { label: p.title, status: p.status, amount: p.amount, rec: p };
+    }));
+    var invList = MCUI.list(payRows.map(function (r) {
+      var isPaid = String(r.status) === "paid";
+      var right = MC.money(r.amount) + (isPaid ? " <span class='badge green'>Paid</span>" : "") + payLink(r.rec);
+      return { main: r.label, sub: statusLabel(r.status), rightRaw: right };
+    }), "No invoices yet.");
+
+    /* Visits */
+    var visitList = MCUI.list(visits.map(function (v) {
+      return { main: v.type, sub: v.date ? MC.fmtDate(v.date) : "", right: v.summary || "" };
+    }), "No visits logged.");
+
+    var body =
+      MCUI.section("Details", details) +
+      MCUI.section("Jobs", jobsList, jobs.length) +
+      MCUI.section("Proposals", propList, proposals.length) +
+      MCUI.section("Invoices & payments", invList, payRows.length) +
+      MCUI.section("Visits", visitList, visits.length);
+
+    MCUI.open({
+      eyebrow: "Customer",
+      title: c.name,
+      subtitle: [c.city, c.member ? "Member" : ""].filter(Boolean).join(" · "),
+      bodyHTML: body,
+      actions: [
+        { label: "New proposal →", kind: "primary", onClick: function () {
+            location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
+        } },
+        { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } }
+      ]
+    });
+  }
+
+  /* ---------- Inline invoice form (swaps drawer body) ---------- */
+  function openInvoiceForm(c) {
+    function lineRow() {
+      return "<div class='inv-line' style='display:grid;grid-template-columns:1fr 4rem 5.5rem 1.6rem;gap:.4rem;margin-bottom:.4rem;align-items:center'>" +
+        "<input class='inv-desc' placeholder='Description'>" +
+        "<input class='inv-qty' type='number' min='1' value='1' placeholder='Qty'>" +
+        "<input class='inv-unit' type='number' min='0' step='0.01' placeholder='Unit $'>" +
+        "<button type='button' class='btn-icon inv-del' title='Remove line'>&times;</button>" +
+      "</div>";
+    }
+    var html =
+      "<div class='mcui-sec'>" +
+        "<label for='inv-title' style='font-weight:700;display:block;margin-bottom:.3rem'>Invoice title</label>" +
+        "<input id='inv-title' placeholder='e.g. Roof repair — Cedar St'>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<h4>Line items</h4>" +
+        "<div id='inv-lines'>" + lineRow() + "</div>" +
+        "<button type='button' class='btn btn-outline btn-sm' id='inv-add'>+ Add line</button>" +
+        "<div style='margin-top:.8rem;font-weight:800;text-align:right'>Total: <span id='inv-total'>$0</span></div>" +
+      "</div>" +
+      "<div style='display:flex;gap:.6rem;flex-wrap:wrap'>" +
+        "<button type='button' class='btn btn-primary btn-sm' id='inv-send'>Send invoice</button>" +
+        "<button type='button' class='btn btn-outline btn-sm' id='inv-back'>Back</button>" +
+      "</div>";
+
+    MCUI.setBody(html);
+    var drawer = MCUI.drawer;
+    var linesEl = drawer.querySelector("#inv-lines");
+    var totalEl = drawer.querySelector("#inv-total");
+
+    function collect() {
+      var items = [], total = 0;
+      drawer.querySelectorAll(".inv-line").forEach(function (row) {
+        var desc = row.querySelector(".inv-desc").value.trim();
+        var qty = Math.max(1, parseInt(row.querySelector(".inv-qty").value || "1", 10));
+        var unit = Number(row.querySelector(".inv-unit").value || 0);
+        if (!(unit > 0)) return;
+        items.push({ desc: desc || "Roofing / construction service", qty: qty, unit: unit });
+        total += unit * qty;
+      });
+      return { items: items, total: total };
+    }
+    function refreshTotal() { totalEl.textContent = MC.money(collect().total); }
+
+    linesEl.addEventListener("input", refreshTotal);
+    linesEl.addEventListener("click", function (e) {
+      var del = e.target.closest(".inv-del"); if (!del) return;
+      if (drawer.querySelectorAll(".inv-line").length > 1) del.closest(".inv-line").remove();
+      else { del.closest(".inv-line").querySelectorAll("input").forEach(function (i) { i.value = i.classList.contains("inv-qty") ? "1" : ""; }); }
+      refreshTotal();
+    });
+    drawer.querySelector("#inv-add").addEventListener("click", function () {
+      linesEl.insertAdjacentHTML("beforeend", lineRow()); refreshTotal();
+    });
+    drawer.querySelector("#inv-back").addEventListener("click", function () { openProfile(c); });
+
+    drawer.querySelector("#inv-send").addEventListener("click", function () {
+      var title = drawer.querySelector("#inv-title").value.trim() || "Invoice";
+      var res = collect();
+      if (!res.items.length) { MCUI.toast("Add at least one line with a unit price.", "err"); return; }
+      var btn = drawer.querySelector("#inv-send");
+      btn.disabled = true; btn.textContent = "Sending…";
+
+      if (MC.mode === "supabase") {
+        MC.client().auth.getSession().then(function (r) {
+          var token = r.data.session && r.data.session.access_token;
+          return fetch("/api/create-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+            body: JSON.stringify({ customerId: c.id, title: title, items: res.items })
+          });
+        }).then(function (resp) { return resp.json(); }).then(function (data) {
+          if (data && data.url) {
+            MCUI.toast("Invoice created & emailed ✓");
+            window.open(data.url, "_blank");
+            openProfile(c);
+          } else {
+            btn.disabled = false; btn.textContent = "Send invoice";
+            MCUI.toast((data && data.error) || "Could not create invoice", "err");
+          }
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = "Send invoice";
+          MCUI.toast("Could not create invoice", "err");
+        });
+      } else {
+        MC.add("invoices", {
+          customerId: c.id, kind: "invoice", label: title, amount: res.total,
+          status: "sent", date: new Date().toISOString().slice(0, 10)
+        });
+        MCUI.toast("Invoice added (demo)");
+        openProfile(c);
+      }
+    });
+  }
+
+  rows.addEventListener("click", function (e) {
+    if (e.target.closest("button") || e.target.closest("a")) return;
+    var tr = e.target.closest("tr[data-id]"); if (!tr) return;
+    openProfile(MC.get("customers", tr.dataset.id));
+  });
 
   /* ---------- View modal ---------- */
   var viewModal = document.getElementById("view-modal");
