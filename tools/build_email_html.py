@@ -103,6 +103,12 @@ def main():
 </body></html>""" % "\n".join(sections)
     open(os.path.join(EM, "all-14-preview.html"), "w").write(preview)
 
+    # also emit a JS module so the Vercel serverless sender bundles the content
+    esc_js = preview.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
+    api_dir = os.path.join(ROOT, "api")
+    os.makedirs(api_dir, exist_ok=True)
+    open(os.path.join(api_dir, "_email-preview.js"), "w").write("module.exports = `%s`;\n" % esc_js)
+
     print("wrote bodies:", ", ".join(written))
     print("sequence.json steps:", len(seq["steps"]), "· schedule:", seq["schedule_days"])
     print("combined preview: emails/all-14-preview.html (%d chars)" % len(preview))
