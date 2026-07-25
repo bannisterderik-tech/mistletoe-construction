@@ -132,6 +132,9 @@
     }).then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.url) {
         hide("p-accept-box"); show("p-done"); $("p-paylink").href = d.url;
+        // Auto-redirect straight to secure checkout; the button stays as a fallback.
+        $("p-done").querySelector("h3").textContent = "Accepted — taking you to secure checkout…";
+        setTimeout(function () { window.location.href = d.url; }, 1200);
       } else {
         btn.disabled = false; btn.textContent = "Accept & Get My Invoice";
         $("p-msg").textContent = (d && d.error) || "Something went wrong — call us at (541) 670-5005.";

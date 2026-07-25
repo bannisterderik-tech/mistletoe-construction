@@ -125,6 +125,10 @@ drop policy if exists proposals_sales_all on public.proposals;
 create policy proposals_sales_all on public.proposals for all
   using (public.my_role() = 'sales') with check (public.my_role() = 'sales');
 
+-- ---------- invoices: Stripe linkage for CRM payment tracking ----------
+alter table public.invoices add column if not exists stripe_invoice_id  text;
+alter table public.invoices add column if not exists hosted_invoice_url text;
+
 commit;
 
 -- ---------- verification (returns after commit; paste this output back to me) ----------
