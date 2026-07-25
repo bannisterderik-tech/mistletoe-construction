@@ -290,7 +290,7 @@ MC.ready.then(function () {
     if (isNew) document.getElementById("nc-name").focus();
   });
 
-  document.getElementById("add-proposal").addEventListener("click", function () {
+  function openNewProposal() {
     document.getElementById("np-customer").innerHTML = "<option value=''>— Select customer —</option>" +
       MC.list("customers").map(function (c) { return "<option value='" + c.id + "'>" + c.name + "</option>"; }).join("") +
       "<option value='__new__'>＋ Add a new customer…</option>";
@@ -301,7 +301,9 @@ MC.ready.then(function () {
     linesBox.appendChild(lineRow());
     recalc();
     modal.classList.add("open");
-  });
+  }
+
+  document.getElementById("add-proposal").addEventListener("click", openNewProposal);
 
   document.getElementById("np-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
 
@@ -364,6 +366,17 @@ MC.ready.then(function () {
     render();
     showShare(prop);
   });
+
+  /* ---------- deep link: proposals.html?customer=<id>&new=1 ---------- */
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var customer = params.get("customer");
+    if (!customer) return;
+    openNewProposal();
+    document.getElementById("np-customer").value = customer;
+    /* fire change so the "new customer" fields hide/show correctly */
+    document.getElementById("np-customer").dispatchEvent(new Event("change"));
+  })();
 });
 </script>
 </body>
