@@ -393,20 +393,27 @@ class Flow:
         bf = mulish(42, 500); lh = 60; bfw = PW - 2 * M
         body = EMAILS[self.idx]["body"].strip()
         for block in body.split("\n\n"):
-            sub = [s for s in block.split("\n") if s.strip()]
+            sub = [s.strip() for s in block.split("\n") if s.strip()]
             islist = len(sub) > 1 and not sub[0].startswith("Hi ")
-            for s in sub:
-                s = safe(s.strip())
-                if islist:
-                    lines = wrap(self.d, s, bf, bfw - 46)
+            lead, items = None, None
+            if islist:
+                if sub[0].endswith(":"):
+                    lead, items = sub[0], sub[1:]
+                else:
+                    items = sub
+            else:
+                lead = sub[0]
+            if lead is not None:
+                for ln in wrap(self.d, safe(lead), bf, bfw):
+                    self.line(ln, bf, M, lh)
+            if items is not None:
+                for s in items:
+                    lines = wrap(self.d, safe(s), bf, bfw - 46)
                     for j, ln in enumerate(lines):
                         if j == 0:
                             self._ensure(lh); self.bullet_dot()
                         self.line(ln, bf, M + 46, lh)
                     self.gap(6)
-                else:
-                    for ln in wrap(self.d, s, bf, bfw):
-                        self.line(ln, bf, M, lh)
             self.gap(24)
         self._flush()
         return self.pages

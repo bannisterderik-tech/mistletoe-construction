@@ -42,8 +42,11 @@ def to_inner_html(body):
     for block in body.strip().split("\n\n"):
         subs = [x.strip() for x in block.split("\n") if x.strip()]
         if len(subs) > 1 and not subs[0].startswith("Hi "):
-            items = "".join("<li style='margin:0 0 8px'>%s</li>" % emph_li(x) for x in subs)
-            out.append("<ul style='margin:0 0 16px;padding-left:22px'>%s</ul>" % items)
+            lead, items = "", subs
+            if subs[0].endswith(":"):
+                lead, items = "<p>%s</p>\n" % emph_para(subs[0]), subs[1:]
+            li = "".join("<li style='margin:0 0 8px'>%s</li>" % emph_li(x) for x in items)
+            out.append(lead + "<ul style='margin:0 0 16px;padding-left:22px'>%s</ul>" % li)
         else:
             out.append("<p>%s</p>" % emph_para(subs[0] if subs else ""))
     return "\n".join(out)
