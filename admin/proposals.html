@@ -76,7 +76,20 @@
 <div class="modal-back" id="prop-modal">
   <div class="modal">
     <h3>New Proposal</h3>
-    <div style="margin-bottom:0.9rem"><label for="np-customer">Customer *</label><select id="np-customer"></select></div>
+    <div style="margin-bottom:0.9rem">
+      <label for="np-customer">Customer *</label>
+      <select id="np-customer"></select>
+      <div id="np-newcust" hidden>
+        <div class="np-newgrid">
+          <div><label for="nc-name">Name *</label><input id="nc-name" placeholder="Full name"></div>
+          <div><label for="nc-phone">Phone</label><input id="nc-phone" placeholder="(541) 555-0100"></div>
+          <div><label for="nc-email">Email</label><input id="nc-email" type="email" placeholder="name@email.com"></div>
+          <div><label for="nc-city">City</label><input id="nc-city" placeholder="Roseburg"></div>
+          <div class="np-newfull"><label for="nc-address">Address</label><input id="nc-address" placeholder="Street address"></div>
+        </div>
+        <p class="t-sub" style="margin:0.55rem 0 0">Saved to your CRM — they'll show up under Customers too. Add their email and they'll get the invoice automatically.</p>
+      </div>
+    </div>
     <div style="margin-bottom:0.9rem"><label for="np-title">Title *</label><input id="np-title" placeholder="e.g. Roof replacement — Bradford Ave"></div>
 
     <label>Line items *</label>
@@ -97,6 +110,11 @@
 <style>
   .share-banner { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; background: #e0ecf7; border: 1px solid #b8d3ea; color: #23557e; border-radius: var(--radius-lg); padding: 0.8rem 1.1rem; margin-bottom: 1.4rem; font-weight: 700; }
   .share-banner-url { flex: 1; min-width: 12rem; color: #23557e; text-decoration: underline; word-break: break-all; font-weight: 700; }
+  #np-newcust { margin-top: 0.7rem; padding: 0.9rem; border: 1px solid rgba(28,36,29,0.14); border-radius: var(--radius-lg); background: rgba(28,36,29,0.02); }
+  .np-newgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem 0.8rem; }
+  .np-newgrid input { width: 100%; }
+  .np-newgrid .np-newfull { grid-column: 1 / -1; }
+  @media (max-width: 560px) { .np-newgrid { grid-template-columns: 1fr; } }
   .prop-line { display: grid; grid-template-columns: 1fr 5rem 7rem auto; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
   .prop-line input { width: 100%; }
   .prop-line .np-x { background: none; border: 1.5px solid rgba(28,36,29,0.18); border-radius: 8px; padding: 0.35rem 0.6rem; color: var(--ink-soft); font-weight: 800; cursor: pointer; line-height: 1; }
@@ -247,11 +265,24 @@ MC.ready.then(function () {
     linesBox.appendChild(lineRow()); recalc();
   });
 
+  function clearNewCust() {
+    ["nc-name", "nc-phone", "nc-email", "nc-city", "nc-address"].forEach(function (id) { document.getElementById(id).value = ""; });
+    document.getElementById("np-newcust").hidden = true;
+  }
+
+  document.getElementById("np-customer").addEventListener("change", function () {
+    var isNew = this.value === "__new__";
+    document.getElementById("np-newcust").hidden = !isNew;
+    if (isNew) document.getElementById("nc-name").focus();
+  });
+
   document.getElementById("add-proposal").addEventListener("click", function () {
     document.getElementById("np-customer").innerHTML = "<option value=''>— Select customer —</option>" +
-      MC.list("customers").map(function (c) { return "<option value='" + c.id + "'>" + c.name + "</option>"; }).join("");
+      MC.list("customers").map(function (c) { return "<option value='" + c.id + "'>" + c.name + "</option>"; }).join("") +
+      "<option value='__new__'>＋ Add a new customer…</option>";
     document.getElementById("np-title").value = "";
     document.getElementById("np-note").value = "";
+    clearNewCust();
     linesBox.innerHTML = "";
     linesBox.appendChild(lineRow());
     recalc();
@@ -261,10 +292,16 @@ MC.ready.then(function () {
   document.getElementById("np-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
 
   document.getElementById("np-save").addEventListener("click", function () {
-    var customerId = document.getElementById("np-customer").value;
+    var sel = document.getElementById("np-customer").value;
     var title = document.getElementById("np-title").value.trim();
-    if (!customerId) { document.getElementById("np-customer").focus(); return; }
+    if (!sel) { document.getElementById("np-customer").focus(); return; }
     if (!title) { document.getElementById("np-title").focus(); return; }
+
+    var newName = "";
+    if (sel === "__new__") {
+      newName = document.getElementById("nc-name").value.trim();
+      if (!newName) { alert("Enter the new customer's name (or pick an existing customer)."); document.getElementById("nc-name").focus(); return; }
+    }
 
     var items = [];
     linesBox.querySelectorAll(".prop-line").forEach(function (row) {
@@ -279,6 +316,22 @@ MC.ready.then(function () {
     if (!items.length) { alert("Add at least one line item with a unit price above $0."); return; }
 
     var total = items.reduce(function (s, it) { return s + it.qty * it.unit; }, 0);
+
+    /* create the customer first if this is a brand-new one */
+    var customerId = sel;
+    if (sel === "__new__") {
+      var c = MC.add("customers", {
+        id: "c" + Date.now().toString(36),
+        name: newName,
+        phone: document.getElementById("nc-phone").value.trim(),
+        email: document.getElementById("nc-email").value.trim(),
+        city: document.getElementById("nc-city").value.trim(),
+        address: document.getElementById("nc-address").value.trim(),
+        member: false,
+        notes: "Added from a proposal."
+      });
+      customerId = c.id;
+    }
 
     var created = new Date();
     var prop = MC.add("proposals", {
