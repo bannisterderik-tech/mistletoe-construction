@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposals | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="partners.html">Partners</a>
+      <a href="proposals.html" aria-current="page">Proposals</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Proposals</h1>
+        <p class="sub">Build a quote → send it → the customer accepts online → it becomes a Stripe invoice that emails reminders until paid.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-proposal">+ New Proposal</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Drafts</div><div class="stat-num" id="st-drafts">0</div><div class="stat-sub">Not sent yet</div></div>
+      <div class="stat"><div class="stat-label">Sent</div><div class="stat-num" id="st-sent">0</div><div class="stat-sub">Awaiting the customer</div></div>
+      <div class="stat"><div class="stat-label">Invoiced</div><div class="stat-num" id="st-invoiced">0</div><div class="stat-sub">Accepted / Stripe invoice</div></div>
+      <div class="stat"><div class="stat-label">Paid</div><div class="stat-num" id="st-paid">0</div><div class="stat-sub" id="st-paid-sub">$0 collected</div></div>
+    </div>
+
+    <div id="share-banner" class="share-banner" hidden>
+      <span class="share-banner-label">Share this proposal:</span>
+      <a class="share-banner-url" id="share-url" href="#" target="_blank" rel="noopener"></a>
+      <button class="btn-icon" id="share-copy" type="button">Copy</button>
+      <button class="btn-icon" id="share-dismiss" type="button" aria-label="Dismiss">×</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Proposals</h2>
+      </div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Title</th><th>Amount</th><th>Status</th><th>Created</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-back" id="prop-modal">
+  <div class="modal">
+    <h3>New Proposal</h3>
+    <div style="margin-bottom:0.9rem"><label for="np-customer">Customer *</label><select id="np-customer"></select></div>
+    <div style="margin-bottom:0.9rem"><label for="np-title">Title *</label><input id="np-title" placeholder="e.g. Roof replacement — Bradford Ave"></div>
+
+    <label>Line items *</label>
+    <div id="np-lines" style="margin:0.35rem 0 0.5rem"></div>
+    <button class="btn btn-outline btn-sm" id="np-add-line" type="button">+ Add line</button>
+
+    <div class="prop-total"><span>Total</span><span id="np-total">$0</span></div>
+
+    <div style="margin:0.9rem 0 0.4rem"><label for="np-note">Note</label><textarea id="np-note" rows="3" placeholder="Optional — appears on the customer's proposal page."></textarea></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="np-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="np-save" type="button">Create Proposal</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .share-banner { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; background: #e0ecf7; border: 1px solid #b8d3ea; color: #23557e; border-radius: var(--radius-lg); padding: 0.8rem 1.1rem; margin-bottom: 1.4rem; font-weight: 700; }
+  .share-banner-url { flex: 1; min-width: 12rem; color: #23557e; text-decoration: underline; word-break: break-all; font-weight: 700; }
+  .prop-line { display: grid; grid-template-columns: 1fr 5rem 7rem auto; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+  .prop-line input { width: 100%; }
+  .prop-line .np-x { background: none; border: 1.5px solid rgba(28,36,29,0.18); border-radius: 8px; padding: 0.35rem 0.6rem; color: var(--ink-soft); font-weight: 800; cursor: pointer; line-height: 1; }
+  .prop-line .np-x:hover { border-color: #a5311d; color: #a5311d; }
+  .prop-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.4rem; padding-top: 0.6rem; border-top: 1px solid rgba(28,36,29,0.12); font-weight: 800; color: var(--pine-900); }
+  .prop-total span:last-child { font-family: var(--font-display); font-size: 1.4rem; }
+  @media (max-width: 560px) { .prop-line { grid-template-columns: 1fr 4rem auto; } .prop-line .np-desc { grid-column: 1 / -1; } }
+</style>
+
+<script src="../js/config.js"></script>
+<script src="../js/app-data.js"></script>
+<script>
+MC.ready.then(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var rows = document.getElementById("rows");
+  var STATUS_BADGE = { draft: "gray", sent: "blue", accepted: "amber", invoiced: "blue", paid: "green", declined: "red" };
+
+  function genToken(){var a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
+  function shareUrl(p) { return location.origin + "/proposal.html?t=" + p.token; }
+
+  /* ---------- share banner ---------- */
+  var banner = document.getElementById("share-banner");
+  var shareLink = document.getElementById("share-url");
+  var shareCopyBtn = document.getElementById("share-copy");
+  function showShare(p) {
+    var url = shareUrl(p);
+    shareLink.textContent = url; shareLink.href = url;
+    shareCopyBtn.textContent = "Copy";
+    banner.hidden = false;
+    banner.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  shareCopyBtn.addEventListener("click", function () {
+    navigator.clipboard.writeText(shareLink.textContent).then(function () {
+      shareCopyBtn.textContent = "Copied ✓";
+      setTimeout(function () { shareCopyBtn.textContent = "Copy"; }, 1600);
+    });
+  });
+  document.getElementById("share-dismiss").addEventListener("click", function () { banner.hidden = true; });
+
+  /* ---------- stats ---------- */
+  function renderStats() {
+    var props = MC.list("proposals");
+    var drafts = 0, sent = 0, invoiced = 0, paid = 0, paidTotal = 0;
+    props.forEach(function (p) {
+      if (p.status === "draft") drafts++;
+      else if (p.status === "sent") sent++;
+      else if (p.status === "invoiced" || p.status === "accepted") invoiced++;
+      else if (p.status === "paid") { paid++; paidTotal += Number(p.amount || 0); }
+    });
+    document.getElementById("st-drafts").textContent = drafts;
+    document.getElementById("st-sent").textContent = sent;
+    document.getElementById("st-invoiced").textContent = invoiced;
+    document.getElementById("st-paid").textContent = paid;
+    document.getElementById("st-paid-sub").textContent = MC.money(paidTotal) + " collected";
+  }
+
+  /* ---------- table ---------- */
+  function renderTable() {
+    var props = MC.list("proposals").sort(function (a, b) {
+      return String(a.id) < String(b.id) ? 1 : String(a.id) > String(b.id) ? -1 : 0;
+    });
+    if (!props.length) {
+      rows.innerHTML = "<tr><td colspan='5'><span class='t-sub'>No proposals yet. Build one with “+ New Proposal”.</span></td></tr>";
+      return;
+    }
+    rows.innerHTML = props.map(function (p) {
+      var statusBadge = "<span class='badge " + (STATUS_BADGE[p.status] || "gray") + "'>" + p.status + "</span>";
+      var url = shareUrl(p);
+      var actions = "";
+      if (p.status === "draft") {
+        actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='send'>Send</button>";
+      } else {
+        actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='copy'>Copy Link</button>";
+      }
+      actions += "<a class='btn-icon' href='" + url + "' target='_blank' rel='noopener'>Open</a>";
+      if (p.stripe_invoice_url) {
+        actions += "<a class='btn-icon' href='" + p.stripe_invoice_url + "' target='_blank' rel='noopener'>Invoice →</a>";
+      }
+      var created = p.created ? MC.fmtDate(p.created) : "—";
+      return "<tr>" +
+        "<td><span class='t-strong'>" + p.title + "</span><span class='t-sub'>" + MC.customerName(p.customerId) + "</span></td>" +
+        "<td>" + MC.money(p.amount) + "</td>" +
+        "<td>" + statusBadge + "</td>" +
+        "<td>" + created + "</td>" +
+        "<td><div style='display:flex;gap:0.4rem;flex-wrap:wrap'>" + actions + "</div></td>" +
+        "</tr>";
+    }).join("");
+  }
+
+  function render() { renderStats(); renderTable(); }
+  render();
+
+  /* ---------- row actions ---------- */
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]"); if (!btn) return;
+    var id = btn.dataset.id, act = btn.dataset.act;
+    var p = MC.get("proposals", id); if (!p) return;
+    if (act === "send") {
+      MC.update("proposals", id, { status: "sent" });
+      render();
+      showShare(p);
+    } else if (act === "copy") {
+      navigator.clipboard.writeText(shareUrl(p)).then(function () {
+        var orig = btn.textContent;
+        btn.textContent = "Copied ✓";
+        setTimeout(function () { btn.textContent = orig; }, 1600);
+      });
+    }
+  });
+
+  /* ---------- new proposal modal ---------- */
+  var modal = document.getElementById("prop-modal");
+  var linesBox = document.getElementById("np-lines");
+
+  function lineRow() {
+    var div = document.createElement("div");
+    div.className = "prop-line";
+    div.innerHTML =
+      "<input class='np-desc' placeholder='Description'>" +
+      "<input class='np-qty' type='number' min='1' step='1' value='1'>" +
+      "<input class='np-unit' type='number' min='0' step='0.01' placeholder='$'>" +
+      "<button class='np-x' type='button' aria-label='Remove line'>×</button>";
+    return div;
+  }
+
+  function recalc() {
+    var total = 0;
+    linesBox.querySelectorAll(".prop-line").forEach(function (row) {
+      var qty = parseFloat(row.querySelector(".np-qty").value) || 0;
+      var unit = parseFloat(row.querySelector(".np-unit").value) || 0;
+      total += qty * unit;
+    });
+    document.getElementById("np-total").textContent = MC.money(total);
+    return total;
+  }
+
+  linesBox.addEventListener("input", recalc);
+  linesBox.addEventListener("click", function (e) {
+    var x = e.target.closest(".np-x"); if (!x) return;
+    if (linesBox.querySelectorAll(".prop-line").length > 1) x.closest(".prop-line").remove();
+    else { x.closest(".prop-line").querySelectorAll("input").forEach(function (i, idx) { i.value = idx === 1 ? "1" : ""; }); }
+    recalc();
+  });
+
+  document.getElementById("np-add-line").addEventListener("click", function () {
+    linesBox.appendChild(lineRow()); recalc();
+  });
+
+  document.getElementById("add-proposal").addEventListener("click", function () {
+    document.getElementById("np-customer").innerHTML = "<option value=''>— Select customer —</option>" +
+      MC.list("customers").map(function (c) { return "<option value='" + c.id + "'>" + c.name + "</option>"; }).join("");
+    document.getElementById("np-title").value = "";
+    document.getElementById("np-note").value = "";
+    linesBox.innerHTML = "";
+    linesBox.appendChild(lineRow());
+    recalc();
+    modal.classList.add("open");
+  });
+
+  document.getElementById("np-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+
+  document.getElementById("np-save").addEventListener("click", function () {
+    var customerId = document.getElementById("np-customer").value;
+    var title = document.getElementById("np-title").value.trim();
+    if (!customerId) { document.getElementById("np-customer").focus(); return; }
+    if (!title) { document.getElementById("np-title").focus(); return; }
+
+    var items = [];
+    linesBox.querySelectorAll(".prop-line").forEach(function (row) {
+      var desc = row.querySelector(".np-desc").value.trim();
+      var qty = parseInt(row.querySelector(".np-qty").value, 10);
+      var unit = parseFloat(row.querySelector(".np-unit").value);
+      if (isNaN(qty) || qty < 1) qty = 1;
+      if (!desc && (isNaN(unit) || unit <= 0)) return; /* skip empty rows */
+      if (isNaN(unit) || unit <= 0) return;
+      items.push({ desc: desc, qty: qty, unit: unit });
+    });
+    if (!items.length) { alert("Add at least one line item with a unit price above $0."); return; }
+
+    var total = items.reduce(function (s, it) { return s + it.qty * it.unit; }, 0);
+
+    var created = new Date();
+    var prop = MC.add("proposals", {
+      id: "p" + Date.now().toString(36),
+      customerId: customerId,
+      title: title,
+      items: items,
+      amount: total,
+      status: "draft",
+      token: genToken(),
+      note: document.getElementById("np-note").value.trim(),
+      created: created.toISOString().slice(0, 10)
+    });
+
+    modal.classList.remove("open");
+    render();
+    showShare(prop);
+  });
+});
+</script>
+</body>
+</html>

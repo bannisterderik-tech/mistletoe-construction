@@ -104,7 +104,7 @@
 
   /* ================= SUPABASE MODE ================= */
   function supabaseMode() {
-    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners"];
+    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners", "proposals"];
     var cache = {}; TABLES.forEach(function (t) { cache[t] = []; });
     var sb = null;
     var sessionInfo = null; /* { role, name, email, customerId } */

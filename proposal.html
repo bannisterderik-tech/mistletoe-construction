@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Proposal | Mistletoe Construction</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css?v=3">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Mistletoe Construction — home">
+      <img src="/images/logo-lockup-white.png" alt="Mistletoe Construction LLC" width="1342" height="251">
+    </a>
+    <nav class="nav-main" aria-label="Main">
+      <a class="nav-phone" href="tel:+15416705005">(541) 670-5005</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero">
+    <div class="wrap on-dark">
+      <p class="kicker on-dark">Your Proposal</p>
+      <h1 id="p-title">Loading your proposal…</h1>
+      <p class="hero-lede" id="p-for"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" style="max-width:52rem">
+      <div id="p-loading" style="color:var(--ink-soft)">One moment…</div>
+
+      <div id="p-body" style="display:none">
+        <div class="prose">
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Scope of work</th><th style="text-align:right">Qty</th><th style="text-align:right">Price</th></tr></thead>
+              <tbody id="p-items"></tbody>
+              <tfoot><tr><th colspan="2" style="text-align:right;font-size:1.1rem">Total</th><th id="p-total" style="text-align:right;font-size:1.1rem"></th></tr></tfoot>
+            </table>
+          </div>
+          <div id="p-note" class="callout" style="display:none"></div>
+        </div>
+
+        <div id="p-accept-box" style="margin-top:2rem;padding:1.6rem;background:var(--cream);border:1px solid rgba(28,36,29,0.1);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft)">
+          <h3 style="margin-top:0">Ready to move forward?</h3>
+          <p style="color:var(--ink-soft)">Accept this proposal and we'll email you a secure invoice you can pay online. No pressure — questions first? Call or text <a href="tel:+15416705005">(541) 670-5005</a>.</p>
+          <div id="p-email-row" style="display:none;margin-bottom:1rem">
+            <label for="p-email">Email for your invoice *</label>
+            <input id="p-email" type="email" placeholder="you@example.com" style="max-width:24rem">
+          </div>
+          <button class="btn btn-primary" id="p-accept">Accept &amp; Get My Invoice</button>
+          <p class="form-note" id="p-msg" style="font-size:0.9rem;color:var(--ink-soft);margin-top:0.9rem"></p>
+        </div>
+
+        <div id="p-done" style="display:none;margin-top:2rem;padding:1.6rem;background:#e3f2db;border:1px solid rgba(63,145,40,0.3);border-radius:var(--radius-lg)">
+          <h3 style="margin-top:0;color:var(--pine-800)">Accepted — thank you! 🎉</h3>
+          <p>We've emailed your invoice. You can pay it securely online anytime:</p>
+          <p><a class="btn btn-primary" id="p-paylink" href="#" target="_blank" rel="noopener">Pay My Invoice →</a></p>
+          <p style="font-size:0.9rem;color:var(--ink-soft)">We'll be in touch to schedule. Reminders will come from Stripe until it's paid — or just pay now above.</p>
+        </div>
+      </div>
+
+      <div id="p-error" style="display:none;color:var(--ink-soft)">
+        <h3>We couldn't find this proposal.</h3>
+        <p>The link may be old or mistyped. Call or text us at <a href="tel:+15416705005">(541) 670-5005</a> and we'll sort it out.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-legal" style="border:0;padding-top:1.5rem">
+      <span>© 2026 Mistletoe Construction LLC</span>
+      <span>Oregon CCB #255729 · Licensed &amp; Insured</span>
+      <span>595 E Third St, Riddle, OR 97469</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var money = function (n) { return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var token = (new URLSearchParams(location.search).get("t") || "").replace(/[^a-f0-9]/gi, "");
+  var $ = function (id) { return document.getElementById(id); };
+  function show(id) { $(id).style.display = "block"; }
+  function hide(id) { $(id).style.display = "none"; }
+
+  if (!token) { hide("p-loading"); show("p-error"); $("p-title").textContent = "Proposal"; return; }
+
+  fetch("/api/get-proposal?t=" + token).then(function (r) { return r.json(); }).then(function (p) {
+    if (!p || p.error) { hide("p-loading"); show("p-error"); $("p-title").textContent = "Proposal"; return; }
+    $("p-title").textContent = p.title || "Your Proposal";
+    if (p.customer && p.customer.name) $("p-for").textContent = "Prepared for " + p.customer.name + (p.customer.city ? " · " + p.customer.city : "");
+    var tb = $("p-items"); var total = 0;
+    (p.items || []).forEach(function (it) {
+      var qty = Math.max(1, parseInt(it.qty || 1, 10));
+      var line = Number(it.unit || 0) * qty; total += line;
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + (it.desc || "") + "</td><td style='text-align:right'>" + qty + "</td><td style='text-align:right'>" + money(line) + "</td>";
+      tb.appendChild(tr);
+    });
+    $("p-total").textContent = money(p.amount || total);
+    if (p.note) { var n = $("p-note"); n.innerHTML = p.note.replace(/</g, "&lt;"); n.style.display = "block"; }
+    hide("p-loading"); show("p-body");
+
+    if (p.status === "invoiced" || p.status === "paid") {
+      hide("p-accept-box"); show("p-done");
+      if (p.stripe_invoice_url) $("p-paylink").href = p.stripe_invoice_url;
+      if (p.status === "paid") { $("p-done").querySelector("h3").textContent = "Paid in full — thank you! ✅"; $("p-paylink").style.display = "none"; }
+      return;
+    }
+    if (!(p.customer && p.customer.email)) { $("p-email-row").style.display = "block"; }
+  }).catch(function () { hide("p-loading"); show("p-error"); });
+
+  $("p-accept").addEventListener("click", function () {
+    var email = ($("p-email") ? $("p-email").value.trim() : "");
+    var emailRow = $("p-email-row").style.display !== "none";
+    if (emailRow && !/.+@.+\..+/.test(email)) { $("p-msg").textContent = "Please enter a valid email so we can send your invoice."; return; }
+    var btn = $("p-accept"); btn.disabled = true; btn.textContent = "Creating your invoice…";
+    fetch("/api/accept-proposal", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token, email: email })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.url) {
+        hide("p-accept-box"); show("p-done"); $("p-paylink").href = d.url;
+      } else {
+        btn.disabled = false; btn.textContent = "Accept & Get My Invoice";
+        $("p-msg").textContent = (d && d.error) || "Something went wrong — call us at (541) 670-5005.";
+      }
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "Accept & Get My Invoice";
+      $("p-msg").textContent = "Couldn't reach the server. Call or text (541) 670-5005.";
+    });
+  });
+})();
+</script>
+</body>
+</html>

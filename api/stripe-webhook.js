@@ -53,7 +53,12 @@ module.exports = async (req, res) => {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
+    if (event.type === "invoice.paid") {
+      // A Stripe-invoiced proposal got paid → flip the proposal to paid.
+      const inv = event.data.object;
+      const proposalId = inv.metadata && inv.metadata.proposalId;
+      if (proposalId) await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), { status: "paid" });
+    } else if (event.type === "checkout.session.completed") {
       const s = event.data.object;
       const md = s.metadata || {};
       if (md.kind === "invoice" && md.invoiceId) {
