@@ -79,22 +79,15 @@
         if (note) { note.textContent = 'Opening your email app… or just call/text (541) 670-5005.'; }
       }
 
-      var cfg = window.MC_CONFIG;
-      if (!cfg) return mailtoFallback();
-
-      var lead = {
-        id: 'l' + Date.now().toString(36),
-        name: g('name'), phone: g('phone'),
-        service: g('service') || 'Something else',
-        note: (g('message') || '') + (g('email') ? '  [email: ' + g('email') + ']' : ''),
-        stage: 'new'
-      };
       var btn = form.querySelector('button[type="submit"]');
       if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
-      fetch(cfg.url + '/rest/v1/leads', {
+      fetch('/api/submit-lead', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': cfg.key, 'Authorization': 'Bearer ' + cfg.key },
-        body: JSON.stringify(lead)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: g('name'), phone: g('phone'), email: g('email'),
+          service: g('service') || 'Something else', message: g('message')
+        })
       }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         form.reset();
