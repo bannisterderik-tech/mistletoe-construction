@@ -31,6 +31,7 @@
       <a href="money.html">Money</a>
       <a href="partners.html">Partners</a>
       <a href="proposals.html">Proposals</a>
+      <a href="team.html">Team</a>
       <a href="../index.html" class="nav-sep">← View site</a>
       <a href="#" id="logout">Log out</a>
     </nav>
@@ -71,6 +72,10 @@
       <label for="vc-notes">Notes</label>
       <textarea id="vc-notes" rows="3"></textarea>
     </div>
+    <div style="margin-bottom:1rem">
+      <label for="vc-assign">Assigned to</label>
+      <select id="vc-assign" class="assign-select"></select>
+    </div>
     <h4 style="margin:0 0 0.4rem">Jobs</h4>
     <div id="vc-jobs" style="margin-bottom:1rem; font-size:0.92rem"></div>
     <h4 style="margin:0 0 0.4rem">Estimates &amp; Invoices</h4>
@@ -100,6 +105,7 @@
     </div>
     <div style="margin-bottom:0.9rem"><label for="nc-address">Address</label><input id="nc-address"></div>
     <div style="margin-bottom:0.9rem"><label for="nc-notes">Notes</label><textarea id="nc-notes" rows="2"></textarea></div>
+    <div style="margin-bottom:0.9rem"><label for="nc-assign">Assigned to</label><select id="nc-assign" class="assign-select"></select></div>
     <div style="margin-bottom:0.4rem"><label style="display:flex; align-items:center; gap:0.5rem; font-weight:700"><input type="checkbox" id="nc-member" style="width:auto"> Home Care member</label></div>
     <div class="modal-actions">
       <button class="btn btn-outline btn-sm" id="nc-cancel" type="button">Cancel</button>
@@ -110,9 +116,22 @@
 
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
 <script>
 MC.ready.then(function () {
-  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  var ses = MC.auth.require(["admin","sales"], "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
   var STATUS_BADGE = { paid: "green", approved: "green", sent: "blue", draft: "gray" };
@@ -122,6 +141,12 @@ MC.ready.then(function () {
 
   var rows = document.getElementById("rows");
   var search = document.getElementById("search");
+
+  function teamOptions(sel) {
+    return "<option value=''>Unassigned</option>" + MC.teamMembers().map(function (m) {
+      return "<option value='" + m.id + "'" + (String(m.id) === String(sel) ? " selected" : "") + ">" + m.name + " · " + m.role + "</option>";
+    }).join("");
+  }
 
   function render() {
     var q = search.value.trim().toLowerCase();
@@ -135,7 +160,8 @@ MC.ready.then(function () {
       var jobCount = jobs.filter(function (j) { return j.customerId === c.id; }).length;
       var tr = document.createElement("tr");
       tr.innerHTML =
-        "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span></td>" +
+        "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span>" +
+        (c.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(c.assigned_to) + "</span>" : "") + "</td>" +
         "<td>" + c.city + "</td>" +
         "<td>" + (c.phone || "—") + "</td>" +
         "<td>" + (c.member ? "<span class='badge green'>Member</span>" : "<span class='badge gray'>—</span>") + "</td>" +
@@ -164,6 +190,7 @@ MC.ready.then(function () {
       (c.address ? c.address + ", " : "") + c.city +
       (c.member ? " &nbsp;<span class='badge green'>Member</span>" : "");
     document.getElementById("vc-notes").value = c.notes || "";
+    document.getElementById("vc-assign").innerHTML = teamOptions(c.assigned_to || "");
 
     var jobs = MC.list("jobs").filter(function (j) { return j.customerId === c.id; });
     document.getElementById("vc-jobs").innerHTML = jobs.length
@@ -193,13 +220,16 @@ MC.ready.then(function () {
 
   document.getElementById("vc-close").addEventListener("click", function () { viewModal.classList.remove("open"); });
   document.getElementById("vc-save").addEventListener("click", function () {
-    if (currentId) MC.update("customers", currentId, { notes: document.getElementById("vc-notes").value.trim() });
+    if (currentId) MC.update("customers", currentId, { notes: document.getElementById("vc-notes").value.trim(), assigned_to: document.getElementById("vc-assign").value || "" });
     viewModal.classList.remove("open");
   });
 
   /* ---------- New customer modal ---------- */
   var addModal = document.getElementById("add-modal");
-  document.getElementById("add-customer").addEventListener("click", function () { addModal.classList.add("open"); });
+  document.getElementById("add-customer").addEventListener("click", function () {
+    document.getElementById("nc-assign").innerHTML = teamOptions("");
+    addModal.classList.add("open");
+  });
   document.getElementById("nc-cancel").addEventListener("click", function () { addModal.classList.remove("open"); });
   document.getElementById("nc-save").addEventListener("click", function () {
     var name = document.getElementById("nc-name").value.trim();
@@ -211,7 +241,8 @@ MC.ready.then(function () {
       address: document.getElementById("nc-address").value.trim(),
       city: document.getElementById("nc-city").value,
       member: document.getElementById("nc-member").checked,
-      notes: document.getElementById("nc-notes").value.trim()
+      notes: document.getElementById("nc-notes").value.trim(),
+      assigned_to: document.getElementById("nc-assign").value || ""
     });
     addModal.classList.remove("open");
     ["nc-name", "nc-phone", "nc-email", "nc-address", "nc-notes"].forEach(function (id) { document.getElementById(id).value = ""; });

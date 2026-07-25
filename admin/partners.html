@@ -31,6 +31,7 @@
       <a href="money.html">Money</a>
       <a href="partners.html" aria-current="page">Partners</a>
       <a href="proposals.html">Proposals</a>
+      <a href="team.html">Team</a>
       <a href="../index.html" class="nav-sep">← View site</a>
       <a href="#" id="logout">Log out</a>
     </nav>
@@ -74,10 +75,23 @@
 
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
 <script src="../js/partners-data.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
   var LIVE = MC.mode === "supabase";

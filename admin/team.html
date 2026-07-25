@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="partners.html">Partners</a>
+      <a href="proposals.html">Proposals</a>
+      <a href="team.html" aria-current="page">Team</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Team</h1>
+        <p class="sub">Add sales and field-worker seats. Each person signs in through the Team tab and gets their role automatically — Row-Level Security limits them to what's assigned to them.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-seat">+ Add seat</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Sales seats</div><div class="stat-num" id="s-sales">0</div><div class="stat-sub">Active</div></div>
+      <div class="stat"><div class="stat-label">Field seats</div><div class="stat-num" id="s-field">0</div><div class="stat-sub">Active</div></div>
+      <div class="stat"><div class="stat-label">Inactive</div><div class="stat-num" id="s-inactive">0</div><div class="stat-sub">Deactivated seats</div></div>
+    </div>
+
+    <div id="seat-note" class="share-banner" hidden></div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Seats</h2></div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-back" id="seat-modal">
+  <div class="modal">
+    <h3>Add seat</h3>
+    <div style="margin-bottom:0.9rem"><label for="ns-name">Name *</label><input id="ns-name" placeholder="Full name"></div>
+    <div style="margin-bottom:0.9rem"><label for="ns-email">Email *</label><input id="ns-email" type="email" placeholder="name@email.com"></div>
+    <div style="margin-bottom:0.4rem"><label for="ns-role">Role *</label>
+      <select id="ns-role"><option value="sales">Sales</option><option value="field">Field worker</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="ns-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="ns-save" type="button">Add seat</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .share-banner { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; background: #e0ecf7; border: 1px solid #b8d3ea; color: #23557e; border-radius: var(--radius-lg); padding: 0.8rem 1.1rem; margin-bottom: 1.4rem; font-weight: 700; }
+</style>
+
+<script src="../js/config.js"></script>
+<script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
+<script>
+MC.ready.then(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var ROLE_BADGE = { sales: "blue", field: "amber" };
+  var ROLE_LABEL = { sales: "Sales", field: "Field worker" };
+  var rows = document.getElementById("rows");
+  var noteBox = document.getElementById("seat-note");
+
+  function renderStats() {
+    var seats = MC.list("team_seats");
+    var sales = 0, field = 0, inactive = 0;
+    seats.forEach(function (s) {
+      if (s.active === false) { inactive++; return; }
+      if (s.role === "sales") sales++;
+      else if (s.role === "field") field++;
+    });
+    document.getElementById("s-sales").textContent = sales;
+    document.getElementById("s-field").textContent = field;
+    document.getElementById("s-inactive").textContent = inactive;
+  }
+
+  function render() {
+    renderStats();
+    var seats = MC.list("team_seats");
+    if (!seats.length) {
+      rows.innerHTML = "<tr><td colspan='4'><span class='t-sub'>No seats yet. Add your first with “+ Add seat”.</span></td></tr>";
+      return;
+    }
+    rows.innerHTML = seats.map(function (s) {
+      var isActive = s.active !== false;
+      var roleBadge = isActive
+        ? "<span class='badge " + (ROLE_BADGE[s.role] || "gray") + "'>" + (ROLE_LABEL[s.role] || s.role) + "</span>"
+        : "<span class='badge gray'>inactive</span>";
+      var statusBadge = isActive
+        ? "<span class='badge green'>Active</span>"
+        : "<span class='badge gray'>Inactive</span>";
+      var action = isActive
+        ? "<button class='btn-icon' data-id='" + s.id + "' data-act='deactivate'>Deactivate</button>"
+        : "<button class='btn-icon' data-id='" + s.id + "' data-act='reactivate'>Reactivate</button>";
+      return "<tr>" +
+        "<td><span class='t-strong'>" + s.name + "</span><span class='t-sub'>" + (s.email || "") + "</span></td>" +
+        "<td>" + roleBadge + "</td>" +
+        "<td>" + statusBadge + "</td>" +
+        "<td>" + action + "</td>" +
+        "</tr>";
+    }).join("");
+  }
+  render();
+
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]"); if (!btn) return;
+    var id = btn.dataset.id, act = btn.dataset.act;
+    MC.update("team_seats", id, { active: act === "reactivate" });
+    render();
+  });
+
+  /* Add seat modal */
+  var modal = document.getElementById("seat-modal");
+  document.getElementById("add-seat").addEventListener("click", function () {
+    document.getElementById("ns-name").value = "";
+    document.getElementById("ns-email").value = "";
+    document.getElementById("ns-role").value = "sales";
+    modal.classList.add("open");
+    document.getElementById("ns-name").focus();
+  });
+  document.getElementById("ns-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("ns-save").addEventListener("click", function () {
+    var name = document.getElementById("ns-name").value.trim();
+    var email = document.getElementById("ns-email").value.trim();
+    var role = document.getElementById("ns-role").value;
+    if (!name) { document.getElementById("ns-name").focus(); return; }
+    if (!email) { document.getElementById("ns-email").focus(); return; }
+    if (!role) { document.getElementById("ns-role").focus(); return; }
+    MC.add("team_seats", { name: name, email: email.toLowerCase(), role: role, active: true });
+    modal.classList.remove("open");
+    render();
+    noteBox.textContent = name + " can now sign in at the Team tab of the login page.";
+    noteBox.hidden = false;
+  });
+});
+</script>
+</body>
+</html>

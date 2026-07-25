@@ -59,7 +59,11 @@
         { id: "i4", customerId: "c5", kind: "invoice", label: "INV-2032 · Metal roof progress", amount: 6200, status: "sent", date: d(-1) },
         { id: "i5", customerId: "c1", kind: "estimate", label: "EST-1043 · Zinc strips + treatment", amount: 640, status: "draft", date: d(0) }
       ],
-      partners: []
+      partners: [],
+      team_seats: [
+        { id: "t1", email: "casey@mistletoeconstruction.com", name: "Casey Rivera", role: "sales", active: true },
+        { id: "t2", email: "drew@mistletoeconstruction.com", name: "Drew Patel", role: "field", active: true }
+      ]
     };
   }
 
@@ -77,6 +81,12 @@
       list: function (e) { return (db[e] || []).slice(); },
       get: function (e, id) { return (db[e] || []).find(function (x) { return String(x.id) === String(id); }) || null; },
       customerName: function (id) { var c = this.get("customers", id); return c ? c.name : "—"; },
+      memberName: function (id) {
+        if (!id) return "Unassigned";
+        var m = this.get("team_seats", id);
+        return m ? ((m.name || m.email) + (m.role ? " · " + m.role : "")) : "—";
+      },
+      teamMembers: function () { return (db.team_seats || []).filter(function (m) { return m.active !== false; }); },
       add: function (e, obj) { obj.id = obj.id || e.slice(0, 1) + Date.now().toString(36); (db[e] = db[e] || []).push(obj); save(); return obj; },
       update: function (e, id, patch) {
         var x = this.get(e, id); if (!x) return null;
@@ -92,9 +102,10 @@
           localStorage.setItem(SES_KEY, JSON.stringify(s)); return s;
         },
         logout: function (redirect) { localStorage.removeItem(SES_KEY); location.href = redirect || "../portal/login.html"; },
-        require: function (role, loginPath) {
+        require: function (roles, loginPath) {
           var s = this.session();
-          if (!s || (role && s.role !== role)) { location.href = loginPath; return null; }
+          var allowed = Array.isArray(roles) ? roles : (roles ? [roles] : null);
+          if (!s || (allowed && allowed.indexOf(s.role) === -1)) { location.href = loginPath; return null; }
           return s;
         },
         sendMagicLink: function () { return Promise.resolve({ demo: true }); }
@@ -104,7 +115,7 @@
 
   /* ================= SUPABASE MODE ================= */
   function supabaseMode() {
-    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners", "proposals"];
+    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners", "proposals", "team_seats"];
     var cache = {}; TABLES.forEach(function (t) { cache[t] = []; });
     var sb = null;
     var sessionInfo = null; /* { role, name, email, customerId } */
@@ -133,20 +144,26 @@
     }).then(function (r) {
       var sess = r.data && r.data.session;
       if (!sess) return;
-      return sb.from("profiles").select("*").eq("id", sess.user.id).single().then(function (p) {
-        var prof = p.data || {};
-        sessionInfo = {
-          role: prof.role || "client",
-          email: sess.user.email,
-          name: (sess.user.email || "").split("@")[0],
-          customerId: prof.customerId || null
-        };
-        /* friendlier display name for linked clients */
-        return fetchAll().then(function () {
-          if (sessionInfo.customerId) {
-            var c = cache.customers.find(function (x) { return x.id === sessionInfo.customerId; });
-            if (c) sessionInfo.name = c.name;
-          }
+      /* effective role comes from the DB (admin allowlist > active team seat > profile) */
+      return sb.rpc("my_role").then(function (rr) {
+        var effRole = (rr && !rr.error && rr.data) ? rr.data : null;
+        return sb.from("profiles").select("*").eq("id", sess.user.id).single().then(function (p) {
+          var prof = p.data || {};
+          sessionInfo = {
+            role: effRole || prof.role || "client",
+            email: sess.user.email,
+            name: (sess.user.email || "").split("@")[0],
+            customerId: prof.customerId || null
+          };
+          /* friendlier display name for linked clients / team members */
+          return fetchAll().then(function () {
+            if (sessionInfo.customerId) {
+              var c = cache.customers.find(function (x) { return x.id === sessionInfo.customerId; });
+              if (c) sessionInfo.name = c.name;
+            }
+            var seat = (cache.team_seats || []).find(function (x) { return (x.email || "").toLowerCase() === (sessionInfo.email || "").toLowerCase(); });
+            if (seat && seat.name) sessionInfo.name = seat.name;
+          });
         });
       });
     }).catch(function (e) { console.error("MC init:", e); });
@@ -160,8 +177,14 @@
       list: function (e) { return (cache[e] || []).slice(); },
       get: function (e, id) { return (cache[e] || []).find(function (x) { return String(x.id) === String(id); }) || null; },
       customerName: function (id) { var c = this.get("customers", id); return c ? c.name : "—"; },
+      memberName: function (id) {
+        if (!id) return "Unassigned";
+        var m = this.get("team_seats", id);
+        return m ? ((m.name || m.email) + (m.role ? " · " + m.role : "")) : "—";
+      },
+      teamMembers: function () { return (cache.team_seats || []).filter(function (m) { return m.active !== false; }); },
       add: function (e, obj) {
-        if (obj.id === undefined && e !== "partners") obj.id = e.slice(0, 1) + Date.now().toString(36);
+        if (obj.id === undefined && e !== "partners" && e !== "team_seats") obj.id = e.slice(0, 1) + Date.now().toString(36);
         (cache[e] = cache[e] || []).push(obj);
         sb.from(e).insert(obj).select().then(function (r) {
           syncErr(r);
@@ -187,8 +210,9 @@
         logout: function (redirect) {
           sb.auth.signOut().then(function () { location.href = redirect || "../portal/login.html"; });
         },
-        require: function (role, loginPath) {
-          if (!sessionInfo || (role && sessionInfo.role !== role)) { location.href = loginPath; return null; }
+        require: function (roles, loginPath) {
+          var allowed = Array.isArray(roles) ? roles : (roles ? [roles] : null);
+          if (!sessionInfo || (allowed && allowed.indexOf(sessionInfo.role) === -1)) { location.href = loginPath; return null; }
           return sessionInfo;
         },
         sendMagicLink: function (email, redirectTo) {

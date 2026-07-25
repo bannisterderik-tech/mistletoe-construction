@@ -31,6 +31,7 @@
       <a href="money.html">Money</a>
       <a href="partners.html">Partners</a>
       <a href="proposals.html">Proposals</a>
+      <a href="team.html">Team</a>
       <a href="../index.html" class="nav-sep">← View site</a>
       <a href="#" id="logout">Log out</a>
     </nav>
@@ -65,6 +66,7 @@
       </div>
     </div>
     <div style="margin-bottom:0.4rem"><label for="nl-note">Note</label><textarea id="nl-note" rows="3" placeholder="What did they say?"></textarea></div>
+    <div style="margin-bottom:0.4rem"><label for="nl-assign">Assigned to</label><select id="nl-assign" class="assign-select"></select></div>
     <div class="modal-actions">
       <button class="btn btn-outline btn-sm" id="nl-cancel" type="button">Cancel</button>
       <button class="btn btn-primary btn-sm" id="nl-save" type="button">Add Lead</button>
@@ -74,9 +76,22 @@
 
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
 <script>
 MC.ready.then(function () {
-  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  var ses = MC.auth.require(["admin","sales"], "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
   var STAGES = [
@@ -85,6 +100,12 @@ MC.ready.then(function () {
   ];
 
   var board = document.getElementById("board");
+
+  function teamOptions(sel) {
+    return "<option value=''>Unassigned</option>" + MC.teamMembers().map(function (m) {
+      return "<option value='" + m.id + "'" + (String(m.id) === String(sel) ? " selected" : "") + ">" + m.name + " · " + m.role + "</option>";
+    }).join("");
+  }
 
   function render() {
     board.innerHTML = "";
@@ -102,6 +123,7 @@ MC.ready.then(function () {
           "<div class='k-name'>" + l.name + "</div>" +
           "<div class='k-meta'>" + (l.phone || "") + (l.phone ? " · " : "") + l.city + "</div>" +
           (l.note ? "<div class='k-meta'>" + l.note + "</div>" : "") +
+          (l.assigned_to ? "<div class='k-meta'>→ " + MC.memberName(l.assigned_to) + "</div>" : "") +
           "<div class='k-tags'><span class='badge pine'>" + l.service + "</span><span class='badge gray'>" + MC.fmtDate(l.created) + "</span></div>";
         col.appendChild(card);
       });
@@ -142,7 +164,10 @@ MC.ready.then(function () {
 
   /* New lead modal */
   var modal = document.getElementById("lead-modal");
-  document.getElementById("add-lead").addEventListener("click", function () { modal.classList.add("open"); });
+  document.getElementById("add-lead").addEventListener("click", function () {
+    document.getElementById("nl-assign").innerHTML = teamOptions("");
+    modal.classList.add("open");
+  });
   document.getElementById("nl-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
   document.getElementById("nl-save").addEventListener("click", function () {
     var name = document.getElementById("nl-name").value.trim();
@@ -153,6 +178,7 @@ MC.ready.then(function () {
       city: document.getElementById("nl-city").value,
       service: document.getElementById("nl-service").value,
       note: document.getElementById("nl-note").value.trim(),
+      assigned_to: document.getElementById("nl-assign").value || "",
       stage: "new",
       created: new Date().toISOString().slice(0, 10)
     });

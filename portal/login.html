@@ -61,7 +61,8 @@ MC.ready.then(function () {
   });
 
   function routeBySession(s) {
-    location.href = s.role === "admin" ? "../admin/index.html" : "index.html";
+    var staff = s.role === "admin" || s.role === "sales" || s.role === "field";
+    location.href = staff ? "../admin/index.html" : "index.html";
   }
 
   if (MC.mode === "supabase") {

@@ -31,6 +31,7 @@
       <a href="money.html">Money</a>
       <a href="partners.html">Partners</a>
       <a href="proposals.html">Proposals</a>
+      <a href="team.html">Team</a>
       <a href="../index.html" class="nav-sep">← View site</a>
       <a href="#" id="logout">Log out</a>
     </nav>
@@ -94,6 +95,7 @@
     </div>
     <div class="form-row">
       <div><label for="nj-value">Value ($)</label><input id="nj-value" type="number" min="0" step="1"></div>
+      <div><label for="nj-assign">Assigned to</label><select id="nj-assign" class="assign-select"></select></div>
     </div>
     <div style="margin-bottom:0.4rem"><label for="nj-note">Note</label><textarea id="nj-note" rows="2"></textarea></div>
     <div class="modal-actions">
@@ -105,9 +107,22 @@
 
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
 <script>
 MC.ready.then(function () {
-  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  var ses = MC.auth.require(["admin","sales","field"], "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
   var STATUS_BADGE = { scheduled: "blue", "in-progress": "amber", done: "green" };
@@ -140,7 +155,8 @@ MC.ready.then(function () {
       else if (j.status === "in-progress") action = "<button class='btn-icon' data-advance='" + j.id + "'>Complete</button>";
       var tr = document.createElement("tr");
       tr.innerHTML =
-        "<td class='t-strong'>" + j.title + "<span class='t-sub'>" + MC.customerName(j.customerId) + "</span></td>" +
+        "<td class='t-strong'>" + j.title + "<span class='t-sub'>" + MC.customerName(j.customerId) + "</span>" +
+        (j.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(j.assigned_to) + "</span>" : "") + "</td>" +
         "<td>" + MC.fmtDate(j.start) + "</td>" +
         "<td>" + MC.money(j.value) + "</td>" +
         "<td><span class='badge " + (STATUS_BADGE[j.status] || "gray") + "'>" + (STATUS_LABEL[j.status] || j.status) + "</span></td>" +
@@ -181,6 +197,9 @@ MC.ready.then(function () {
     custSelect.innerHTML = MC.list("customers").map(function (c) {
       return "<option value='" + c.id + "'>" + c.name + "</option>";
     }).join("");
+    document.getElementById("nj-assign").innerHTML = "<option value=''>Unassigned</option>" + MC.teamMembers().map(function (m) {
+      return "<option value='" + m.id + "'>" + m.name + " · " + m.role + "</option>";
+    }).join("");
     document.getElementById("nj-start").value = new Date().toISOString().slice(0, 10);
     modal.classList.add("open");
   });
@@ -194,6 +213,7 @@ MC.ready.then(function () {
       status: "scheduled",
       start: document.getElementById("nj-start").value || new Date().toISOString().slice(0, 10),
       value: Number(document.getElementById("nj-value").value || 0),
+      assigned_to: document.getElementById("nj-assign").value || "",
       note: document.getElementById("nj-note").value.trim()
     });
     modal.classList.remove("open");
