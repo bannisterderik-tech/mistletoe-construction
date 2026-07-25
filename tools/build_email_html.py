@@ -5,10 +5,11 @@ Generate branded HTML bodies for the realtor drip (e7-e14), extend the
 preview email (all 14) for review.
 Usage: python3 tools/build_email_html.py
 """
-import os, sys, json
+import os, sys, json, csv
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from email_series_pdf import EMAILS, DAYS, ROOT
+from email_campaign import WRAPPER, UNSUB_MAILTO, first_name
 
 EM = os.path.join(ROOT, "emails")
 
