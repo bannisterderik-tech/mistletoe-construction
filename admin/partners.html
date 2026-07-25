@@ -145,6 +145,8 @@ MC.ready.then(function () {
       if (filter === "partner" && st !== "partner") return;
       if (q && (p.name + " " + p.brokerage + " " + p.city).toLowerCase().indexOf(q) === -1) return;
       var tr = document.createElement("tr");
+      tr.dataset.idx = i;
+      tr.style.cursor = "pointer";
       var emailCell = p.email
         ? "<a href='mailto:" + p.email + "'>" + p.email + "</a>" + (p.confidence === "inferred" ? " <span class='badge amber'>inferred</span>" : "")
         : "<span style='color:var(--ink-soft)'>—</span>";
@@ -169,6 +171,63 @@ MC.ready.then(function () {
   document.querySelectorAll(".f-btn").forEach(function (b) {
     b.addEventListener("click", function () { filter = b.dataset.f; render(); });
   });
+
+  /* ---------- Click-through partner detail panel (MCUI) ---------- */
+  function setStatus(p, val) {
+    statuses[p.name] = val;
+    saveSt(p.name, val);
+    refreshPartnerStat();
+    render();
+    openPartner(p);
+    MCUI.toast("Status → " + val);
+  }
+
+  function openPartner(p) {
+    if (!p) return;
+    var st = statuses[p.name] || "new";
+
+    var details = MCUI.kv([
+      ["Email", p.email ? "<a href='mailto:" + MCUI.esc(p.email) + "'>" + MCUI.esc(p.email) + "</a>" + (p.confidence === "inferred" ? " <span class='badge amber'>inferred</span>" : "") : "", "raw"],
+      ["Phone", p.phone ? "<a href='tel:" + MCUI.esc(p.phone.replace(/\D/g, "")) + "'>" + MCUI.esc(p.phone) + "</a>" : "", "raw"],
+      ["Brokerage", p.brokerage || ""],
+      ["Title", p.title || ""],
+      ["City", p.city || ""],
+      ["Status", "<span class='badge " + (badgeFor[st] || "gray") + "'>" + MCUI.esc(st) + "</span>", "raw"],
+      ["Profile", p.profile ? "<a href='" + MCUI.esc(p.profile) + "' target='_blank' rel='noopener'>" + MCUI.esc(p.profile) + " &#8599;</a>" : "", "raw"],
+      ["Notes", p.notes || ""]
+    ]);
+
+    var body = MCUI.section("Details", details) +
+      MCUI.section("Set status",
+        "<div class='mcui-list' style='flex-direction:row;flex-wrap:wrap'>" +
+        STATUS_OPTS.map(function (o) {
+          return "<button type='button' class='btn btn-" + (o === st ? "primary" : "outline") + " btn-sm' data-st='" + MCUI.esc(o) + "'>" + MCUI.esc(o) + "</button>";
+        }).join("") + "</div>");
+
+    var actions = [];
+    if (p.email) actions.push({ label: "Email ↗", kind: "outline", onClick: function () { location.href = "mailto:" + p.email; } });
+    if (p.phone) actions.push({ label: "Call", kind: "outline", onClick: function () { location.href = "tel:" + p.phone.replace(/\D/g, ""); } });
+
+    MCUI.open({
+      eyebrow: "Partner",
+      title: p.name,
+      subtitle: [p.brokerage, p.city].filter(Boolean).join(" · "),
+      bodyHTML: body,
+      actions: actions,
+      onBody: function (bodyEl) {
+        bodyEl.querySelectorAll("[data-st]").forEach(function (btn) {
+          btn.addEventListener("click", function () { setStatus(p, btn.getAttribute("data-st")); });
+        });
+      }
+    });
+  }
+
+  tb.addEventListener("click", function (e) {
+    if (e.target.closest("select, a, button, option")) return;
+    var tr = e.target.closest("tr[data-idx]"); if (!tr) return;
+    openPartner(P[tr.dataset.idx]);
+  });
+
   render();
 });
 </script>

@@ -154,6 +154,8 @@ MC.ready.then(function () {
       if (j.status === "scheduled") action = "<button class='btn-icon' data-advance='" + j.id + "'>Start</button>";
       else if (j.status === "in-progress") action = "<button class='btn-icon' data-advance='" + j.id + "'>Complete</button>";
       var tr = document.createElement("tr");
+      tr.dataset.id = j.id;
+      tr.style.cursor = "pointer";
       tr.innerHTML =
         "<td class='t-strong'>" + j.title + "<span class='t-sub'>" + MC.customerName(j.customerId) + "</span>" +
         (j.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(j.assigned_to) + "</span>" : "") + "</td>" +
@@ -176,6 +178,124 @@ MC.ready.then(function () {
     var j = MC.get("jobs", btn.dataset.advance); if (!j) return;
     MC.update("jobs", j.id, { status: j.status === "scheduled" ? "in-progress" : "done" });
     render();
+  });
+
+  /* ---------- Click-through job detail panel (MCUI) ---------- */
+  var STATUSES = ["scheduled", "in-progress", "done"];
+
+  function teamOptions(sel) {
+    return "<option value=''>Unassigned</option>" + MC.teamMembers().map(function (m) {
+      return "<option value='" + m.id + "'" + (String(m.id) === String(sel) ? " selected" : "") + ">" +
+        MCUI.esc(m.name) + " · " + MCUI.esc(m.role) + "</option>";
+    }).join("");
+  }
+
+  function openJob(j) {
+    if (!j) return;
+
+    var details = MCUI.kv([
+      ["Customer", MC.customerName(j.customerId)],
+      ["Status", STATUS_LABEL[j.status] || j.status],
+      ["Start", j.start ? MC.fmtDate(j.start) : ""],
+      ["Value", MC.money(j.value)],
+      ["Assigned to", MC.memberName(j.assigned_to)],
+      ["Note", j.note || ""]
+    ]);
+
+    /* Move status — inline buttons; current status highlighted + disabled */
+    var moveBtns = STATUSES.map(function (s) {
+      var current = s === j.status;
+      return "<button type='button' class='btn btn-" + (current ? "primary" : "outline") + " btn-sm' " +
+        "data-status='" + s + "'" + (current ? " disabled" : "") + ">" + (STATUS_LABEL[s] || s) + "</button>";
+    }).join(" ");
+    var moveSec = MCUI.section("Move status",
+      "<div style='display:flex;gap:.5rem;flex-wrap:wrap'>" + moveBtns + "</div>");
+
+    /* Assigned to select */
+    var assignSec = MCUI.section("Assigned to",
+      "<select id='job-assign' class='assign-select'>" + teamOptions(j.assigned_to || "") + "</select>");
+
+    var body =
+      MCUI.section("Details", details) +
+      moveSec +
+      assignSec;
+
+    MCUI.open({
+      eyebrow: "Job",
+      title: j.title,
+      subtitle: MC.customerName(j.customerId),
+      bodyHTML: body,
+      actions: [
+        { label: "View customer →", kind: "primary", onClick: function () {
+            location.href = "customers.html";
+        } },
+        { label: "Add visit note", kind: "outline", onClick: function () { openVisitForm(j); } }
+      ],
+      onBody: function (bodyEl) {
+        /* Move status buttons */
+        bodyEl.querySelectorAll("[data-status]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (b.disabled) return;
+            MC.update("jobs", j.id, { status: b.dataset.status });
+            render();
+            openJob(MC.get("jobs", j.id));
+          });
+        });
+        /* Assigned-to select */
+        var sel = bodyEl.querySelector("#job-assign");
+        if (sel) sel.addEventListener("change", function () {
+          MC.update("jobs", j.id, { assigned_to: sel.value || "" });
+          render();
+          MCUI.toast("Assignment updated ✓");
+        });
+      }
+    });
+  }
+
+  /* ---------- Inline add-visit-note form (swaps drawer body) ---------- */
+  function openVisitForm(j) {
+    var today = new Date().toISOString().slice(0, 10);
+    var html =
+      "<div class='mcui-sec'>" +
+        "<label for='vn-date' style='font-weight:700;display:block;margin-bottom:.3rem'>Date</label>" +
+        "<input id='vn-date' type='date' value='" + today + "'>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<label for='vn-type' style='font-weight:700;display:block;margin-bottom:.3rem'>Type</label>" +
+        "<input id='vn-type' placeholder='e.g. Site check, Inspection'>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<label for='vn-summary' style='font-weight:700;display:block;margin-bottom:.3rem'>Summary</label>" +
+        "<textarea id='vn-summary' rows='3' placeholder='What happened on this visit?'></textarea>" +
+      "</div>" +
+      "<div style='display:flex;gap:.6rem;flex-wrap:wrap'>" +
+        "<button type='button' class='btn btn-primary btn-sm' id='vn-save'>Save note</button>" +
+        "<button type='button' class='btn btn-outline btn-sm' id='vn-back'>Back</button>" +
+      "</div>";
+
+    MCUI.setBody(html);
+    var drawer = MCUI.drawer;
+    drawer.querySelector("#vn-back").addEventListener("click", function () { openJob(MC.get("jobs", j.id)); });
+    drawer.querySelector("#vn-save").addEventListener("click", function () {
+      var type = drawer.querySelector("#vn-type").value.trim();
+      var summary = drawer.querySelector("#vn-summary").value.trim();
+      if (!type && !summary) { MCUI.toast("Add a type or summary first.", "err"); return; }
+      MC.add("visits", {
+        customerId: j.customerId,
+        date: drawer.querySelector("#vn-date").value || today,
+        type: type || "Visit",
+        summary: summary
+      });
+      MCUI.toast("Visit note added ✓");
+      openJob(MC.get("jobs", j.id));
+    });
+  }
+
+  /* Row → open detail (ignore inner controls) */
+  rows.addEventListener("click", function (e) {
+    if (e.target.closest("button") || e.target.closest("a") || e.target.closest("select")) return;
+    var tr = e.target.closest("tr[data-id]"); if (!tr) return;
+    openJob(MC.get("jobs", tr.dataset.id));
   });
 
   /* Filter pills */

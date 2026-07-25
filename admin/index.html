@@ -40,10 +40,14 @@
   <main class="app-main">
     <div class="app-topbar">
       <div>
-        <h1>Good morning, Alex.</h1>
+        <h1 id="greeting">Welcome back.</h1>
         <p class="sub" id="today-line">Here's the state of the business.</p>
       </div>
-      <span class="demo-badge">Demo preview · <a href="#" id="reset-demo" style="color:inherit">reset data</a></span>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <a class="btn btn-outline btn-sm" href="leads.html">+ Lead</a>
+        <a class="btn btn-primary btn-sm" href="proposals.html">+ Proposal</a>
+        <span class="demo-badge" id="demo-badge" hidden>Demo preview · <a href="#" id="reset-demo" style="color:inherit">reset data</a></span>
+      </div>
     </div>
 
     <div class="stat-row">
@@ -90,9 +94,16 @@ MC.ready.then(function () {
     });
   })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
-  document.getElementById("reset-demo").addEventListener("click", function (e) { e.preventDefault(); MC.resetDemo(); });
+  if (MC.mode === "demo") {
+    var _db = document.getElementById("demo-badge"); if (_db) _db.hidden = false;
+    var _rd = document.getElementById("reset-demo"); if (_rd) _rd.addEventListener("click", function (e) { e.preventDefault(); MC.resetDemo(); });
+  }
 
   var today = new Date();
+  var _hr = today.getHours();
+  var _part = _hr < 12 ? "Good morning" : _hr < 18 ? "Good afternoon" : "Good evening";
+  var _first = ((ses && ses.name) || "there").split(/[ @]/)[0];
+  document.getElementById("greeting").textContent = _part + ", " + _first.charAt(0).toUpperCase() + _first.slice(1) + ".";
   document.getElementById("today-line").textContent = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + " — here's the state of the business.";
   var iso = today.toISOString().slice(0, 10);
 
@@ -107,8 +118,10 @@ MC.ready.then(function () {
   document.getElementById("s-jobs-val").textContent = MC.money(inprog.reduce(function (a, j) { return a + j.value; }, 0)) + " in flight";
 
   var quoted = inv.filter(function (i) { return i.kind === "estimate" && i.status === "sent"; });
-  var pipeLeadVal = leads.filter(function (l) { return l.stage === "quoted"; }).length;
-  document.getElementById("s-pipe").textContent = MC.money(quoted.reduce(function (a, i) { return a + i.amount; }, 0));
+  var propPipe = MC.list("proposals").filter(function (p) { return p.status === "draft" || p.status === "sent"; });
+  var pipeTotal = quoted.reduce(function (a, i) { return a + Number(i.amount || 0); }, 0) +
+                  propPipe.reduce(function (a, p) { return a + Number(p.amount || 0); }, 0);
+  document.getElementById("s-pipe").textContent = MC.money(pipeTotal);
 
   var owed = inv.filter(function (i) { return i.kind === "invoice" && i.status === "sent"; });
   document.getElementById("s-owed").textContent = MC.money(owed.reduce(function (a, i) { return a + i.amount; }, 0));

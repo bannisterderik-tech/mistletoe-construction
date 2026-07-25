@@ -145,6 +145,8 @@ MC.ready.then(function () {
       var past = mine.filter(function (v) { return v.date < today; })
         .sort(function (a, b) { return b.date.localeCompare(a.date); })[0];
       var tr = document.createElement("tr");
+      tr.dataset.id = c.id;
+      tr.style.cursor = "pointer";
       tr.innerHTML =
         "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span></td>" +
         "<td>" + c.city + "</td>" +
@@ -173,6 +175,54 @@ MC.ready.then(function () {
       : "<span style='color:var(--ink-soft)'>Nothing on the books.</span>";
   }
   render();
+
+  /* ---------- Click-through member panel (MCUI) ---------- */
+  function openMember(c) {
+    if (!c) return;
+    var visits = MC.list("visits").filter(function (v) { return v.customerId === c.id; })
+      .sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); });
+    var invoices = MC.list("invoices").filter(function (i) { return i.customerId === c.id; });
+
+    var details = MCUI.kv([
+      ["Phone", c.phone ? "<a href='tel:" + MCUI.esc(c.phone) + "'>" + MCUI.esc(c.phone) + "</a>" : "", "raw"],
+      ["Email", c.email ? "<a href='mailto:" + MCUI.esc(c.email) + "'>" + MCUI.esc(c.email) + "</a>" : "", "raw"],
+      ["Address", c.address || ""],
+      ["City", c.city || ""],
+      ["Member", c.member ? "Home Care plan" : "No"],
+      ["Notes", c.notes || ""]
+    ]);
+
+    var visitList = MCUI.list(visits.map(function (v) {
+      return { main: v.type, sub: v.date ? MC.fmtDate(v.date) : "", right: v.summary ? "Logged" : "Due" };
+    }), "No visits logged.");
+
+    var invList = MCUI.list(invoices.map(function (i) {
+      return { main: i.label, sub: i.status, right: MC.money(i.amount) };
+    }), "No invoices yet.");
+
+    var body =
+      MCUI.section("Details", details) +
+      MCUI.section("Visits", visitList, visits.length) +
+      MCUI.section("Invoices", invList, invoices.length);
+
+    MCUI.open({
+      eyebrow: "Member",
+      title: c.name,
+      subtitle: c.city || "",
+      bodyHTML: body,
+      actions: [
+        { label: "Open full profile →", kind: "outline", onClick: function () {
+            location.href = "customers.html";
+        } }
+      ]
+    });
+  }
+
+  rows.addEventListener("click", function (e) {
+    if (e.target.closest("button") || e.target.closest("a")) return;
+    var tr = e.target.closest("tr[data-id]"); if (!tr) return;
+    openMember(MC.get("customers", tr.dataset.id));
+  });
 
   /* Log visit modal */
   var modal = document.getElementById("visit-modal");

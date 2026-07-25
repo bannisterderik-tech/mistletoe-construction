@@ -154,7 +154,7 @@ MC.ready.then(function () {
       var kindBadge = d.kind === "estimate" ? "<span class='badge pine'>Estimate</span>" : "<span class='badge gray'>Invoice</span>";
       var statusBadge = "<span class='badge " + (STATUS_BADGE[d.status] || "gray") + "'>" + d.status + "</span>";
       var act = actionFor(d);
-      return "<tr>" +
+      return "<tr data-id='" + d.id + "' style='cursor:pointer'>" +
         "<td><span class='t-strong'>" + d.label + "</span><span class='t-sub'>" + MC.customerName(d.customerId) + "</span></td>" +
         "<td>" + kindBadge + "</td>" +
         "<td>" + MC.fmtDate(d.date) + "</td>" +
@@ -167,6 +167,57 @@ MC.ready.then(function () {
 
   function render() { renderStats(); renderTable(); }
   render();
+
+  /* ---------- Click-through invoice/estimate detail (MCUI) ---------- */
+  function statusLabel(s) { s = String(s || ""); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
+  function kindLabel(k) { return k === "estimate" ? "Estimate" : "Invoice"; }
+
+  function openDoc(d) {
+    if (!d) return;
+    var isPaid = String(d.status) === "paid";
+    var statusVal = statusLabel(d.status) + (isPaid ? " <span class='badge green'>Paid</span>" : "");
+
+    var pairs = [
+      ["Customer", MC.customerName(d.customerId)],
+      ["Type", kindLabel(d.kind)],
+      ["Amount", MC.money(d.amount)],
+      ["Status", statusVal, "raw"],
+      ["Date", d.date ? MC.fmtDate(d.date) : ""]
+    ];
+    if (d.hosted_invoice_url) {
+      pairs.push(["Payment link", "<a href='" + MCUI.esc(d.hosted_invoice_url) + "' target='_blank' rel='noopener'>Open Stripe invoice &#8599;</a>", "raw"]);
+    }
+
+    var body = MCUI.section("Details", MCUI.kv(pairs));
+
+    var actions = [];
+    if (!isPaid) {
+      actions.push({ label: "Mark paid", kind: "primary", onClick: function () {
+        MC.update("invoices", d.id, { status: "paid" });
+        render();
+        MCUI.toast("Marked paid ✓");
+        openDoc(MC.get("invoices", d.id));
+      } });
+    }
+    if (d.hosted_invoice_url) {
+      actions.push({ label: "Open invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
+    }
+    actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+
+    MCUI.open({
+      eyebrow: kindLabel(d.kind),
+      title: d.label,
+      subtitle: MC.customerName(d.customerId),
+      bodyHTML: body,
+      actions: actions
+    });
+  }
+
+  rows.addEventListener("click", function (e) {
+    if (e.target.closest("button") || e.target.closest("a")) return;
+    var tr = e.target.closest("tr[data-id]"); if (!tr) return;
+    openDoc(MC.get("invoices", tr.dataset.id));
+  });
 
   /* Row actions */
   rows.addEventListener("click", function (e) {

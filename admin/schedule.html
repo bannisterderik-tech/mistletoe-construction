@@ -134,7 +134,7 @@ MC.ready.then(function () {
     });
     MC.list("visits").forEach(function (v) {
       if (!v.date) return;
-      events.push({ date: v.date, label: v.type, customer: MC.customerName(v.customerId), kind: "visit", extra: "" });
+      events.push({ date: v.date, label: v.type, customer: MC.customerName(v.customerId), kind: "visit", extra: "", id: v.id });
     });
     events.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
     return events;
@@ -144,7 +144,8 @@ MC.ready.then(function () {
     var badge = ev.kind === "job"
       ? "<span class='badge pine'>Job</span>"
       : "<span class='badge green'>Member visit</span>";
-    return "<tr><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
+    var clickable = ev.kind === "visit" ? " data-visit='" + ev.id + "' style='cursor:pointer'" : "";
+    return "<tr" + clickable + "><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
       "<td>" + badge + "</td><td>" + ev.extra + "</td></tr>";
   }
 
@@ -177,12 +178,44 @@ MC.ready.then(function () {
     } else {
       beyond.innerHTML = later.map(function (ev) {
         var badge = ev.kind === "job" ? "<span class='badge pine'>Job</span>" : "<span class='badge green'>Member visit</span>";
-        return "<tr><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
+        var clickable = ev.kind === "visit" ? " data-visit='" + ev.id + "' style='cursor:pointer'" : "";
+        return "<tr" + clickable + "><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
           "<td>" + badge + "</td><td>" + MC.fmtDate(ev.date) + "</td></tr>";
       }).join("");
     }
   }
   render();
+
+  /* ---------- Click-through visit panel (MCUI) ---------- */
+  function openVisit(v) {
+    if (!v) return;
+    var body = MCUI.kv([
+      ["Customer", MC.customerName(v.customerId)],
+      ["Date", v.date ? MC.fmtDate(v.date) : ""],
+      ["Type", v.type || ""],
+      ["Summary", v.summary || "Not yet logged."],
+      ["Photos", v.photos != null ? String(v.photos) : "0"]
+    ]);
+    MCUI.open({
+      eyebrow: "Visit",
+      title: v.type || "Visit",
+      subtitle: MC.customerName(v.customerId) + " · " + MC.fmtDate(v.date),
+      bodyHTML: body,
+      actions: [
+        { label: "View customer →", kind: "outline", onClick: function () {
+            location.href = "customers.html";
+        } }
+      ]
+    });
+  }
+
+  function visitClick(e) {
+    if (e.target.closest("button") || e.target.closest("a")) return;
+    var tr = e.target.closest("tr[data-visit]"); if (!tr) return;
+    openVisit(MC.get("visits", tr.dataset.visit));
+  }
+  agenda.addEventListener("click", visitClick);
+  beyond.addEventListener("click", visitClick);
 
   /* Modal */
   var modal = document.getElementById("event-modal");
