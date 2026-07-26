@@ -110,6 +110,28 @@ def main():
     os.makedirs(api_dir, exist_ok=True)
     open(os.path.join(api_dir, "_email-preview.js"), "w").write("module.exports = `%s`;\n" % esc_js)
 
+    # ---- campaign modules for the serverless daily sender ----
+    steps = [{"id": IDS[i], "subject": EMAILS[i]["subject"],
+              "inner": open(os.path.join(EM, IDS[i] + ".html")).read()} for i in range(len(EMAILS))]
+    emails_mod = {"from": seq.get("from"), "reply_to": seq.get("reply_to"),
+                  "unsub": UNSUB_MAILTO, "wrapper": WRAPPER, "steps": steps}
+    open(os.path.join(api_dir, "_campaign-emails.js"), "w").write(
+        "module.exports = " + json.dumps(emails_mod, ensure_ascii=False) + ";\n")
+
+    contacts, seen = [], set()
+    for r in csv.DictReader(open(os.path.join(ROOT, "data", "realtors-douglas-county.csv"))):
+        em = (r.get("email") or "").strip().lower()
+        if not em or "@" not in em or em in seen:
+            continue
+        if r.get("email_confidence") == "inferred":
+            continue
+        seen.add(em)
+        contacts.append({"name": r.get("name", ""), "email": em,
+                         "brokerage": r.get("brokerage", ""), "city": r.get("city", "")})
+    open(os.path.join(api_dir, "_campaign-contacts.js"), "w").write(
+        "module.exports = " + json.dumps(contacts, ensure_ascii=False) + ";\n")
+    print("campaign modules: %d steps, %d contacts" % (len(steps), len(contacts)))
+
     print("wrote bodies:", ", ".join(written))
     print("sequence.json steps:", len(seq["steps"]), "· schedule:", seq["schedule_days"])
     print("combined preview: emails/all-14-preview.html (%d chars)" % len(preview))

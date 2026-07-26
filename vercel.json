@@ -5,5 +5,8 @@
   "headers": [
     { "source": "/css/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }] },
     { "source": "/images/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
+  ],
+  "crons": [
+    { "path": "/api/campaign-tick?token=mc-cron-9f27a1b4", "schedule": "0 16 * * *" }
   ]
 }
