@@ -2,6 +2,7 @@
 // finalizes + emails it, and Stripe then auto-sends payment reminders until it's paid.
 // Secrets from env only: STRIPE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY.
 const Stripe = require("stripe");
+const notifyTeam = require("./_notify.js");
 const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
 
 module.exports = async (req, res) => {
@@ -74,6 +75,12 @@ module.exports = async (req, res) => {
       stripe_invoice_id: invoice.id,
       stripe_invoice_url: finalized.hosted_invoice_url || null
     });
+
+    await notifyTeam("✍️ Proposal accepted — " + (p.title || "proposal"),
+      "<h2 style='color:#1b3d26'>Proposal accepted</h2><p><strong>" + (name || email) + "</strong> accepted <strong>" +
+      (p.title || "a proposal") + "</strong>. A Stripe invoice was created and emailed to " + email +
+      "; Stripe will send reminders until it's paid.</p>" +
+      (finalized.hosted_invoice_url ? "<p><a href='" + finalized.hosted_invoice_url + "'>View invoice</a></p>" : ""));
 
     res.status(200).json({ url: finalized.hosted_invoice_url });
   } catch (e) {

@@ -3,8 +3,11 @@
 // Secrets read ONLY from env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
 // SUPABASE_SERVICE_ROLE_KEY. Inert (returns 200) until those are set.
 const Stripe = require("stripe");
+const notifyTeam = require("./_notify.js");
 
 const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+
+function money(c) { return "$" + (Number(c || 0) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 }); }
 
 // Raw body is required for Stripe signature verification.
 module.exports.config = { api: { bodyParser: false } };
@@ -58,12 +61,20 @@ module.exports = async (req, res) => {
       const inv = event.data.object;
       const proposalId = inv.metadata && inv.metadata.proposalId;
       if (proposalId) await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), { status: "paid" });
+      await notifyTeam("💰 Invoice paid — " + money(inv.amount_paid),
+        "<h2 style='color:#1b3d26'>Invoice paid</h2><p><strong>" + money(inv.amount_paid) + "</strong> from " +
+        (inv.customer_email || (inv.customer_name || "a customer")) + ".</p>" +
+        (inv.hosted_invoice_url ? "<p><a href='" + inv.hosted_invoice_url + "'>View invoice</a></p>" : ""));
     } else if (event.type === "checkout.session.completed") {
       const s = event.data.object;
       const md = s.metadata || {};
+      const email = (s.customer_details && s.customer_details.email) || s.customer_email || "";
       if (md.kind === "invoice" && md.invoiceId) {
         await sbPatch("invoices", "id=eq." + encodeURIComponent(md.invoiceId), { status: "paid" });
+        await notifyTeam("💰 Invoice paid via checkout", "<h2 style='color:#1b3d26'>Invoice paid</h2><p>Invoice " + md.invoiceId + " was paid" + (email ? " by " + email : "") + ".</p>");
       } else if (md.kind === "membership") {
+        await notifyTeam("🎉 New Home Care Membership signup",
+          "<h2 style='color:#1b3d26'>New paid membership</h2><p><strong>" + (email || "New member") + "</strong> just started a Home Care Membership. Onboard them + link to a customer record (added to Leads as “won”).</p>");
         // Public membership signup — drop into the pipeline for onboarding + record.
         await sbInsert("leads", {
           id: "m" + Date.now().toString(36),
