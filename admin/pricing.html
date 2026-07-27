@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="partners.html">Partners</a>
+      <a href="proposals.html">Proposals</a>
+      <a href="team.html">Team</a>
+      <a href="pricing.html" aria-current="page">Pricing</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Pricing</h1>
+        <p class="sub">These rates drive the <a href="../instant-quote.html" target="_blank" rel="noopener">Instant Roof Estimate</a> calculator. Change a number and every new quote uses it — no redeploy.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="save">Save pricing</button>
+    </div>
+
+    <div class="pr-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>Base rate per square <span class="t-sub">($ per 100 sq ft · asphalt)</span></h2></div>
+        <div class="panel-body">
+          <div class="pr-row"><label for="b-flat">Low slope / flat</label><div class="pr-money"><span>$</span><input id="b-flat" type="number" min="0" step="5"></div></div>
+          <div class="pr-row"><label for="b-b34">3–4/12</label><div class="pr-money"><span>$</span><input id="b-b34" type="number" min="0" step="5"></div></div>
+          <div class="pr-row"><label for="b-b56">5–6/12</label><div class="pr-money"><span>$</span><input id="b-b56" type="number" min="0" step="5"></div></div>
+          <div class="pr-row"><label for="b-b78">7–8/12</label><div class="pr-money"><span>$</span><input id="b-b78" type="number" min="0" step="5"></div></div>
+          <p class="t-sub" style="margin:.6rem 0 0">9+/12 always returns a custom quote (no auto price).</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Material multiplier <span class="t-sub">(× the base rate)</span></h2></div>
+        <div class="panel-body">
+          <div class="pr-row"><label for="m-asphalt">Asphalt shingles</label><div class="pr-money"><input id="m-asphalt" type="number" min="0" step="0.05"><span>×</span></div></div>
+          <div class="pr-row"><label for="m-metal">Metal roofing</label><div class="pr-money"><input id="m-metal" type="number" min="0" step="0.05"><span>×</span></div></div>
+          <div class="pr-row"><label for="m-tile">Tile roofing</label><div class="pr-money"><input id="m-tile" type="number" min="0" step="0.05"><span>×</span></div></div>
+          <div class="pr-row"><label for="m-flat">Flat roof</label><div class="pr-money"><input id="m-flat" type="number" min="0" step="0.05"><span>×</span></div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Adjustments</h2></div>
+        <div class="panel-body">
+          <div class="pr-row"><label for="waste">Waste factor</label><div class="pr-money"><input id="waste" type="number" min="1" step="0.01"><span>×</span></div></div>
+          <div class="pr-row"><label for="rlow">Range — low</label><div class="pr-money"><input id="rlow" type="number" min="0" step="0.01"><span>×</span></div></div>
+          <div class="pr-row"><label for="rhigh">Range — high</label><div class="pr-money"><input id="rhigh" type="number" min="0" step="0.01"><span>×</span></div></div>
+          <p class="t-sub" style="margin:.6rem 0 0">Waste inflates measured area to quoted area. Range spreads the final estimate (e.g. 0.90–1.12 = −10% / +12%).</p>
+        </div>
+      </div>
+
+      <div class="panel pr-preview">
+        <div class="panel-head"><h2>Live preview</h2></div>
+        <div class="panel-body">
+          <p class="t-sub">A sample roof, priced with the numbers above:</p>
+          <div class="pr-sample">
+            <label>Roof <input id="s-sqft" type="number" value="2000" step="50"> sq ft ·
+              <select id="s-band"><option value="b34">3–4/12</option><option value="b56" selected>5–6/12</option><option value="b78">7–8/12</option><option value="flat">Flat</option></select> ·
+              <select id="s-mat"><option value="asphalt" selected>Asphalt</option><option value="metal">Metal</option><option value="tile">Tile</option><option value="flat">Flat</option></select>
+            </label>
+          </div>
+          <div class="pr-out" id="preview">—</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .pr-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.2rem; }
+  .pr-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.5rem 0; border-bottom:1px solid rgba(28,36,29,.08); }
+  .pr-row:last-of-type { border-bottom:0; }
+  .pr-row label { font-weight:700; color:var(--pine-900); }
+  .pr-money { display:flex; align-items:center; gap:.4rem; color:var(--ink-soft); font-weight:800; }
+  .pr-money input { width:7rem; text-align:right; }
+  .pr-preview { grid-column:1 / -1; }
+  .pr-sample { margin:.4rem 0 1rem; }
+  .pr-sample input[type=number] { width:6rem; }
+  .pr-sample select, .pr-sample input { display:inline-block; width:auto; }
+  .pr-out { font-family:var(--font-display); font-size:1.9rem; color:var(--pine-900); }
+  .pr-out .pr-sub { display:block; font-family:var(--font-body); font-size:.95rem; color:var(--ink-soft); font-weight:600; margin-top:.3rem; }
+  @media (max-width:760px){ .pr-grid { grid-template-columns:1fr; } }
+</style>
+
+<script src="../js/config.js"></script>
+<script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
+<script>
+MC.ready.then(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var DEFAULTS = { waste:1.10, rangeLow:0.90, rangeHigh:1.12,
+    bands:{flat:650,b34:475,b56:600,b78:775}, materials:{asphalt:1.0,metal:1.9,tile:2.2,flat:1.1} };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function fill(cfg) {
+    $("b-flat").value = cfg.bands.flat; $("b-b34").value = cfg.bands.b34; $("b-b56").value = cfg.bands.b56; $("b-b78").value = cfg.bands.b78;
+    $("m-asphalt").value = cfg.materials.asphalt; $("m-metal").value = cfg.materials.metal; $("m-tile").value = cfg.materials.tile; $("m-flat").value = cfg.materials.flat;
+    $("waste").value = cfg.waste; $("rlow").value = cfg.rangeLow; $("rhigh").value = cfg.rangeHigh;
+    preview();
+  }
+  function read() {
+    var n = function (id, d) { var v = parseFloat($(id).value); return isFinite(v) ? v : d; };
+    return { waste:n("waste",1.1), rangeLow:n("rlow",.9), rangeHigh:n("rhigh",1.12),
+      bands:{flat:n("b-flat",650),b34:n("b-b34",475),b56:n("b-b56",600),b78:n("b-b78",775)},
+      materials:{asphalt:n("m-asphalt",1),metal:n("m-metal",1.9),tile:n("m-tile",2.2),flat:n("m-flat",1.1)} };
+  }
+  function money(v){ return "$" + Math.round(v).toLocaleString("en-US"); }
+  function preview() {
+    var c = read(), sq = parseFloat($("s-sqft").value) || 0;
+    var rate = c.bands[$("s-band").value] * c.materials[$("s-mat").value];
+    var quoted = sq * c.waste, squares = quoted / 100, base = squares * rate;
+    $("preview").innerHTML = money(base*c.rangeLow) + " – " + money(base*c.rangeHigh) +
+      "<span class='pr-sub'>" + (Math.round(squares*10)/10) + " squares (incl. " + c.waste + "× waste) at " + money(rate) + "/square</span>";
+  }
+
+  // load current pricing (public endpoint), fall back to defaults
+  fetch("/api/pricing").then(function(r){return r.json();}).then(fill).catch(function(){ fill(DEFAULTS); });
+  document.querySelector(".pr-grid").addEventListener("input", preview);
+
+  $("save").addEventListener("click", function () {
+    var btn = $("save"); btn.disabled = true; btn.textContent = "Saving…";
+    var cfg = read();
+    if (MC.mode !== "supabase" || !MC.client) {
+      window.MCUI && MCUI.toast("Live mode only — connect Supabase to save.", "err");
+      btn.disabled = false; btn.textContent = "Save pricing"; return;
+    }
+    MC.client().auth.getSession().then(function (r) {
+      var token = r.data.session && r.data.session.access_token;
+      return fetch("/api/set-pricing", { method:"POST",
+        headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+token },
+        body: JSON.stringify(cfg) });
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      btn.disabled = false; btn.textContent = "Save pricing";
+      if (d && d.ok) { window.MCUI && MCUI.toast("Pricing saved ✓ — the calculator now uses it."); }
+      else { window.MCUI && MCUI.toast((d && d.error) || "Couldn't save", "err"); }
+    }).catch(function () { btn.disabled = false; btn.textContent = "Save pricing"; window.MCUI && MCUI.toast("Couldn't save", "err"); });
+  });
+});
+</script>
+</body>
+</html>

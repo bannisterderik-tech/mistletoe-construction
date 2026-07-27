@@ -424,10 +424,16 @@
 (function () {
   "use strict";
 
-  // ---- Shared constants (mirror the backend exactly) ----
-  var WASTE = 1.10;
+  // ---- Pricing defaults (overwritten by the owner's live rates from /api/pricing) ----
+  var WASTE = 1.10, RLOW = 0.90, RHIGH = 1.12;
   var BAND_RATE = { "3–4/12": 475, "5–6/12": 600, "7–8/12": 775, "9+/12 (Custom Quote)": null };
   var MATERIAL = { asphalt: 1.0, metal: 1.9, tile: 2.2, flat: 1.1 };
+  fetch("/api/pricing").then(function (r) { return r.json(); }).then(function (p) {
+    if (!p) return;
+    WASTE = p.waste || WASTE; RLOW = p.rangeLow || RLOW; RHIGH = p.rangeHigh || RHIGH;
+    if (p.bands) { BAND_RATE["3–4/12"] = p.bands.b34; BAND_RATE["5–6/12"] = p.bands.b56; BAND_RATE["7–8/12"] = p.bands.b78; }
+    if (p.materials) { MATERIAL = p.materials; }
+  }).catch(function () {});
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -528,8 +534,8 @@
     var ratePerSquare = null, costLow = null, costHigh = null;
     if (!custom) {
       ratePerSquare = Math.round(bandRate * matMult);
-      costLow = Math.round(squares * ratePerSquare * 0.90);
-      costHigh = Math.round(squares * ratePerSquare * 1.12);
+      costLow = Math.round(squares * ratePerSquare * RLOW);
+      costHigh = Math.round(squares * ratePerSquare * RHIGH);
     }
 
     // No satellite image / no sections in manual mode
