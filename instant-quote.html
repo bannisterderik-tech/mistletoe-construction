@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instant Roof Estimate | Mistletoe Construction</title>
+<meta name="description" content="Get an instant roof replacement estimate in about 30 seconds. Enter your address and Mistletoe Construction uses satellite building data to size your roof and price it by pitch band. Licensed Oregon roofer, CCB #255729. No obligation.">
+<link rel="canonical" href="https://mistletoeconstruction.com/instant-quote.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Instant Roof Estimate | Mistletoe Construction">
+<meta property="og:description" content="See your roof estimate in 30 seconds from satellite building data. Licensed Oregon roofer · CCB #255729 · No obligation.">
+<meta property="og:url" content="https://mistletoeconstruction.com/instant-quote.html">
+<meta property="og:image" content="https://mistletoeconstruction.com/images/hero-rain-roof.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Instant Roof Estimate | Mistletoe Construction">
+<meta name="twitter:description" content="See your roof estimate in 30 seconds from satellite building data. Licensed Oregon roofer · CCB #255729 · No obligation.">
+<meta name="twitter:image" content="https://mistletoeconstruction.com/images/hero-rain-roof.webp">
+<link rel="icon" type="image/png" href="images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css?v=3">
+<style>
+  /* ---------- Instant Quote page-specific ---------- */
+  .iq-hero { position: relative; color: var(--cream); overflow: hidden;
+    background: linear-gradient(160deg, var(--pine-950) 0%, var(--pine-800) 58%, var(--pine-700) 100%); }
+  .iq-hero::after { content: ""; position: absolute; right: -8rem; top: -8rem; width: 34rem; height: 34rem;
+    background: radial-gradient(closest-side, rgba(92,187,60,0.18), transparent 70%); pointer-events: none; }
+  .iq-hero .wrap { position: relative; z-index: 2; padding-block: clamp(3rem, 7vw, 4.6rem); }
+  .iq-hero h1 { color: var(--cream); max-width: 16ch; }
+  .iq-hero h1 em { font-style: normal; color: var(--ochre); }
+  .iq-hero .hero-lede { color: var(--mist); max-width: 52ch; }
+  .iq-trustline { margin-top: var(--space-2); font-size: 0.92rem; color: var(--sage);
+    display: inline-flex; align-items: center; gap: 0.6rem; }
+  .iq-trustline svg { width: 18px; height: 18px; color: var(--ochre); flex-shrink: 0; }
+
+  .iq-stage { background: var(--parchment); }
+  .iq-stage .wrap { padding-block: clamp(2.4rem, 6vw, 4rem); }
+
+  /* Estimator card */
+  .estimator {
+    background: var(--cream); border-radius: var(--radius-lg); border: 1px solid rgba(28,36,29,0.08);
+    box-shadow: var(--shadow-lift); padding: clamp(1.5rem, 4vw, 2.6rem); max-width: 46rem; margin-inline: auto;
+    margin-top: -6.5rem; position: relative; z-index: 3;
+  }
+  .estimator h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); margin-bottom: 0.3rem; }
+  .estimator .est-sub { color: var(--ink-soft); margin-bottom: var(--space-3); }
+  .est-field { margin-bottom: 1.15rem; }
+  .est-help { font-size: 0.86rem; color: var(--ink-soft); margin: 0.45rem 0 0; }
+  .est-actions { margin-top: 1.4rem; }
+  .est-actions .btn { width: 100%; font-size: 1.08rem; padding-block: 1.05rem; }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.7; pointer-events: none; }
+  .btn.is-loading { position: relative; }
+  .btn.is-loading::before {
+    content: ""; width: 1.05em; height: 1.05em; border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.4); border-top-color: #fff;
+    animation: iq-spin 0.7s linear infinite; margin-right: 0.1rem;
+  }
+  @keyframes iq-spin { to { transform: rotate(360deg); } }
+
+  .est-toggle {
+    display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1.15rem;
+    background: none; border: 0; padding: 0.25rem 0; color: var(--copper-deep);
+    font-weight: 800; font-size: 0.95rem; text-decoration: underline; text-underline-offset: 3px;
+  }
+  .est-toggle:hover { color: var(--copper); }
+  .est-toggle svg { width: 15px; height: 15px; transition: transform 0.2s ease; }
+  .est-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+  .manual-panel {
+    margin-top: 1.15rem; padding: 1.4rem; border-radius: var(--radius);
+    background: var(--parchment); border: 1px dashed rgba(35,70,49,0.3);
+  }
+  .manual-panel[hidden] { display: none; }
+  .manual-panel .btn { width: 100%; margin-top: 0.4rem; }
+  .manual-row { display: grid; gap: 1rem; }
+  @media (min-width: 560px) { .manual-row { grid-template-columns: 1fr 1fr; } }
+
+  .est-error { margin-top: 1rem; padding: 0.85rem 1.1rem; border-radius: 10px;
+    background: #fdf3e7; border: 1px solid rgba(197,120,40,0.35); color: #8a4b12;
+    font-size: 0.95rem; font-weight: 600; }
+  .est-error[hidden] { display: none; }
+
+  /* Results panel */
+  .results { max-width: 60rem; margin: var(--space-4) auto 0; }
+  .results[hidden] { display: none; }
+  .results.reveal-in > * { animation: iq-rise 0.6s cubic-bezier(0.2,0.7,0.2,1) both; }
+  .results.reveal-in > *:nth-child(2) { animation-delay: 0.06s; }
+  .results.reveal-in > *:nth-child(3) { animation-delay: 0.12s; }
+  .results.reveal-in > *:nth-child(4) { animation-delay: 0.18s; }
+  .results.reveal-in > *:nth-child(5) { animation-delay: 0.24s; }
+  @keyframes iq-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .results.reveal-in > * { animation: none; }
+  }
+
+  .res-block { background: var(--cream); border: 1px solid rgba(28,36,29,0.08);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+    padding: clamp(1.3rem, 3vw, 2rem); margin-bottom: var(--space-3); }
+  .res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 1rem; margin-bottom: 1.1rem; }
+  .res-head h3 { margin: 0; }
+  .res-address { color: var(--ink-soft); font-weight: 700; }
+
+  .sat-figure { margin: 0; border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow-soft); border: 1px solid rgba(28,36,29,0.1); background: var(--mist); }
+  .sat-figure img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: cover; }
+  .sat-cap { font-size: 0.82rem; color: var(--ink-soft); padding: 0.6rem 0.9rem; background: var(--parchment); }
+
+  /* Explainer steps */
+  .explainer { counter-reset: xp; list-style: none; margin: 0; padding: 0;
+    display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(min(13rem,100%),1fr)); }
+  .explainer li { counter-increment: xp; position: relative; padding: 1rem 1rem 1rem 3rem;
+    background: var(--parchment); border-radius: var(--radius); font-size: 0.94rem; color: var(--ink-soft); }
+  .explainer li::before { content: counter(xp); position: absolute; left: 0.85rem; top: 0.9rem;
+    width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--pine-800); color: var(--cream);
+    font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; display: grid; place-items: center; }
+
+  /* Stat tiles */
+  .stat-grid { display: grid; gap: var(--space-2);
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem,100%),1fr)); }
+  .stat-tile { background: var(--parchment); border: 1px solid rgba(28,36,29,0.08);
+    border-radius: var(--radius); padding: 1.15rem 1.25rem; }
+  .stat-label { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--copper-deep); margin: 0 0 0.35rem; }
+  .stat-value { font-family: var(--font-display); font-size: 1.85rem; line-height: 1; color: var(--pine-900);
+    letter-spacing: 0.01em; }
+  .stat-note { font-size: 0.78rem; color: var(--ink-soft); margin: 0.5rem 0 0; }
+
+  /* Cost hero tile */
+  .cost-tile { grid-column: 1 / -1; position: relative; overflow: hidden; color: var(--cream);
+    background: linear-gradient(135deg, var(--pine-900), var(--pine-700)); border: 0;
+    padding: clamp(1.5rem, 4vw, 2.2rem); border-radius: var(--radius-lg); box-shadow: var(--shadow-lift); }
+  .cost-tile::after { content: ""; position: absolute; right: -4rem; bottom: -6rem; width: 20rem; height: 20rem;
+    background: radial-gradient(closest-side, rgba(92,187,60,0.28), transparent 70%); pointer-events: none; }
+  .cost-tile .stat-label { color: var(--ochre); }
+  .cost-value { font-family: var(--font-display); font-weight: 700; line-height: 1.02;
+    font-size: clamp(2.4rem, 7vw, 4rem); color: var(--cream); letter-spacing: 0.01em; }
+  .cost-sub { color: var(--sage); font-size: 0.95rem; margin: 0.6rem 0 0; position: relative; z-index: 1; max-width: 46ch; }
+  .cost-tile.is-custom .cost-value { font-size: clamp(1.6rem, 4vw, 2.3rem); }
+
+  /* Section cards */
+  .sections-grid { display: grid; gap: var(--space-2);
+    grid-template-columns: repeat(auto-fit, minmax(min(14rem,100%),1fr)); }
+  .sec-card { background: var(--parchment); border: 1px solid rgba(28,36,29,0.08);
+    border-radius: var(--radius); padding: 1.1rem 1.2rem; }
+  .sec-card h4 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--pine-900); margin: 0 0 0.7rem; font-size: 1rem; }
+  .sec-card dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 0.35rem 0.8rem; font-size: 0.9rem; }
+  .sec-card dt { color: var(--ink-soft); }
+  .sec-card dd { margin: 0; font-weight: 800; color: var(--pine-800); font-variant-numeric: tabular-nums; }
+
+  /* Lead form */
+  .lead-form label { color: var(--pine-800); }
+  .lead-form .btn { width: 100%; margin-top: 0.4rem; font-size: 1.05rem; padding-block: 1rem; }
+  .lead-ok { margin-top: 1rem; padding: 1rem 1.2rem; border-radius: var(--radius);
+    background: #e7f2e0; border: 1px solid rgba(63,145,40,0.35); color: var(--pine-800); font-weight: 700; }
+  .lead-ok[hidden] { display: none; }
+  .req { color: var(--copper); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Mistletoe Construction — home">
+      <img src="images/logo-lockup-white.png" alt="Mistletoe Construction LLC" width="1342" height="251">
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-label="Menu"><span></span><span></span><span></span></button>
+    <nav class="nav-main" aria-label="Main">
+      <a href="services/">Services</a>
+      <a href="membership.html">Membership</a>
+      <a href="locations/">Service Areas</a>
+      <a href="guides/">Guides</a>
+      <a href="our-work.html">Our Work</a>
+      <a href="about.html">About</a>
+      <a class="nav-phone" href="tel:+15416705005">(541) 670-5005</a>
+      <a class="btn btn-primary nav-cta" href="contact.html">Free Estimate</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="iq-hero">
+    <div class="wrap on-dark">
+      <p class="kicker on-dark">Instant Estimate</p>
+      <h1>See your roof estimate in <em>30 seconds.</em></h1>
+      <p class="hero-lede">Enter your address and we'll size your roof from satellite building data — real measured area, detected pitch, and a priced range before anyone climbs a ladder.</p>
+      <p class="iq-trustline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M8.5 12l2.4 2.4L15.5 9.8"/></svg>
+        Licensed Oregon roofer · CCB #255729 · No obligation.
+      </p>
+    </div>
+  </section>
+
+  <section class="iq-stage">
+    <div class="wrap">
+
+      <!-- ESTIMATOR CARD -->
+      <div class="estimator" id="estimator">
+        <h2>Get your instant estimate</h2>
+        <p class="est-sub">Free, no obligation — we confirm every number on-site.</p>
+
+        <div class="est-field">
+          <label for="address">Property Address</label>
+          <input type="text" id="address" name="address" autocomplete="street-address"
+            placeholder="123 E Third St, Riddle, OR 97469" inputmode="text">
+        </div>
+
+        <div class="est-field">
+          <label for="roofType">Roof Type <span style="font-weight:600;color:var(--ink-soft)">(for reference)</span></label>
+          <select id="roofType" name="roofType">
+            <option value="asphalt">Asphalt Shingles</option>
+            <option value="metal">Metal Roofing</option>
+            <option value="tile">Tile Roofing</option>
+            <option value="flat">Flat Roof</option>
+          </select>
+          <p class="est-help">Pricing uses roof pitch bands (3–4/12, 5–6/12, 7–8/12). Steeper = custom quote.</p>
+        </div>
+
+        <div class="est-actions">
+          <button type="button" class="btn btn-primary" id="find">Find My Roof</button>
+        </div>
+
+        <div class="est-error" id="estError" hidden role="alert"></div>
+
+        <button type="button" class="est-toggle" id="manualToggle" aria-expanded="false" aria-controls="manualPanel">
+          Or enter my own square footage
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+
+        <div class="manual-panel" id="manualPanel" hidden>
+          <div class="manual-row">
+            <div class="est-field" style="margin-bottom:0">
+              <label for="manualSqft">Roof Area (sq ft)</label>
+              <input type="number" id="manualSqft" name="manualSqft" min="1" step="1" inputmode="numeric" placeholder="e.g. 2200">
+            </div>
+            <div class="est-field" style="margin-bottom:0">
+              <label for="manualPitch">Roof Pitch</label>
+              <select id="manualPitch" name="manualPitch">
+                <option value="3–4/12">3–4/12</option>
+                <option value="5–6/12">5–6/12</option>
+                <option value="7–8/12">7–8/12</option>
+                <option value="9+/12 (Custom Quote)">9+/12 (Custom Quote)</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline" id="calc">Calculate Cost</button>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="results" id="results" hidden aria-live="polite">
+        <!-- Satellite -->
+        <div class="res-block" id="satBlock">
+          <div class="res-head">
+            <h3>Your roof from above</h3>
+            <span class="res-address" id="resAddress"></span>
+          </div>
+          <figure class="sat-figure">
+            <img id="satImage" alt="Satellite view of your roof with a location pin" src="" loading="lazy">
+            <figcaption class="sat-cap" id="satCap">Satellite imagery with a pin on your building.</figcaption>
+          </figure>
+        </div>
+
+        <!-- How it works -->
+        <div class="res-block">
+          <div class="res-head"><h3>How this estimate works</h3></div>
+          <ol class="explainer">
+            <li>Satellite building data estimates your roof's overall size.</li>
+            <li>We read the average slope from the detected roof planes.</li>
+            <li>It's priced by pitch band using our $/square rates.</li>
+            <li>Shown as a range — tear-off layers, decking, access, and material set the final quote.</li>
+          </ol>
+        </div>
+
+        <!-- Stats + cost -->
+        <div class="res-block">
+          <div class="res-head"><h3>Your estimate</h3></div>
+          <div class="stat-grid">
+            <div class="stat-tile">
+              <p class="stat-label">Measured Roof Area</p>
+              <div class="stat-value" id="statMeasured">—</div>
+              <p class="stat-note" id="statMeasuredNote">From satellite building data</p>
+            </div>
+            <div class="stat-tile">
+              <p class="stat-label">Quoted Area (incl. waste)</p>
+              <div class="stat-value" id="statQuoted">—</div>
+              <p class="stat-note">Waste factor 1.10 • 1 square = 100 sq ft</p>
+            </div>
+            <div class="stat-tile">
+              <p class="stat-label">Detected Pitch</p>
+              <div class="stat-value" id="statPitch">—</div>
+              <p class="stat-note" id="statPitchNote">If pitch looks off, it's an estimate from building data — we confirm on-site.</p>
+            </div>
+            <div class="stat-tile cost-tile" id="costTile">
+              <p class="stat-label">Estimated Cost Range</p>
+              <div class="cost-value" id="statCost">—</div>
+              <p class="cost-sub" id="statCostSub"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section analysis -->
+        <div class="res-block" id="sectionsBlock" hidden>
+          <div class="res-head"><h3>Roof Section Analysis</h3></div>
+          <div class="sections-grid" id="sectionsGrid"></div>
+        </div>
+
+        <!-- Lead form -->
+        <div class="res-block">
+          <div class="res-head"><h3>Request a Detailed Quote</h3></div>
+          <p style="color:var(--ink-soft);margin-top:-0.4rem">Want a firm number? Send your details and we'll follow up with an exact quote — no obligation.</p>
+          <form class="lead-form" id="leadForm" novalidate>
+            <div class="form-grid">
+              <div>
+                <label for="leadName">Name <span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="leadName" name="name" autocomplete="name" required>
+              </div>
+              <div>
+                <label for="leadPhone">Phone</label>
+                <input type="tel" id="leadPhone" name="phone" autocomplete="tel" inputmode="tel">
+              </div>
+              <div class="full">
+                <label for="leadEmail">Email</label>
+                <input type="email" id="leadEmail" name="email" autocomplete="email" inputmode="email">
+              </div>
+              <div class="full">
+                <button type="submit" class="btn btn-primary" id="leadSubmit">Request Detailed Quote</button>
+              </div>
+            </div>
+            <div class="lead-ok" id="leadOk" hidden role="status"></div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band on-dark">
+    <div class="wrap">
+      <div>
+        <h2>Prefer to talk it through?</h2>
+        <p>A local, licensed team that treats your home like our own — call or text anytime.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="contact.html">Get a Free Estimate</a>
+        <a class="btn btn-outline on-dark" href="tel:+15416705005">Call (541) 670-5005</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="images/logo-lockup-white.png" alt="Mistletoe Construction LLC">
+        <address>595 E Third St<br>Riddle, Oregon 97469</address>
+        <p style="margin-top:0.8rem"><a href="tel:+15416705005">(541) 670-5005</a> · call or text<br><a href="mailto:Mistletoeconstructionllc@gmail.com">Mistletoeconstructionllc@gmail.com</a></p>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <ul>
+          <li><a href="services/roof-replacement.html">Roof Replacement</a></li>
+          <li><a href="services/roof-repair.html">Roof Repair</a></li>
+          <li><a href="services/roof-cleaning-moss-removal.html">Moss Removal</a></li>
+          <li><a href="services/metal-roofing.html">Metal Roofing</a></li>
+          <li><a href="services/siding.html">Siding</a></li>
+          <li><a href="services/gutter-guards.html">Gutter Guards</a></li>
+          <li><a href="services/">All 12 services →</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Service Areas</h4>
+        <ul>
+          <li><a href="locations/roseburg.html">Roseburg</a></li>
+          <li><a href="locations/riddle.html">Riddle</a></li>
+          <li><a href="locations/myrtle-creek.html">Myrtle Creek</a></li>
+          <li><a href="locations/winston.html">Winston</a></li>
+          <li><a href="locations/sutherlin.html">Sutherlin</a></li>
+          <li><a href="locations/">All of Douglas County →</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="membership.html">Home Care Membership</a></li>
+          <li><a href="our-work.html">Our Work</a></li>
+          <li><a href="guides/">Guides &amp; Resources</a></li>
+          <li><a href="glossary/">Roofing Glossary</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="portal/login.html">Client Log In</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-legal">
+      <span>© 2026 Mistletoe Construction LLC</span>
+      <span>Oregon CCB #255729 · Licensed &amp; Insured</span>
+      <span>Owens Corning Contractor</span>
+      <span>Family-owned in Riddle, Oregon</span>
+      <span class="footer-legal-links"><a href="privacy-policy.html">Privacy</a> · <a href="terms-of-service.html">Terms</a> · <a href="do-not-sell.html">Do Not Sell My Info</a> · <a href="accessibility.html">Accessibility</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="callbar">
+  <a class="btn btn-outline on-dark" href="tel:+15416705005">☎ Call / Text</a>
+  <a class="btn btn-primary" href="contact.html">Free Estimate</a>
+</div>
+
+<script src="js/main.js" defer></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---- Shared constants (mirror the backend exactly) ----
+  var WASTE = 1.10;
+  var BAND_RATE = { "3–4/12": 475, "5–6/12": 600, "7–8/12": 775, "9+/12 (Custom Quote)": null };
+  var MATERIAL = { asphalt: 1.0, metal: 1.9, tile: 2.2, flat: 1.1 };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function money(n) {
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+  function num(n) {
+    return Math.round(n).toLocaleString("en-US");
+  }
+
+  // ---- Manual panel toggle ----
+  var manualToggle = $("manualToggle");
+  var manualPanel = $("manualPanel");
+  function openManual() {
+    manualPanel.hidden = false;
+    manualToggle.setAttribute("aria-expanded", "true");
+  }
+  manualToggle.addEventListener("click", function () {
+    if (manualPanel.hidden) { openManual(); $("manualSqft").focus(); }
+    else { manualPanel.hidden = true; manualToggle.setAttribute("aria-expanded", "false"); }
+  });
+
+  // ---- Error helper ----
+  var estError = $("estError");
+  function showError(msg) { estError.textContent = msg; estError.hidden = false; }
+  function clearError() { estError.hidden = true; estError.textContent = ""; }
+
+  // ---- Results rendering ----
+  var results = $("results");
+  var sectionsBlock = $("sectionsBlock");
+  var sectionsGrid = $("sectionsGrid");
+  var costTile = $("costTile");
+
+  function revealResults() {
+    results.hidden = false;
+    // restart the stagger animation
+    results.classList.remove("reveal-in");
+    void results.offsetWidth;
+    results.classList.add("reveal-in");
+    results.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Render the full satellite-backed estimate from the API payload
+  function renderApi(d) {
+    // Satellite image
+    $("satBlock").hidden = false;
+    $("resAddress").textContent = d.address || "";
+    var img = $("satImage");
+    img.src = d.imageUrl || "";
+    $("satCap").textContent = d.imageryDate
+      ? ("Satellite imagery · " + d.imageryDate + " · pin marks your building.")
+      : "Satellite imagery with a pin on your building.";
+
+    // Stat tiles
+    $("statMeasured").textContent = num(d.measuredSqFt) + " sq ft";
+    $("statMeasuredNote").textContent = "From satellite building data";
+    $("statQuoted").textContent = num(d.quotedSqFt) + " sq ft";
+    $("statPitch").textContent = d.avgPitchDeg + "° · " + d.pitchBand;
+    $("statPitchNote").textContent = "If pitch looks off, it's an estimate from building data — we confirm on-site.";
+
+    renderCost(d.custom, d.costLow, d.costHigh, d.squares, d.ratePerSquare, d.pitchBand);
+
+    // Sections
+    if (d.sections && d.sections.length) {
+      sectionsGrid.innerHTML = "";
+      d.sections.forEach(function (s, i) {
+        var card = document.createElement("div");
+        card.className = "sec-card";
+        card.innerHTML =
+          "<h4>Roof Section " + (i + 1) + "</h4>" +
+          "<dl>" +
+          "<dt>Measured Sq Ft</dt><dd>" + num(s.measuredSqFt) + "</dd>" +
+          "<dt>Quoted Sq Ft</dt><dd>" + num(s.quotedSqFt) + "</dd>" +
+          "<dt>Pitch</dt><dd>" + s.pitchDeg + "°</dd>" +
+          "<dt>Direction</dt><dd>" + s.directionDeg + "°</dd>" +
+          "</dl>";
+        sectionsGrid.appendChild(card);
+      });
+      sectionsBlock.hidden = false;
+    } else {
+      sectionsBlock.hidden = true;
+    }
+
+    // stash a summary for the lead form
+    lastSummary = buildSummary(d.address, d.measuredSqFt, d.quotedSqFt, d.avgPitchDeg + "° · " + d.pitchBand,
+      d.custom, d.costLow, d.costHigh);
+
+    revealResults();
+  }
+
+  // Render a manual (client-side) estimate — no image / no sections
+  function renderManual(sqft, pitchBand) {
+    var bandRate = BAND_RATE[pitchBand];
+    var matMult = MATERIAL[$("roofType").value] || 1.0;
+    var quotedSqFt = Math.round(sqft * WASTE);
+    var squares = Math.round(quotedSqFt / 100 * 10) / 10;
+    var custom = (bandRate == null);
+    var ratePerSquare = null, costLow = null, costHigh = null;
+    if (!custom) {
+      ratePerSquare = Math.round(bandRate * matMult);
+      costLow = Math.round(squares * ratePerSquare * 0.90);
+      costHigh = Math.round(squares * ratePerSquare * 1.12);
+    }
+
+    // No satellite image / no sections in manual mode
+    $("satBlock").hidden = true;
+    sectionsBlock.hidden = true;
+
+    $("statMeasured").textContent = num(sqft) + " sq ft";
+    $("statMeasuredNote").textContent = "Entered manually";
+    $("statQuoted").textContent = num(quotedSqFt) + " sq ft";
+    $("statPitch").textContent = pitchBand;
+    $("statPitchNote").textContent = "Entered manually — we confirm the real pitch on-site.";
+
+    renderCost(custom, costLow, costHigh, squares, ratePerSquare, pitchBand);
+
+    lastSummary = buildSummary("Address not provided (manual entry)", sqft, quotedSqFt, pitchBand,
+      custom, costLow, costHigh);
+
+    revealResults();
+  }
+
+  function renderCost(custom, costLow, costHigh, squares, ratePerSquare, pitchBand) {
+    var costEl = $("statCost");
+    var subEl = $("statCostSub");
+    if (custom) {
+      costTile.classList.add("is-custom");
+      costEl.textContent = "Custom quote";
+      subEl.textContent = "Custom quote — request a detailed quote below.";
+    } else {
+      costTile.classList.remove("is-custom");
+      costEl.textContent = money(costLow) + " – " + money(costHigh);
+      subEl.textContent = "Based on " + squares + " squares at " + money(ratePerSquare) +
+        "/square for " + pitchBand + ".";
+    }
+  }
+
+  var lastSummary = "";
+  function buildSummary(address, measured, quoted, pitch, custom, low, high) {
+    var range = custom ? "Custom quote (steep pitch)" : (money(low) + " – " + money(high));
+    return "Instant roof estimate — " + address +
+      " | Measured " + num(measured) + " sq ft, quoted " + num(quoted) + " sq ft (incl. waste)" +
+      " | Pitch: " + pitch +
+      " | Estimated range: " + range;
+  }
+
+  // ---- Find My Roof (API) ----
+  var findBtn = $("find");
+  findBtn.addEventListener("click", function () {
+    var address = $("address").value.trim();
+    clearError();
+    if (!address) { showError("Please enter your property address first."); $("address").focus(); return; }
+
+    var orig = findBtn.textContent;
+    findBtn.classList.add("is-loading");
+    findBtn.disabled = true;
+    findBtn.textContent = "Measuring your roof…";
+
+    fetch("/api/roof-estimate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: address, roofType: $("roofType").value })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.ok) {
+        renderApi(d);
+      } else {
+        var reason = d && d.reason;
+        if (reason === "not_configured") {
+          showError("Instant lookup is being switched on — enter your square footage below for now.");
+        } else {
+          showError("We couldn't pull satellite data for that address — enter your roof's square footage below and we'll estimate it.");
+        }
+        openManual();
+        $("manualSqft").focus();
+      }
+    })
+    .catch(function () {
+      showError("We couldn't reach our lookup just now — enter your roof's square footage below and we'll estimate it.");
+      openManual();
+    })
+    .then(function () {
+      findBtn.classList.remove("is-loading");
+      findBtn.disabled = false;
+      findBtn.textContent = orig;
+    });
+  });
+
+  // ---- Calculate Cost (manual) ----
+  $("calc").addEventListener("click", function () {
+    clearError();
+    var sqft = parseFloat($("manualSqft").value);
+    if (!sqft || sqft <= 0) { showError("Enter a roof area in square feet to calculate."); $("manualSqft").focus(); return; }
+    renderManual(sqft, $("manualPitch").value);
+  });
+
+  // ---- Request a Detailed Quote ----
+  var leadForm = $("leadForm");
+  var leadSubmit = $("leadSubmit");
+  var leadOk = $("leadOk");
+  leadForm.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var name = $("leadName").value.trim();
+    var phone = $("leadPhone").value.trim();
+    var email = $("leadEmail").value.trim();
+    if (!name) { $("leadName").focus(); return; }
+    if (!phone && !email) { showLeadError("Please add a phone or email so we can reach you."); return; }
+
+    var orig = leadSubmit.textContent;
+    leadSubmit.classList.add("is-loading");
+    leadSubmit.disabled = true;
+    leadSubmit.textContent = "Sending…";
+
+    fetch("/api/submit-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name, phone: phone, email: email,
+        service: "Roof Replacement — instant estimate",
+        message: lastSummary || "Instant roof estimate request."
+      })
+    })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+    .then(function (res) {
+      if (res.ok) {
+        leadOk.classList.remove("is-error");
+        leadOk.textContent = "Got it! We'll follow up within one business day with a firm number. Urgent? Call/text (541) 670-5005.";
+        leadOk.hidden = false;
+        leadSubmit.textContent = "Request sent ✓";
+        leadSubmit.disabled = true;
+        leadSubmit.classList.remove("is-loading");
+      } else {
+        showLeadError((res.body && res.body.error) || "Something went wrong — please call or text (541) 670-5005.");
+        resetLeadBtn(orig);
+      }
+    })
+    .catch(function () {
+      showLeadError("We couldn't send that just now — please call or text (541) 670-5005.");
+      resetLeadBtn(orig);
+    });
+
+    function resetLeadBtn(text) {
+      leadSubmit.classList.remove("is-loading");
+      leadSubmit.disabled = false;
+      leadSubmit.textContent = text;
+    }
+  });
+
+  function showLeadError(msg) {
+    leadOk.classList.add("is-error");
+    leadOk.style.background = "#fdf3e7";
+    leadOk.style.borderColor = "rgba(197,120,40,0.35)";
+    leadOk.style.color = "#8a4b12";
+    leadOk.textContent = msg;
+    leadOk.hidden = false;
+  }
+
+  // Enter key in address field triggers Find My Roof
+  $("address").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); findBtn.click(); }
+  });
+})();
+</script>
+</body>
+</html>
