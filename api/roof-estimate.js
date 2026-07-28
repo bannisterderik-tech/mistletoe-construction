@@ -22,7 +22,10 @@ module.exports = async (req, res) => {
     // 1) geocode
     const gc = await fetch("https://maps.googleapis.com/maps/api/geocode/json?address=" +
       encodeURIComponent(address) + "&key=" + key).then((r) => r.json());
-    if (!gc.results || !gc.results[0]) { res.status(200).json({ ok: false, reason: "address_not_found" }); return; }
+    if (!gc.results || !gc.results[0]) {
+      res.status(200).json({ ok: false, reason: "address_not_found", gstatus: gc.status || null, gerror: gc.error_message || null });
+      return;
+    }
     const loc = gc.results[0].geometry.location;
     const formatted = gc.results[0].formatted_address;
     const lat = loc.lat, lng = loc.lng;
