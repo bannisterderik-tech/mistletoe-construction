@@ -520,6 +520,9 @@
     // stash a summary for the lead form
     lastSummary = buildSummary(d.address, d.measuredSqFt, d.quotedSqFt, d.avgPitchDeg + "° · " + d.pitchBand,
       d.custom, d.costLow, d.costHigh);
+    lastEstimate = { address: d.address, city: "", measuredSqFt: d.measuredSqFt, quotedSqFt: d.quotedSqFt,
+      squares: d.squares, pitchBand: d.pitchBand, material: d.material, ratePerSquare: d.ratePerSquare,
+      custom: d.custom, costLow: d.costLow, costHigh: d.costHigh };
 
     revealResults();
   }
@@ -552,6 +555,9 @@
 
     lastSummary = buildSummary("Address not provided (manual entry)", sqft, quotedSqFt, pitchBand,
       custom, costLow, costHigh);
+    lastEstimate = { address: $("address").value.trim(), city: "", measuredSqFt: sqft, quotedSqFt: quotedSqFt,
+      squares: squares, pitchBand: pitchBand, material: $("roofType").value, ratePerSquare: ratePerSquare,
+      custom: custom, costLow: costLow, costHigh: costHigh };
 
     revealResults();
   }
@@ -572,6 +578,7 @@
   }
 
   var lastSummary = "";
+  var lastEstimate = null;
   function buildSummary(address, measured, quoted, pitch, custom, low, high) {
     var range = custom ? "Custom quote (steep pitch)" : (money(low) + " – " + money(high));
     return "Instant roof estimate — " + address +
@@ -648,13 +655,13 @@
     leadSubmit.disabled = true;
     leadSubmit.textContent = "Sending…";
 
-    fetch("/api/submit-lead", {
+    fetch("/api/estimate-lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: name, phone: phone, email: email,
-        service: "Roof Replacement — instant estimate",
-        message: lastSummary || "Instant roof estimate request."
+        address: (lastEstimate && lastEstimate.address) || $("address").value.trim(),
+        estimate: lastEstimate || {}
       })
     })
     .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
