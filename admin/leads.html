@@ -208,6 +208,15 @@ MC.ready.then(function () {
     if (lead.phone) {
       actions.push({ label: "Call", kind: "outline", onClick: function () { location.href = "tel:" + lead.phone; } });
     }
+    if (((MC.auth.session() || {}).role) === "admin") {
+      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this lead? This can't be undone.")) return;
+        MC.remove("leads", lead.id);
+        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render();
+        window.MCUI && MCUI.toast("lead deleted");
+      } });
+    }
 
     MCUI.open({
       eyebrow: "Lead",

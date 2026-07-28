@@ -197,16 +197,27 @@ MC.ready.then(function () {
       ["Summary", v.summary || "Not yet logged."],
       ["Photos", v.photos != null ? String(v.photos) : "0"]
     ]);
+    var actions = [
+      { label: "View customer →", kind: "outline", onClick: function () {
+          location.href = "customers.html";
+      } }
+    ];
+    if (((MC.auth.session() || {}).role) === "admin") {
+      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this visit? This can't be undone.")) return;
+        MC.remove("visits", v.id);
+        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render();
+        window.MCUI && MCUI.toast("visit deleted");
+      } });
+    }
+
     MCUI.open({
       eyebrow: "Visit",
       title: v.type || "Visit",
       subtitle: MC.customerName(v.customerId) + " · " + MC.fmtDate(v.date),
       bodyHTML: body,
-      actions: [
-        { label: "View customer →", kind: "outline", onClick: function () {
-            location.href = "customers.html";
-        } }
-      ]
+      actions: actions
     });
   }
 

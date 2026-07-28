@@ -221,17 +221,28 @@ MC.ready.then(function () {
       moveSec +
       assignSec;
 
+    var actions = [
+      { label: "View customer →", kind: "primary", onClick: function () {
+          location.href = "customers.html";
+      } },
+      { label: "Add visit note", kind: "outline", onClick: function () { openVisitForm(j); } }
+    ];
+    if (((MC.auth.session() || {}).role) === "admin") {
+      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this job? This can't be undone.")) return;
+        MC.remove("jobs", j.id);
+        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render();
+        window.MCUI && MCUI.toast("job deleted");
+      } });
+    }
+
     MCUI.open({
       eyebrow: "Job",
       title: j.title,
       subtitle: MC.customerName(j.customerId),
       bodyHTML: body,
-      actions: [
-        { label: "View customer →", kind: "primary", onClick: function () {
-            location.href = "customers.html";
-        } },
-        { label: "Add visit note", kind: "outline", onClick: function () { openVisitForm(j); } }
-      ],
+      actions: actions,
       onBody: function (bodyEl) {
         /* Move status buttons */
         bodyEl.querySelectorAll("[data-status]").forEach(function (b) {

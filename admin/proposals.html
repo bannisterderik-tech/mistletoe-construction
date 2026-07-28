@@ -77,7 +77,7 @@
 
 <div class="modal-back" id="prop-modal">
   <div class="modal">
-    <h3>New Proposal</h3>
+    <h3 id="np-heading">New Proposal</h3>
     <div style="margin-bottom:0.9rem">
       <label for="np-customer">Customer *</label>
       <select id="np-customer"></select>
@@ -148,6 +148,7 @@ MC.ready.then(function () {
 
   var rows = document.getElementById("rows");
   var STATUS_BADGE = { draft: "gray", sent: "blue", accepted: "amber", invoiced: "blue", paid: "green", declined: "red" };
+  var editingId = null;
 
   function genToken(){var a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
   function shareUrl(p) { return location.origin + "/proposal.html?t=" + p.token; }
@@ -210,6 +211,10 @@ MC.ready.then(function () {
       if (p.stripe_invoice_url) {
         actions += "<a class='btn-icon' href='" + p.stripe_invoice_url + "' target='_blank' rel='noopener'>Invoice →</a>";
       }
+      actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='edit'>Edit</button>";
+      if (((MC.auth.session() || {}).role) === "admin") {
+        actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='delete'>Delete</button>";
+      }
       var created = p.created ? MC.fmtDate(p.created) : "—";
       return "<tr>" +
         "<td><span class='t-strong'>" + p.title + "</span><span class='t-sub'>" + MC.customerName(p.customerId) + "</span></td>" +
@@ -239,6 +244,14 @@ MC.ready.then(function () {
         btn.textContent = "Copied ✓";
         setTimeout(function () { btn.textContent = orig; }, 1600);
       });
+    } else if (act === "edit") {
+      openEditProposal(id);
+    } else if (act === "delete") {
+      if (((MC.auth.session() || {}).role) !== "admin") return;
+      if (!confirm("Delete this proposal? This can't be undone.")) return;
+      MC.remove("proposals", p.id);
+      render();
+      window.MCUI && MCUI.toast("Proposal deleted");
     }
   });
 
@@ -291,10 +304,18 @@ MC.ready.then(function () {
     if (isNew) document.getElementById("nc-name").focus();
   });
 
-  function openNewProposal() {
+  function buildCustomerOptions() {
     document.getElementById("np-customer").innerHTML = "<option value=''>— Select customer —</option>" +
       MC.list("customers").map(function (c) { return "<option value='" + c.id + "'>" + c.name + "</option>"; }).join("") +
       "<option value='__new__'>＋ Add a new customer…</option>";
+  }
+
+  function openNewProposal() {
+    editingId = null;
+    document.getElementById("np-heading").textContent = "New Proposal";
+    document.getElementById("np-save").textContent = "Create Proposal";
+    buildCustomerOptions();
+    document.getElementById("np-customer").value = "";
     document.getElementById("np-title").value = "";
     document.getElementById("np-note").value = "";
     clearNewCust();
@@ -304,9 +325,33 @@ MC.ready.then(function () {
     modal.classList.add("open");
   }
 
+  function openEditProposal(id) {
+    var p = MC.get("proposals", id);
+    if (!p) return;
+    editingId = id;
+    document.getElementById("np-heading").textContent = "Edit Proposal";
+    document.getElementById("np-save").textContent = "Save changes";
+    buildCustomerOptions();
+    clearNewCust();
+    document.getElementById("np-customer").value = p.customerId || "";
+    document.getElementById("np-title").value = p.title || "";
+    document.getElementById("np-note").value = p.note || "";
+    linesBox.innerHTML = "";
+    var items = (p.items && p.items.length) ? p.items : [{ desc: "", qty: 1, unit: "" }];
+    items.forEach(function (it) {
+      var row = lineRow();
+      row.querySelector(".np-desc").value = it.desc != null ? it.desc : "";
+      row.querySelector(".np-qty").value = it.qty != null ? it.qty : 1;
+      row.querySelector(".np-unit").value = it.unit != null ? it.unit : "";
+      linesBox.appendChild(row);
+    });
+    recalc();
+    modal.classList.add("open");
+  }
+
   document.getElementById("add-proposal").addEventListener("click", openNewProposal);
 
-  document.getElementById("np-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("np-cancel").addEventListener("click", function () { editingId = null; modal.classList.remove("open"); });
 
   document.getElementById("np-save").addEventListener("click", function () {
     var sel = document.getElementById("np-customer").value;
@@ -350,6 +395,23 @@ MC.ready.then(function () {
       customerId = c.id;
     }
 
+    var note = document.getElementById("np-note").value.trim();
+
+    if (editingId) {
+      MC.update("proposals", editingId, {
+        customerId: customerId,
+        title: title,
+        items: items,
+        amount: total,
+        note: note
+      });
+      editingId = null;
+      modal.classList.remove("open");
+      render();
+      window.MCUI && MCUI.toast("Proposal updated");
+      return;
+    }
+
     var created = new Date();
     var prop = MC.add("proposals", {
       id: "p" + Date.now().toString(36),
@@ -359,7 +421,7 @@ MC.ready.then(function () {
       amount: total,
       status: "draft",
       token: genToken(),
-      note: document.getElementById("np-note").value.trim(),
+      note: note,
       created: created.toISOString().slice(0, 10)
     });
 

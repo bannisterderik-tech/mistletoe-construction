@@ -208,6 +208,15 @@ MC.ready.then(function () {
     var actions = [];
     if (p.email) actions.push({ label: "Email ↗", kind: "outline", onClick: function () { location.href = "mailto:" + p.email; } });
     if (p.phone) actions.push({ label: "Call", kind: "outline", onClick: function () { location.href = "tel:" + p.phone.replace(/\D/g, ""); } });
+    if (((MC.auth.session() || {}).role) === "admin") {
+      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this partner? This can't be undone.")) return;
+        MC.remove("partners", p.id);
+        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render();
+        window.MCUI && MCUI.toast("partner deleted");
+      } });
+    }
 
     MCUI.open({
       eyebrow: "Partner",

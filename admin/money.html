@@ -204,6 +204,16 @@ MC.ready.then(function () {
       actions.push({ label: "Open invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
     }
     actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+    if (((MC.auth.session() || {}).role) === "admin") {
+      var noun = (kindLabel(d.kind) || "record").toLowerCase();
+      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this " + noun + "? This can't be undone.")) return;
+        MC.remove("invoices", d.id);
+        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render();
+        window.MCUI && MCUI.toast(noun.charAt(0).toUpperCase() + noun.slice(1) + " deleted");
+      } });
+    }
 
     MCUI.open({
       eyebrow: kindLabel(d.kind),

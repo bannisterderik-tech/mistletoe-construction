@@ -242,17 +242,28 @@ MC.ready.then(function () {
       MCUI.section("Invoices & payments", invList, payRows.length) +
       MCUI.section("Visits", visitList, visits.length);
 
+    var actions = [
+      { label: "New proposal →", kind: "primary", onClick: function () {
+          location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
+      } },
+      { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } }
+    ];
+    if (((MC.auth.session() || {}).role) === "admin") {
+      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this customer? This can't be undone.")) return;
+        MC.remove("customers", c.id);
+        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render();
+        window.MCUI && MCUI.toast("customer deleted");
+      } });
+    }
+
     MCUI.open({
       eyebrow: "Customer",
       title: c.name,
       subtitle: [c.city, c.member ? "Member" : ""].filter(Boolean).join(" · "),
       bodyHTML: body,
-      actions: [
-        { label: "New proposal →", kind: "primary", onClick: function () {
-            location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
-        } },
-        { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } }
-      ]
+      actions: actions
     });
   }
 
