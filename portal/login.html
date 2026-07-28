@@ -39,9 +39,7 @@
       <p class="login-note">No passwords to remember — we email you a secure one-tap link.</p>
     </form>
 
-    <hr style="border:0;border-top:1px solid rgba(28,36,29,0.12);margin:1.3rem 0">
-    <button class="btn btn-outline" id="demo-btn" type="button" style="width:100%">Preview the demo →</button>
-    <p class="login-note">Demo mode — no real accounts yet. Homeowner tab opens the client portal, Team opens the CRM.</p>
+    <p class="login-note">New here? The same box works — your account is created on first sign-in.</p>
     <p class="login-note"><a href="../index.html">← Back to mistletoeconstruction.com</a></p>
   </div>
 </div>
@@ -71,8 +69,6 @@ MC.ready.then(function () {
     if (s) { routeBySession(s); return; }
 
     var notes = document.querySelectorAll(".login-note");
-    document.getElementById("demo-btn").style.display = "none";
-    if (notes[1]) notes[1].textContent = "New here? The same box works — your account is created on first sign-in.";
 
     document.getElementById("login-form").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -96,7 +92,6 @@ MC.ready.then(function () {
       location.href = role === "admin" ? "../admin/index.html" : "index.html";
     }
     document.getElementById("login-form").addEventListener("submit", function (e) { e.preventDefault(); go(); });
-    document.getElementById("demo-btn").addEventListener("click", go);
   }
 });
 </script>
