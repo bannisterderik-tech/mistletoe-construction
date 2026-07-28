@@ -45,6 +45,19 @@ module.exports = async (req, res) => {
       });
     }
 
+    // 1b) drop a lead into the pipeline in the NEW stage
+    await fetch(SUPABASE_URL + "/rest/v1/leads", {
+      method: "POST", headers: Object.assign({ Prefer: "return=minimal" }, h),
+      body: JSON.stringify({
+        id: "l" + crypto.randomBytes(5).toString("hex"),
+        name: name, phone: phone, city: String(est.city || "").trim(),
+        service: "Roof Replacement — instant estimate", stage: "new",
+        note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
+          (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "") + (email ? "[email: " + email + "]" : ""),
+        created: today
+      })
+    });
+
     // 2) draft proposal pre-filled from the estimate
     const mid = (est.costLow != null && est.costHigh != null) ? Math.round((est.costLow + est.costHigh) / 2) : 0;
     const descBits = [];
