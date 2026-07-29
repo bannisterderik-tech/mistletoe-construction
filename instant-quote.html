@@ -59,6 +59,14 @@
   .ac-list li:hover, .ac-list li.is-active { background: var(--parchment); }
   .sat-clickable { cursor: crosshair; }
   .sat-hint { font-size: 0.9rem; color: var(--ink-soft); margin: 0.55rem 0 0; }
+  .gate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1rem; }
+  .gate-grid .gate-full { grid-column: 1 / -1; }
+  .gate-consent { display: flex; gap: 0.7rem; align-items: flex-start; margin: 1.15rem 0 0; font-size: 0.86rem; line-height: 1.5; color: var(--ink-soft); }
+  .gate-consent input { margin-top: 0.25rem; flex: 0 0 auto; width: 1.1rem; height: 1.1rem; }
+  .gate-consent a { color: var(--green); font-weight: 700; }
+  .gate-disclaimer { margin: 1rem 0 0; padding: 0.85rem 1rem; background: #fdf6e3; border: 1px solid #eadfae; border-radius: var(--radius); font-size: 0.88rem; line-height: 1.5; color: #6b5d2a; }
+  .est-disclaimer { margin: 0.8rem 0 0; font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; }
+  @media (max-width: 560px) { .gate-grid { grid-template-columns: 1fr; } }
   .est-help { font-size: 0.86rem; color: var(--ink-soft); margin: 0.45rem 0 0; }
   .est-actions { margin-top: 1.4rem; }
   .est-actions .btn { width: 100%; font-size: 1.08rem; padding-block: 1.05rem; }
@@ -211,10 +219,16 @@
   <section class="iq-stage">
     <div class="wrap">
 
-      <!-- ESTIMATOR CARD -->
-      <div class="estimator" id="estimator">
-        <h2>Get your instant estimate</h2>
-        <p class="est-sub">Free, no obligation — we confirm every number on-site.</p>
+      <!-- INSTANT ESTIMATE — lead capture + address + roof type + consent -->
+      <div class="estimator" id="gate">
+        <h2>Get your instant roof estimate</h2>
+        <p class="est-sub">Free &amp; no obligation — we confirm every number on-site.</p>
+
+        <div class="gate-grid">
+          <div class="est-field"><label for="gName">Full name</label><input type="text" id="gName" autocomplete="name"></div>
+          <div class="est-field"><label for="gPhone">Phone</label><input type="tel" id="gPhone" autocomplete="tel" inputmode="tel"></div>
+          <div class="est-field gate-full"><label for="gEmail">Email</label><input type="email" id="gEmail" autocomplete="email"></div>
+        </div>
 
         <div class="est-field ac-wrap">
           <label for="address">Property Address</label>
@@ -235,8 +249,14 @@
           <p class="est-help">Pricing uses roof pitch bands (3–4/12, 5–6/12, 7–8/12). Steeper = custom quote.</p>
         </div>
 
+        <label class="gate-consent">
+          <input type="checkbox" id="gConsent">
+          <span>I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>, and I consent to receive calls, texts, and emails from Mistletoe Construction LLC at the number and email I provide — including via automated technology and prerecorded/AI messages — about my estimate and services. Consent is not a condition of purchase. Msg &amp; data rates may apply; reply STOP to opt out of texts, unsubscribe to opt out of emails.</span>
+        </label>
+        <p class="gate-disclaimer"><strong>Please note:</strong> this tool uses AI and satellite imagery to estimate your roof. The result is a <strong>preliminary range only</strong> — your final price requires an <strong>in-person roof measurement and inspection</strong> to finalize.</p>
+
         <div class="est-actions">
-          <button type="button" class="btn btn-primary" id="find">Find My Roof</button>
+          <button type="button" class="btn btn-primary" id="find">Get My Instant Estimate →</button>
         </div>
 
         <div class="est-error" id="estError" hidden role="alert"></div>
@@ -317,6 +337,7 @@
               <p class="cost-sub" id="statCostSub"></p>
             </div>
           </div>
+          <p class="est-disclaimer">This is a preliminary estimate from AI &amp; satellite measurements — not a final quote. We'll measure your roof in person to finalize the exact price.</p>
         </div>
 
         <!-- Section analysis -->
@@ -613,6 +634,34 @@
       " | Estimated range: " + range;
   }
 
+  // ---- Lead-capture gate: name/email/phone + consent required before any estimate ----
+  var leadCaptured = false;
+  function gateOk() {
+    clearError();
+    var name = $("gName").value.trim(), phone = $("gPhone").value.trim(), email = $("gEmail").value.trim();
+    if (!name) { showError("Please enter your name."); $("gName").focus(); return false; }
+    if (!/.+@.+\..+/.test(email)) { showError("Please enter a valid email address."); $("gEmail").focus(); return false; }
+    if (phone.replace(/\D/g, "").length < 10) { showError("Please enter a valid phone number."); $("gPhone").focus(); return false; }
+    if (!$("gConsent").checked) { showError("Please check the consent box to continue."); $("gConsent").focus(); return false; }
+    return true;
+  }
+  function captureLead() {
+    if (leadCaptured) return;
+    leadCaptured = true;
+    var name = $("gName").value.trim(), phone = $("gPhone").value.trim(), email = $("gEmail").value.trim();
+    var addr = $("address").value.trim(), roof = $("roofType").value;
+    if ($("leadName")) $("leadName").value = name;
+    if ($("leadPhone")) $("leadPhone").value = phone;
+    if ($("leadEmail")) $("leadEmail").value = email;
+    fetch("/api/submit-lead", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name, phone: phone, email: email,
+        service: "Roof Replacement — instant estimate",
+        message: "Instant estimator · Address: " + (addr || "(none)") + " · Roof type: " + roof +
+          " · Consent given: TCPA (calls/texts incl. automated/AI) + email opt-in, per Terms & Privacy." })
+    }).catch(function () {});
+  }
+
   // ---- Address autocomplete (Google Places, proxied) ----
   (function () {
     var addr = $("address"), list = $("ac-list"), tmr = null, chosen = false;
@@ -675,9 +724,10 @@
   // ---- Find My Roof (API) ----
   var findBtn = $("find");
   findBtn.addEventListener("click", function () {
+    if (!gateOk()) return;
     var address = $("address").value.trim();
-    clearError();
     if (!address) { showError("Please enter your property address first."); $("address").focus(); return; }
+    captureLead();
 
     var orig = findBtn.textContent;
     findBtn.classList.add("is-loading");
@@ -717,9 +767,10 @@
 
   // ---- Calculate Cost (manual) ----
   $("calc").addEventListener("click", function () {
-    clearError();
+    if (!gateOk()) return;
     var sqft = parseFloat($("manualSqft").value);
     if (!sqft || sqft <= 0) { showError("Enter a roof area in square feet to calculate."); $("manualSqft").focus(); return; }
+    captureLead();
     renderManual(sqft, $("manualPitch").value);
   });
 
