@@ -45,7 +45,7 @@
         <h1>Social</h1>
         <p class="sub">Schedule and publish to every connected account through <strong>Zernio</strong>. Pull from your 120 ready-made posts, or write your own.</p>
       </div>
-      <button class="btn btn-ghost btn-sm" id="libBtn">📚 Pick from library</button>
+      <button class="btn btn-ghost btn-sm" id="libBtn">Pick from library</button>
     </div>
 
     <div id="setupBanner" class="so-banner" hidden>
@@ -62,12 +62,27 @@
           <textarea id="content" rows="7" placeholder="Write a caption… or hit “Pick from library” to load a ready-made post."></textarea>
           <div class="so-count"><span id="charCount">0</span> characters</div>
 
-          <label class="so-lbl">Images / video <span class="t-sub">(public URLs — one per line)</span></label>
-          <textarea id="media" rows="3" placeholder="https://mistletoeconstruction.com/social/out/d01a-1.png"></textarea>
+          <label class="so-lbl">Images / video</label>
+          <div class="so-file">
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4" multiple>
+            <span id="upStatus" class="so-upst"></span>
+          </div>
+          <textarea id="media" rows="2" placeholder="…or paste public URLs, one per line"></textarea>
           <div id="thumbs" class="so-thumbs"></div>
 
           <label class="so-lbl">Post to</label>
           <div id="accounts" class="so-accts"><span class="t-sub">Loading connected accounts…</span></div>
+          <div id="connectRow" class="so-connect">
+            <span class="t-sub">Connect an account:</span>
+            <button type="button" class="so-cbtn" data-p="facebook">Facebook</button>
+            <button type="button" class="so-cbtn" data-p="instagram">Instagram</button>
+            <button type="button" class="so-cbtn" data-p="linkedin">LinkedIn</button>
+            <button type="button" class="so-cbtn" data-p="twitter">X / Twitter</button>
+            <button type="button" class="so-cbtn" data-p="tiktok">TikTok</button>
+            <button type="button" class="so-cbtn" data-p="youtube">YouTube</button>
+            <button type="button" class="so-cbtn" data-p="pinterest">Pinterest</button>
+            <button type="button" class="so-cbtn" data-p="googlebusiness">Google Business</button>
+          </div>
 
           <label class="so-lbl">When</label>
           <div class="so-when">
@@ -139,6 +154,15 @@
   .so-acct { display:inline-flex; align-items:center; gap:.45rem; border:1px solid rgba(28,36,29,.18); border-radius:999px; padding:.35rem .75rem; font-weight:700; font-size:.9rem; cursor:pointer; background:#fff; }
   .so-acct input { width:auto; margin:0; }
   .so-acct.is-off { opacity:.5; }
+  .plat { display:inline-block; font-size:.68rem; font-weight:800; letter-spacing:.02em; background:var(--pine-900); color:#fff; border-radius:5px; padding:.05rem .35rem; }
+  .so-connect { margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; }
+  .so-connect .t-sub { margin-right:.2rem; }
+  .so-cbtn { border:1px solid rgba(28,36,29,.18); background:#fff; border-radius:8px; padding:.3rem .6rem; font-weight:700; font-size:.85rem; cursor:pointer; color:var(--pine-900); }
+  .so-cbtn:hover { border-color:var(--pine-900); background:#f4f7f4; }
+  .so-file { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.5rem; }
+  .so-file input[type=file] { flex:1; min-width:12rem; }
+  .so-upst { font-size:.82rem; font-weight:700; }
+  .so-upst.busy { color:var(--ink-soft); } .so-upst.ok { color:#1f7a3d; } .so-upst.err { color:#b5321f; }
   .so-when { display:flex; flex-wrap:wrap; gap:1rem; }
   .so-radio { display:inline-flex; align-items:center; gap:.4rem; font-weight:700; }
   .so-radio input { width:auto; }
@@ -173,7 +197,7 @@
   .so-lib-grid { overflow-y:auto; padding:1rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.9rem; }
   .so-card { border:1px solid rgba(28,36,29,.12); border-radius:12px; overflow:hidden; cursor:pointer; background:#fff; transition:transform .1s, box-shadow .1s; }
   .so-card:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.12); border-color:var(--pine-900); }
-  .so-card img { width:100%; aspect-ratio:1; object-fit:cover; display:block; background:#f0f0f0; }
+  .so-card img { width:100%; height:150px !important; object-fit:cover; display:block; background:#e9ece9; }
   .so-card .c-meta { padding:.5rem .6rem; }
   .so-card .c-day { font-size:.72rem; font-weight:800; color:var(--pine-900); text-transform:uppercase; }
   .so-card .c-cap { font-size:.8rem; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin-top:.2rem; }
@@ -213,6 +237,61 @@ MC.ready.then(function () {
   $("media").addEventListener("input", renderThumbs);
   $("content").addEventListener("input", function () { $("charCount").textContent = $("content").value.length; });
 
+  // ---- file upload -> Zernio storage -> public URL ----
+  function readB64(file) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onload = function () { resolve(String(fr.result).split(",")[1] || ""); };
+      fr.onerror = reject; fr.readAsDataURL(file);
+    });
+  }
+  $("fileInput").addEventListener("change", function () {
+    var files = Array.prototype.slice.call(this.files || []);
+    if (!files.length) return;
+    var st = $("upStatus"); var input = this;
+    var done = 0, added = [];
+    st.className = "so-upst busy"; st.textContent = "Uploading 0/" + files.length + "…";
+    files.reduce(function (chain, f) {
+      return chain.then(function () {
+        if (f.size > 4.4 * 1024 * 1024) { throw new Error(f.name + " is too big (max ~4MB — paste a hosted URL instead)"); }
+        return readB64(f).then(function (b64) {
+          return api("/api/social-upload", { method: "POST", body: JSON.stringify({ filename: f.name, contentType: f.type, dataBase64: b64 }) });
+        }).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+          .then(function (res) {
+            if (res.s === 200 && res.d.ok) { added.push(res.d.publicUrl); done++; st.textContent = "Uploading " + done + "/" + files.length + "…"; }
+            else { throw new Error((res.d && res.d.error) || "Upload failed"); }
+          });
+      });
+    }, Promise.resolve()).then(function () {
+      var cur = $("media").value.trim();
+      $("media").value = (cur ? cur + "\n" : "") + added.join("\n");
+      renderThumbs(); input.value = "";
+      st.className = "so-upst ok"; st.textContent = "Added " + added.length + " file" + (added.length === 1 ? "" : "s") + " ✓";
+    }).catch(function (e) {
+      input.value = ""; st.className = "so-upst err"; st.textContent = (e && e.message) || "Upload failed";
+    });
+  });
+
+  // ---- connect an account (opens Zernio OAuth) ----
+  Array.prototype.forEach.call(document.querySelectorAll(".so-cbtn"), function (btn) {
+    btn.addEventListener("click", function () {
+      var p = btn.getAttribute("data-p"); var old = btn.textContent;
+      btn.disabled = true; btn.textContent = "Opening…";
+      api("/api/social-connect?platform=" + p).then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+        .then(function (res) {
+          btn.disabled = false; btn.textContent = old;
+          if (res.s === 200 && res.d.authUrl) { window.open(res.d.authUrl, "_blank", "noopener"); }
+          else { window.MCUI && MCUI.toast((res.d && res.d.error) || "Could not start connection", "err"); }
+        }).catch(function () { btn.disabled = false; btn.textContent = old; window.MCUI && MCUI.toast("Could not start connection", "err"); });
+    });
+  });
+
+  // returning from a successful OAuth connect
+  if (/[?&]connected=1/.test(location.search)) {
+    window.MCUI && MCUI.toast("Account connected ✓");
+    history.replaceState({}, "", location.pathname);
+  }
+
   // ---- schedule toggle ----
   Array.prototype.forEach.call(document.getElementsByName("when"), function (r) {
     r.addEventListener("change", function () { $("schedRow").style.display = (whenVal() === "schedule") ? "flex" : "none"; syncBtn(); });
@@ -233,16 +312,15 @@ MC.ready.then(function () {
         $("setupBanner").hidden = false; $("accounts").innerHTML = '<span class="t-sub">No accounts yet — connect Zernio.</span>'; return;
       }
       ACCOUNTS = (res.d && res.d.accounts) || [];
-      if (!ACCOUNTS.length) { $("accounts").innerHTML = '<span class="t-sub">No connected accounts. Connect them at zernio.com.</span>'; return; }
+      if (!ACCOUNTS.length) { $("accounts").innerHTML = '<span class="t-sub">No accounts connected yet — use the buttons below.</span>'; return; }
       $("accounts").innerHTML = ACCOUNTS.map(function (a, i) {
-        var id = a._id || a.id || a.accountId || "";
         var name = a.displayName || a.username || a.name || a.platform || "Account";
-        var plat = (a.platform || "").toLowerCase();
-        return '<label class="so-acct"><input type="checkbox" data-i="' + i + '" checked> ' + icon(plat) + ' ' + esc(name) + '</label>';
+        var p = (a.platform || "").toLowerCase();
+        return '<label class="so-acct"><input type="checkbox" data-i="' + i + '" checked> <span class="plat">' + plat(p) + '</span> ' + esc(name) + '</label>';
       }).join("");
     }).catch(function () { $("accounts").innerHTML = '<span class="t-sub">Could not load accounts.</span>'; });
   }
-  function icon(p) { return ({ facebook:"📘", instagram:"📸", twitter:"🐦", x:"✖", linkedin:"💼", tiktok:"🎵", youtube:"▶️", pinterest:"📌", threads:"🧵", google:"🔎" }[p]) || "🌐"; }
+  function plat(p) { return ({ facebook:"FB", instagram:"IG", twitter:"X", x:"X", linkedin:"LI", tiktok:"TT", youtube:"YT", pinterest:"PIN", threads:"TH", googlebusiness:"GBP", reddit:"RD", bluesky:"BS" }[p]) || (p ? p.slice(0, 3).toUpperCase() : "??"); }
   function selectedAccounts() {
     return Array.prototype.map.call($("accounts").querySelectorAll('input:checked'), function (cb) {
       var a = ACCOUNTS[+cb.getAttribute("data-i")];
@@ -290,7 +368,7 @@ MC.ready.then(function () {
       if (!posts.length) { $("posts").innerHTML = '<span class="t-sub">No posts' + (curFilter ? " with status “" + curFilter + "”" : " yet") + '.</span>'; return; }
       $("posts").innerHTML = posts.map(function (p) {
         var img = (p.mediaItems && p.mediaItems[0] && p.mediaItems[0].url) || "";
-        var plats = (p.platforms || []).map(function (x) { return icon((x.platform || "").toLowerCase()); }).join(" ");
+        var plats = (p.platforms || []).map(function (x) { return '<span class="plat">' + plat((x.platform || "").toLowerCase()) + '</span>'; }).join(" ");
         var st = (p.status || "draft").toLowerCase();
         return '<div class="so-post">' + (img ? '<img src="' + esc(img) + '" loading="lazy" alt="">' : "") +
           '<div class="body"><div class="cap">' + esc(p.content || p.title || "(no caption)") + '</div>' +
