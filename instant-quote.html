@@ -51,6 +51,12 @@
   .estimator h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); margin-bottom: 0.3rem; }
   .estimator .est-sub { color: var(--ink-soft); margin-bottom: var(--space-3); }
   .est-field { margin-bottom: 1.15rem; }
+  .ac-wrap { position: relative; }
+  .ac-list { position: absolute; z-index: 40; left: 0; right: 0; top: 100%; margin: 4px 0 0; padding: 4px;
+    list-style: none; background: #fff; border: 1px solid rgba(28,36,29,0.16); border-radius: var(--radius);
+    box-shadow: var(--shadow-lift); max-height: 16rem; overflow-y: auto; }
+  .ac-list li { padding: 0.6rem 0.8rem; border-radius: 8px; cursor: pointer; font-size: 0.95rem; color: var(--ink); }
+  .ac-list li:hover, .ac-list li.is-active { background: var(--parchment); }
   .est-help { font-size: 0.86rem; color: var(--ink-soft); margin: 0.45rem 0 0; }
   .est-actions { margin-top: 1.4rem; }
   .est-actions .btn { width: 100%; font-size: 1.08rem; padding-block: 1.05rem; }
@@ -208,10 +214,12 @@
         <h2>Get your instant estimate</h2>
         <p class="est-sub">Free, no obligation — we confirm every number on-site.</p>
 
-        <div class="est-field">
+        <div class="est-field ac-wrap">
           <label for="address">Property Address</label>
-          <input type="text" id="address" name="address" autocomplete="street-address"
-            placeholder="123 E Third St, Riddle, OR 97469" inputmode="text">
+          <input type="text" id="address" name="address" autocomplete="off" role="combobox"
+            aria-autocomplete="list" aria-expanded="false" aria-controls="ac-list"
+            placeholder="Start typing your address…" inputmode="text">
+          <ul id="ac-list" class="ac-list" role="listbox" hidden></ul>
         </div>
 
         <div class="est-field">
@@ -598,6 +606,39 @@
       " | Pitch: " + pitch +
       " | Estimated range: " + range;
   }
+
+  // ---- Address autocomplete (Google Places, proxied) ----
+  (function () {
+    var addr = $("address"), list = $("ac-list"), tmr = null, chosen = false;
+    if (!addr || !list) return;
+    function close() { list.hidden = true; list.innerHTML = ""; addr.setAttribute("aria-expanded", "false"); }
+    function render(preds) {
+      if (!preds.length) { close(); return; }
+      list.innerHTML = preds.slice(0, 6).map(function (p) {
+        return "<li role='option'>" + String(p.description || "").replace(/[<>&]/g, function (c) { return ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c]; }) + "</li>";
+      }).join("");
+      list.hidden = false; addr.setAttribute("aria-expanded", "true");
+    }
+    addr.addEventListener("input", function () {
+      chosen = false;
+      var q = addr.value.trim();
+      clearTimeout(tmr);
+      if (q.length < 3) { close(); return; }
+      tmr = setTimeout(function () {
+        fetch("/api/address-autocomplete?q=" + encodeURIComponent(q))
+          .then(function (r) { return r.json(); })
+          .then(function (d) { if (!chosen) render((d && d.predictions) || []); })
+          .catch(function () { close(); });
+      }, 220);
+    });
+    list.addEventListener("mousedown", function (e) {
+      var li = e.target.closest("li"); if (!li) return;
+      e.preventDefault();
+      addr.value = li.textContent; chosen = true; close();
+    });
+    addr.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+    addr.addEventListener("blur", function () { setTimeout(close, 150); });
+  })();
 
   // ---- Find My Roof (API) ----
   var findBtn = $("find");
