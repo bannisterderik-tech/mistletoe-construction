@@ -197,7 +197,7 @@
   .so-lib-grid { overflow-y:auto; padding:1rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.9rem; }
   .so-card { border:1px solid rgba(28,36,29,.12); border-radius:12px; overflow:hidden; cursor:pointer; background:#fff; transition:transform .1s, box-shadow .1s; }
   .so-card:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.12); border-color:var(--pine-900); }
-  .so-card img { width:100%; height:150px !important; object-fit:cover; display:block; background:#e9ece9; }
+  .so-card .c-img { width:100%; height:150px; background:#e9ece9 center/cover no-repeat; display:block; }
   .so-card .c-meta { padding:.5rem .6rem; }
   .so-card .c-day { font-size:.72rem; font-weight:800; color:var(--pine-900); text-transform:uppercase; }
   .so-card .c-cap { font-size:.8rem; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin-top:.2rem; }
@@ -400,7 +400,7 @@ MC.ready.then(function () {
     });
     $("libGrid").innerHTML = rows.map(function (p, i) {
       var idx = LIB.indexOf(p);
-      return '<div class="so-card" data-i="' + idx + '"><img src="' + esc(p.images[0] || "") + '" loading="lazy" alt="">' +
+      return '<div class="so-card" data-i="' + idx + '"><div class="c-img" style="background-image:url(&quot;' + esc(p.images[0] || "") + '&quot;)"></div>' +
         '<div class="c-meta"><div class="c-day">Day ' + p.day + ' · ' + esc(p.category) + '</div>' +
         '<div class="c-cap">' + esc(p.caption.slice(0, 120)) + '</div></div></div>';
     }).join("") || '<span class="t-sub">No matches.</span>';
