@@ -12,23 +12,29 @@ module.exports = async (req, res) => {
   try { if (typeof b === "string") b = JSON.parse(b || "{}"); } catch (e) { b = {}; }
   b = b || {};
   const address = String(b.address || "").trim();
-  if (!address) { res.status(400).json({ ok: false, reason: "no_address" }); return; }
+  const hasLatLng = isFinite(parseFloat(b.lat)) && isFinite(parseFloat(b.lng));
+  if (!address && !hasLatLng) { res.status(400).json({ ok: false, reason: "no_address" }); return; }
 
   try {
     const cfg = await getPricing();
     const material = (cfg.materials[b.roofType] != null) ? b.roofType : "asphalt";
     const WASTE = cfg.waste;
 
-    // 1) geocode
-    const gc = await fetch("https://maps.googleapis.com/maps/api/geocode/json?address=" +
-      encodeURIComponent(address) + "&key=" + key).then((r) => r.json());
-    if (!gc.results || !gc.results[0]) {
-      res.status(200).json({ ok: false, reason: "address_not_found", gstatus: gc.status || null, gerror: gc.error_message || null });
-      return;
+    // 1) resolve a point — either an exact lat/lng (re-measure by clicking the roof) or geocode the address
+    let lat, lng, formatted;
+    if (hasLatLng) {
+      lat = parseFloat(b.lat); lng = parseFloat(b.lng); formatted = address || "Selected roof";
+    } else {
+      const gc = await fetch("https://maps.googleapis.com/maps/api/geocode/json?address=" +
+        encodeURIComponent(address) + "&key=" + key).then((r) => r.json());
+      if (!gc.results || !gc.results[0]) {
+        res.status(200).json({ ok: false, reason: "address_not_found", gstatus: gc.status || null, gerror: gc.error_message || null });
+        return;
+      }
+      lat = gc.results[0].geometry.location.lat;
+      lng = gc.results[0].geometry.location.lng;
+      formatted = gc.results[0].formatted_address;
     }
-    const loc = gc.results[0].geometry.location;
-    const formatted = gc.results[0].formatted_address;
-    const lat = loc.lat, lng = loc.lng;
     const imageUrl = "/api/roof-image?lat=" + lat + "&lng=" + lng + "&z=20";
 
     // 2) solar building insights

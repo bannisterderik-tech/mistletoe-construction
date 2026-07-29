@@ -57,6 +57,8 @@
     box-shadow: var(--shadow-lift); max-height: 16rem; overflow-y: auto; }
   .ac-list li { padding: 0.6rem 0.8rem; border-radius: 8px; cursor: pointer; font-size: 0.95rem; color: var(--ink); }
   .ac-list li:hover, .ac-list li.is-active { background: var(--parchment); }
+  .sat-clickable { cursor: crosshair; }
+  .sat-hint { font-size: 0.9rem; color: var(--ink-soft); margin: 0.55rem 0 0; }
   .est-help { font-size: 0.86rem; color: var(--ink-soft); margin: 0.45rem 0 0; }
   .est-actions { margin-top: 1.4rem; }
   .est-actions .btn { width: 100%; font-size: 1.08rem; padding-block: 1.05rem; }
@@ -273,9 +275,10 @@
             <span class="res-address" id="resAddress"></span>
           </div>
           <figure class="sat-figure">
-            <img id="satImage" alt="Satellite view of your roof with a location pin" src="" loading="lazy">
+            <img id="satImage" class="sat-clickable" alt="Satellite view of your roof with a location pin" src="" loading="lazy">
             <figcaption class="sat-cap" id="satCap">Satellite imagery with a pin on your building.</figcaption>
           </figure>
+          <p class="sat-hint" id="satHint" hidden>📍 Measured the wrong building? <strong>Click your roof directly on the image</strong> and we'll re-measure it.</p>
         </div>
 
         <!-- How it works -->
@@ -503,6 +506,8 @@
     $("resAddress").textContent = d.address || "";
     var img = $("satImage");
     img.src = d.imageUrl || "";
+    satCenter = { lat: d.lat, lng: d.lng, zoom: 20 };
+    if ($("satHint")) $("satHint").hidden = false;
     $("satCap").textContent = d.imageryDate
       ? ("Satellite imagery · " + d.imageryDate + " · pin marks your building.")
       : "Satellite imagery with a pin on your building.";
@@ -599,6 +604,7 @@
 
   var lastSummary = "";
   var lastEstimate = null;
+  var satCenter = null;
   function buildSummary(address, measured, quoted, pitch, custom, low, high) {
     var range = custom ? "Custom quote (steep pitch)" : (money(low) + " – " + money(high));
     return "Instant roof estimate — " + address +
@@ -638,6 +644,32 @@
     });
     addr.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
     addr.addEventListener("blur", function () { setTimeout(close, 150); });
+  })();
+
+  // ---- Click the satellite image to re-measure a different building ----
+  (function () {
+    var img = $("satImage");
+    if (!img) return;
+    img.addEventListener("click", function (e) {
+      if (!satCenter) return;
+      var rect = img.getBoundingClientRect();
+      var lx = (e.clientX - rect.left) / rect.width * 640;   // image is 640x420 logical px
+      var ly = (e.clientY - rect.top) / rect.height * 420;
+      var z = satCenter.zoom, ws = 256 * Math.pow(2, z);
+      var x0 = (satCenter.lng + 180) / 360 * ws;
+      var s = Math.min(0.9999, Math.max(-0.9999, Math.sin(satCenter.lat * Math.PI / 180)));
+      var y0 = (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * ws;
+      var x1 = x0 + (lx - 320), y1 = y0 + (ly - 210);
+      var lng1 = x1 / ws * 360 - 180;
+      var nn = Math.PI - 2 * Math.PI * y1 / ws;
+      var lat1 = 180 / Math.PI * Math.atan(0.5 * (Math.exp(nn) - Math.exp(-nn)));
+      var cap = $("satCap"); if (cap) cap.textContent = "Re-measuring the roof you clicked…";
+      fetch("/api/roof-estimate", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat: lat1, lng: lng1, address: $("address").value.trim(), roofType: $("roofType").value }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.ok) renderApi(d); else if (cap) cap.textContent = "No roof detected there — click directly on the building."; })
+        .catch(function () { if (cap) cap.textContent = "Couldn't re-measure just now — try again."; });
+    });
   })();
 
   // ---- Find My Roof (API) ----
