@@ -1,0 +1,47 @@
+// Shared Zernio helper + admin-auth gate for the social endpoints.
+// Zernio API: base https://zernio.com/api, Bearer auth. Secret from env: ZERNIO_API_KEY.
+const ZERNIO_BASE = "https://zernio.com/api";
+const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const SUPABASE_PUBLISHABLE = "sb_publishable_a2Y-G20spk5ql2fP0nGnAw_WukuyKnF";
+
+// Verify the caller is a signed-in admin (my_role RPC with their Bearer JWT).
+// Returns true/false. Never throws.
+async function requireAdmin(req) {
+  const authz = (req.headers && req.headers.authorization) || "";
+  if (!/^Bearer\s+.+/i.test(authz)) return false;
+  try {
+    const rr = await fetch(SUPABASE_URL + "/rest/v1/rpc/my_role", {
+      method: "POST",
+      headers: { apikey: SUPABASE_PUBLISHABLE, Authorization: authz, "Content-Type": "application/json" },
+      body: "{}"
+    });
+    const role = await rr.json();
+    return role === "admin";
+  } catch (e) { return false; }
+}
+
+// Call the Zernio API. Returns { ok, status, data }.
+async function zernio(path, opts) {
+  const key = process.env.ZERNIO_API_KEY;
+  if (!key) return { ok: false, status: 503, data: { error: "ZERNIO_API_KEY not configured" } };
+  opts = opts || {};
+  const headers = Object.assign({
+    Authorization: "Bearer " + key,
+    "Content-Type": "application/json",
+    Accept: "application/json"
+  }, opts.headers || {});
+  try {
+    const r = await fetch(ZERNIO_BASE + path, {
+      method: opts.method || "GET",
+      headers,
+      body: opts.body ? (typeof opts.body === "string" ? opts.body : JSON.stringify(opts.body)) : undefined
+    });
+    let data = null;
+    try { data = await r.json(); } catch (e) { data = null; }
+    return { ok: r.ok, status: r.status, data };
+  } catch (e) {
+    return { ok: false, status: 502, data: { error: (e && e.message) || "Zernio request failed" } };
+  }
+}
+
+module.exports = { zernio, requireAdmin, ZERNIO_BASE };

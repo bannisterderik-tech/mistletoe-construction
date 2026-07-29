@@ -28,7 +28,7 @@ SEQ_PATH = os.path.join(ROOT, "emails", "sequence.json")
 STATE_PATH = os.path.join(ROOT, "data", "campaign", "state.json")
 SUPPRESS_PATH = os.path.join(ROOT, "data", "campaign", "unsubscribes.txt")
 
-DAILY_CAP = 90
+DAILY_CAP = 50  # hard cap — never send more than this many in one calendar day
 UNSUB_MAILTO = "alex@mistletoeconstruction.com"
 
 WRAPPER = """<!DOCTYPE html>

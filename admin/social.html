@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="money.html">Money</a>
+      <a href="partners.html">Partners</a>
+      <a href="proposals.html">Proposals</a>
+      <a href="social.html" aria-current="page">Social</a>
+      <a href="team.html">Team</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Social</h1>
+        <p class="sub">Schedule and publish to every connected account through <strong>Zernio</strong>. Pull from your 120 ready-made posts, or write your own.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="libBtn">📚 Pick from library</button>
+    </div>
+
+    <div id="setupBanner" class="so-banner" hidden>
+      <strong>Connect Zernio first.</strong> Add <code>ZERNIO_API_KEY</code> in Vercel, connect your social accounts at zernio.com, then redeploy.
+      <span id="bannerDetail"></span>
+    </div>
+
+    <div class="so-grid">
+      <!-- Composer -->
+      <div class="panel so-compose">
+        <div class="panel-head"><h2>Compose</h2></div>
+        <div class="panel-body">
+          <label class="so-lbl" for="content">Caption</label>
+          <textarea id="content" rows="7" placeholder="Write a caption… or hit “Pick from library” to load a ready-made post."></textarea>
+          <div class="so-count"><span id="charCount">0</span> characters</div>
+
+          <label class="so-lbl">Images / video <span class="t-sub">(public URLs — one per line)</span></label>
+          <textarea id="media" rows="3" placeholder="https://mistletoeconstruction.com/social/out/d01a-1.png"></textarea>
+          <div id="thumbs" class="so-thumbs"></div>
+
+          <label class="so-lbl">Post to</label>
+          <div id="accounts" class="so-accts"><span class="t-sub">Loading connected accounts…</span></div>
+
+          <label class="so-lbl">When</label>
+          <div class="so-when">
+            <label class="so-radio"><input type="radio" name="when" value="schedule" checked> Schedule</label>
+            <label class="so-radio"><input type="radio" name="when" value="now"> Post now</label>
+            <label class="so-radio"><input type="radio" name="when" value="draft"> Save as draft</label>
+          </div>
+          <div id="schedRow" class="so-sched">
+            <input type="datetime-local" id="schedAt">
+            <select id="tz">
+              <option value="America/Los_Angeles" selected>Pacific (Oregon)</option>
+              <option value="America/Denver">Mountain</option>
+              <option value="America/Chicago">Central</option>
+              <option value="America/New_York">Eastern</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </div>
+
+          <div class="so-actions">
+            <button class="btn btn-primary" id="submit">Schedule post</button>
+            <span id="msg" class="so-msg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue -->
+      <div class="panel so-queue">
+        <div class="panel-head">
+          <h2>Queue &amp; history</h2>
+          <div class="so-filters">
+            <button class="chip is-on" data-f="">All</button>
+            <button class="chip" data-f="scheduled">Scheduled</button>
+            <button class="chip" data-f="published">Published</button>
+            <button class="chip" data-f="draft">Drafts</button>
+            <button class="chip" data-f="failed">Failed</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="posts" class="so-posts"><span class="t-sub">Loading…</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Library modal -->
+<div id="libModal" class="so-modal" hidden>
+  <div class="so-modal-bg" data-close></div>
+  <div class="so-modal-card">
+    <div class="so-modal-head">
+      <h3>Ready-made posts <span class="t-sub" id="libCount"></span></h3>
+      <input type="search" id="libSearch" placeholder="Search captions, category, day…">
+      <button class="btn btn-ghost btn-sm" data-close>Close</button>
+    </div>
+    <div id="libGrid" class="so-lib-grid"></div>
+  </div>
+</div>
+
+<style>
+  .so-banner { background:#fdf3d8; border:1px solid #e8cf85; color:#6b5311; border-radius:12px; padding:.8rem 1rem; margin-bottom:1rem; font-size:.95rem; }
+  .so-banner code { background:rgba(0,0,0,.06); padding:.1rem .35rem; border-radius:5px; }
+  .so-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:1.2rem; align-items:start; }
+  .so-lbl { display:block; font-weight:800; color:var(--pine-900); margin:1rem 0 .35rem; }
+  .so-compose textarea, .so-compose input, .so-compose select { width:100%; }
+  .so-count { text-align:right; font-size:.8rem; color:var(--ink-soft); margin-top:.2rem; }
+  .so-thumbs { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.5rem; }
+  .so-thumbs img { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid rgba(0,0,0,.1); }
+  .so-accts { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .so-acct { display:inline-flex; align-items:center; gap:.45rem; border:1px solid rgba(28,36,29,.18); border-radius:999px; padding:.35rem .75rem; font-weight:700; font-size:.9rem; cursor:pointer; background:#fff; }
+  .so-acct input { width:auto; margin:0; }
+  .so-acct.is-off { opacity:.5; }
+  .so-when { display:flex; flex-wrap:wrap; gap:1rem; }
+  .so-radio { display:inline-flex; align-items:center; gap:.4rem; font-weight:700; }
+  .so-radio input { width:auto; }
+  .so-sched { display:flex; gap:.6rem; margin-top:.6rem; }
+  .so-sched input { flex:2; } .so-sched select { flex:1; }
+  .so-actions { display:flex; align-items:center; gap:1rem; margin-top:1.2rem; }
+  .so-msg { font-weight:700; font-size:.9rem; }
+  .so-msg.ok { color:#1f7a3d; } .so-msg.err { color:#b5321f; }
+  .so-filters { display:flex; gap:.4rem; flex-wrap:wrap; }
+  .chip { border:1px solid rgba(28,36,29,.18); background:#fff; border-radius:999px; padding:.25rem .7rem; font-weight:700; font-size:.82rem; cursor:pointer; color:var(--ink-soft); }
+  .chip.is-on { background:var(--pine-900); color:#fff; border-color:var(--pine-900); }
+  .so-posts { display:flex; flex-direction:column; gap:.6rem; }
+  .so-post { display:flex; gap:.8rem; border:1px solid rgba(28,36,29,.1); border-radius:12px; padding:.7rem; }
+  .so-post img { width:56px; height:56px; object-fit:cover; border-radius:8px; flex:none; }
+  .so-post .body { flex:1; min-width:0; }
+  .so-post .cap { font-size:.9rem; color:var(--pine-900); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .so-post .meta { font-size:.78rem; color:var(--ink-soft); margin-top:.25rem; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+  .badge { font-size:.72rem; font-weight:800; padding:.1rem .5rem; border-radius:999px; text-transform:capitalize; }
+  .badge.scheduled { background:#e3eefb; color:#1c4e86; }
+  .badge.published { background:#e3f6e8; color:#1f7a3d; }
+  .badge.draft { background:#eee; color:#555; }
+  .badge.failed { background:#fbe3e3; color:#b5321f; }
+  .badge.partial { background:#fdf3d8; color:#6b5311; }
+  /* modal */
+  .so-modal { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:2rem 1rem; }
+  .so-modal-bg { position:absolute; inset:0; background:rgba(10,20,12,.5); }
+  .so-modal-card { position:relative; background:#fff; border-radius:16px; width:min(1000px,96vw); max-height:88vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+  .so-modal-head { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; border-bottom:1px solid rgba(0,0,0,.08); }
+  .so-modal-head h3 { margin:0; flex:none; }
+  .so-modal-head input { flex:1; }
+  .so-lib-grid { overflow-y:auto; padding:1rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.9rem; }
+  .so-card { border:1px solid rgba(28,36,29,.12); border-radius:12px; overflow:hidden; cursor:pointer; background:#fff; transition:transform .1s, box-shadow .1s; }
+  .so-card:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.12); border-color:var(--pine-900); }
+  .so-card img { width:100%; aspect-ratio:1; object-fit:cover; display:block; background:#f0f0f0; }
+  .so-card .c-meta { padding:.5rem .6rem; }
+  .so-card .c-day { font-size:.72rem; font-weight:800; color:var(--pine-900); text-transform:uppercase; }
+  .so-card .c-cap { font-size:.8rem; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin-top:.2rem; }
+  @media (max-width:860px){ .so-grid { grid-template-columns:1fr; } }
+</style>
+
+<script src="../js/config.js"></script>
+<script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
+<script>
+MC.ready.then(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- auth token for the admin API calls ----
+  function token() {
+    if (MC.mode !== "supabase" || !MC.client) return Promise.resolve(null);
+    return MC.client().auth.getSession().then(function (r) { return r.data.session && r.data.session.access_token; });
+  }
+  function api(path, opts) {
+    return token().then(function (t) {
+      opts = opts || {};
+      opts.headers = Object.assign({ "Content-Type": "application/json", "Authorization": "Bearer " + t }, opts.headers || {});
+      return fetch(path, opts);
+    });
+  }
+
+  // ---- media thumbnails ----
+  function mediaUrls() { return $("media").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); }
+  function renderThumbs() {
+    $("thumbs").innerHTML = mediaUrls().map(function (u) {
+      if (/\.(mp4|mov|webm|m4v)$/i.test(u)) return '<div style="width:64px;height:64px;border-radius:8px;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem">▶ video</div>';
+      return '<img src="' + u.replace(/"/g, "") + '" alt="" loading="lazy">';
+    }).join("");
+  }
+  $("media").addEventListener("input", renderThumbs);
+  $("content").addEventListener("input", function () { $("charCount").textContent = $("content").value.length; });
+
+  // ---- schedule toggle ----
+  Array.prototype.forEach.call(document.getElementsByName("when"), function (r) {
+    r.addEventListener("change", function () { $("schedRow").style.display = (whenVal() === "schedule") ? "flex" : "none"; syncBtn(); });
+  });
+  function whenVal() { return document.querySelector('input[name="when"]:checked').value; }
+  function syncBtn() { $("submit").textContent = whenVal() === "now" ? "Post now" : whenVal() === "draft" ? "Save draft" : "Schedule post"; }
+  // default schedule = tomorrow 9am local
+  (function () { var d = new Date(); d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0);
+    var p = function (n) { return String(n).padStart(2, "0"); };
+    $("schedAt").value = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T09:00"; })();
+
+  // ---- accounts ----
+  var ACCOUNTS = [];
+  function loadAccounts() {
+    api("/api/social-accounts").then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+    .then(function (res) {
+      if (res.s === 503 || (res.d && res.d.error && /ZERNIO_API_KEY/.test(res.d.error))) {
+        $("setupBanner").hidden = false; $("accounts").innerHTML = '<span class="t-sub">No accounts yet — connect Zernio.</span>'; return;
+      }
+      ACCOUNTS = (res.d && res.d.accounts) || [];
+      if (!ACCOUNTS.length) { $("accounts").innerHTML = '<span class="t-sub">No connected accounts. Connect them at zernio.com.</span>'; return; }
+      $("accounts").innerHTML = ACCOUNTS.map(function (a, i) {
+        var id = a._id || a.id || a.accountId || "";
+        var name = a.displayName || a.username || a.name || a.platform || "Account";
+        var plat = (a.platform || "").toLowerCase();
+        return '<label class="so-acct"><input type="checkbox" data-i="' + i + '" checked> ' + icon(plat) + ' ' + esc(name) + '</label>';
+      }).join("");
+    }).catch(function () { $("accounts").innerHTML = '<span class="t-sub">Could not load accounts.</span>'; });
+  }
+  function icon(p) { return ({ facebook:"📘", instagram:"📸", twitter:"🐦", x:"✖", linkedin:"💼", tiktok:"🎵", youtube:"▶️", pinterest:"📌", threads:"🧵", google:"🔎" }[p]) || "🌐"; }
+  function selectedAccounts() {
+    return Array.prototype.map.call($("accounts").querySelectorAll('input:checked'), function (cb) {
+      var a = ACCOUNTS[+cb.getAttribute("data-i")];
+      return { platform: a.platform, accountId: a._id || a.id || a.accountId };
+    });
+  }
+
+  // ---- submit ----
+  $("submit").addEventListener("click", function () {
+    var msg = $("msg"); msg.className = "so-msg"; msg.textContent = "";
+    var accts = selectedAccounts();
+    if (!$("content").value.trim() && !mediaUrls().length) { msg.className = "so-msg err"; msg.textContent = "Add a caption or an image."; return; }
+    if (!accts.length) { msg.className = "so-msg err"; msg.textContent = "Pick at least one account."; return; }
+    var w = whenVal();
+    var payload = { content: $("content").value.trim(), mediaUrls: mediaUrls(), accounts: accts,
+      timezone: $("tz").value, publishNow: w === "now", isDraft: w === "draft" };
+    if (w === "schedule") {
+      if (!$("schedAt").value) { msg.className = "so-msg err"; msg.textContent = "Pick a date & time."; return; }
+      payload.scheduledFor = $("schedAt").value.length === 16 ? $("schedAt").value + ":00" : $("schedAt").value;
+    }
+    var btn = $("submit"); btn.disabled = true; var old = btn.textContent; btn.textContent = "Working…";
+    api("/api/social-post", { method: "POST", body: JSON.stringify(payload) })
+    .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+    .then(function (res) {
+      btn.disabled = false; btn.textContent = old;
+      if (res.s === 200 && res.d.ok) {
+        msg.className = "so-msg ok"; msg.textContent = w === "now" ? "Published ✓" : w === "draft" ? "Draft saved ✓" : "Scheduled ✓";
+        $("content").value = ""; $("media").value = ""; $("charCount").textContent = "0"; renderThumbs();
+        loadPosts(curFilter);
+      } else { msg.className = "so-msg err"; msg.textContent = (res.d && res.d.error) || "Could not post."; }
+    }).catch(function () { btn.disabled = false; btn.textContent = old; msg.className = "so-msg err"; msg.textContent = "Network error."; });
+  });
+
+  // ---- queue ----
+  var curFilter = "";
+  function fmtWhen(p) {
+    var t = p.scheduledFor || p.publishedAt || p.createdAt; if (!t) return "";
+    try { var d = new Date(t); return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return t; }
+  }
+  function loadPosts(filter) {
+    curFilter = filter || "";
+    $("posts").innerHTML = '<span class="t-sub">Loading…</span>';
+    api("/api/social-posts" + (curFilter ? "?status=" + curFilter : "")).then(function (r) { return r.json(); }).then(function (d) {
+      var posts = (d && d.posts) || [];
+      if (!posts.length) { $("posts").innerHTML = '<span class="t-sub">No posts' + (curFilter ? " with status “" + curFilter + "”" : " yet") + '.</span>'; return; }
+      $("posts").innerHTML = posts.map(function (p) {
+        var img = (p.mediaItems && p.mediaItems[0] && p.mediaItems[0].url) || "";
+        var plats = (p.platforms || []).map(function (x) { return icon((x.platform || "").toLowerCase()); }).join(" ");
+        var st = (p.status || "draft").toLowerCase();
+        return '<div class="so-post">' + (img ? '<img src="' + esc(img) + '" loading="lazy" alt="">' : "") +
+          '<div class="body"><div class="cap">' + esc(p.content || p.title || "(no caption)") + '</div>' +
+          '<div class="meta"><span class="badge ' + st + '">' + st + '</span>' + plats + '<span>' + fmtWhen(p) + '</span></div></div></div>';
+      }).join("");
+    }).catch(function () { $("posts").innerHTML = '<span class="t-sub">Could not load posts.</span>'; });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".so-filters .chip"), function (c) {
+    c.addEventListener("click", function () {
+      document.querySelectorAll(".so-filters .chip").forEach(function (x) { x.classList.remove("is-on"); });
+      c.classList.add("is-on"); loadPosts(c.getAttribute("data-f"));
+    });
+  });
+
+  // ---- library ----
+  var LIB = [];
+  function openLib() {
+    $("libModal").hidden = false;
+    if (LIB.length) return;
+    fetch("../social/library.json").then(function (r) { return r.json(); }).then(function (d) {
+      LIB = d || []; $("libCount").textContent = "(" + LIB.length + ")"; renderLib("");
+    }).catch(function () { $("libGrid").innerHTML = '<span class="t-sub">Could not load library.</span>'; });
+  }
+  function renderLib(q) {
+    q = (q || "").toLowerCase();
+    var rows = LIB.filter(function (p) {
+      if (!q) return true;
+      return (p.caption + " " + p.category + " " + p.type + " day " + p.day).toLowerCase().indexOf(q) >= 0;
+    });
+    $("libGrid").innerHTML = rows.map(function (p, i) {
+      var idx = LIB.indexOf(p);
+      return '<div class="so-card" data-i="' + idx + '"><img src="' + esc(p.images[0] || "") + '" loading="lazy" alt="">' +
+        '<div class="c-meta"><div class="c-day">Day ' + p.day + ' · ' + esc(p.category) + '</div>' +
+        '<div class="c-cap">' + esc(p.caption.slice(0, 120)) + '</div></div></div>';
+    }).join("") || '<span class="t-sub">No matches.</span>';
+  }
+  $("libGrid").addEventListener("click", function (e) {
+    var card = e.target.closest(".so-card"); if (!card) return;
+    var p = LIB[+card.getAttribute("data-i")];
+    var cap = p.caption + (p.hashtags && p.hashtags.length ? "\n\n" + p.hashtags.join(" ") : "");
+    $("content").value = cap; $("charCount").textContent = cap.length;
+    $("media").value = (p.images || []).join("\n"); renderThumbs();
+    $("libModal").hidden = true;
+    $("content").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  $("libSearch").addEventListener("input", function () { renderLib(this.value); });
+  $("libBtn").addEventListener("click", openLib);
+  Array.prototype.forEach.call($("libModal").querySelectorAll("[data-close]"), function (el) {
+    el.addEventListener("click", function () { $("libModal").hidden = true; });
+  });
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]); }); }
+
+  syncBtn(); loadAccounts(); loadPosts("");
+});
+</script>
+</body>
+</html>
