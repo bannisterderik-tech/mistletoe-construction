@@ -4,6 +4,6 @@ const { getPricing } = require("./_pricing.js");
 
 module.exports = async (req, res) => {
   const cfg = await getPricing();
-  res.setHeader("Cache-Control", "public, max-age=60");
+  res.setHeader("Cache-Control", "no-store");
   res.status(200).json(cfg);
 };
