@@ -5,7 +5,8 @@ module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (!(await requireAdmin(req))) { res.status(403).json({ error: "Admins only" }); return; }
   const status = (req.query && req.query.status) ? String(req.query.status) : "";
-  const qs = new URLSearchParams({ limit: "50", sortBy: "scheduledFor" });
+  const limit = Math.min(Math.max(parseInt((req.query && req.query.limit) || "50", 10) || 50, 1), 200);
+  const qs = new URLSearchParams({ limit: String(limit), sortBy: "scheduledFor" });
   if (status) qs.set("status", status);
   const r = await zernio("/v1/posts?" + qs.toString());
   if (!r.ok) { res.status(r.status).json(r.data || { error: "Could not load posts" }); return; }

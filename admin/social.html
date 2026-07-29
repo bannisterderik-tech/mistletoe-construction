@@ -45,7 +45,10 @@
         <h1>Social</h1>
         <p class="sub">Schedule and publish to every connected account through <strong>Zernio</strong>. Pull from your 120 ready-made posts, or write your own.</p>
       </div>
-      <button class="btn btn-ghost btn-sm" id="libBtn">Pick from library</button>
+      <div class="so-topbtns">
+        <button class="btn btn-ghost btn-sm" id="libBtn">Pick from library</button>
+        <button class="btn btn-primary btn-sm" id="bulkBtn">Schedule all 120</button>
+      </div>
     </div>
 
     <div id="setupBanner" class="so-banner" hidden>
@@ -141,7 +144,70 @@
   </div>
 </div>
 
+<!-- Bulk schedule modal -->
+<div id="bulkModal" class="so-modal" hidden>
+  <div class="so-modal-bg" data-bclose></div>
+  <div class="so-modal-card so-bulk-card">
+    <div class="so-modal-head">
+      <h3>Schedule the whole library</h3>
+      <button class="btn btn-ghost btn-sm" data-bclose>Close</button>
+    </div>
+    <div class="so-bulk-body">
+      <p class="t-sub">Schedules every ready-made post through Zernio — 2 per day for 60 days, in calendar order. Posts already in the queue are skipped, so it's safe to re-run.</p>
+      <div class="so-bulk-grid">
+        <div>
+          <label class="so-lbl" for="bulkStart">Start date (Day 1)</label>
+          <input type="date" id="bulkStart">
+        </div>
+        <div>
+          <label class="so-lbl" for="bulkT1">Morning post</label>
+          <input type="time" id="bulkT1" value="09:00">
+        </div>
+        <div>
+          <label class="so-lbl" for="bulkT2">Afternoon post</label>
+          <input type="time" id="bulkT2" value="16:00">
+        </div>
+        <div>
+          <label class="so-lbl" for="bulkTz">Timezone</label>
+          <select id="bulkTz">
+            <option value="America/Los_Angeles" selected>Pacific (Oregon)</option>
+            <option value="America/Denver">Mountain</option>
+            <option value="America/Chicago">Central</option>
+            <option value="America/New_York">Eastern</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+      </div>
+      <p class="t-sub" id="bulkNote">Posts go to the accounts checked under “Post to” in the composer.</p>
+      <div id="bulkSummary" class="so-bulk-summary"></div>
+      <div id="bulkProg" class="so-bulk-prog" hidden>
+        <div class="so-bulk-bar"><div id="bulkBar"></div></div>
+        <div id="bulkProgText" class="t-sub"></div>
+      </div>
+      <div id="bulkErrors" class="so-bulk-errs" hidden></div>
+      <div class="so-actions">
+        <button class="btn btn-primary" id="bulkGo">Schedule all</button>
+        <button class="btn btn-ghost" id="bulkCancel" hidden>Stop</button>
+        <span id="bulkMsg" class="so-msg"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
+  .so-topbtns { display:flex; gap:.5rem; flex-wrap:wrap; }
+  #bulkModal [hidden] { display:none !important; }
+  .so-bulk-card { width:min(640px,96vw); }
+  .so-bulk-body { padding:1rem 1.2rem 1.2rem; overflow-y:auto; }
+  .so-bulk-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:.8rem; margin:.6rem 0; }
+  .so-bulk-grid .so-lbl { margin:.2rem 0 .3rem; }
+  .so-bulk-grid input, .so-bulk-grid select { width:100%; }
+  .so-bulk-summary { background:#f4f7f4; border:1px solid rgba(28,36,29,.12); border-radius:10px; padding:.6rem .8rem; font-weight:700; font-size:.9rem; color:var(--pine-900); margin:.6rem 0; }
+  .so-bulk-prog { margin:.6rem 0; }
+  .so-bulk-bar { height:10px; background:#e9ece9; border-radius:999px; overflow:hidden; }
+  .so-bulk-bar > div { height:100%; width:0%; background:var(--pine-900); border-radius:999px; transition:width .2s; }
+  .so-bulk-prog .t-sub { margin-top:.35rem; }
+  .so-bulk-errs { background:#fbe3e3; border:1px solid #e8a9a0; color:#b5321f; border-radius:10px; padding:.6rem .8rem; font-size:.85rem; margin:.6rem 0; max-height:9rem; overflow-y:auto; }
   .so-banner { background:#fdf3d8; border:1px solid #e8cf85; color:#6b5311; border-radius:12px; padding:.8rem 1rem; margin-bottom:1rem; font-size:.95rem; }
   .so-banner code { background:rgba(0,0,0,.06); padding:.1rem .35rem; border-radius:5px; }
   .so-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:1.2rem; align-items:start; }
@@ -385,11 +451,17 @@ MC.ready.then(function () {
 
   // ---- library ----
   var LIB = [];
+  function loadLib() {
+    if (LIB.length) return Promise.resolve(LIB);
+    return fetch("../social/library.json").then(function (r) { return r.json(); }).then(function (d) {
+      LIB = d || []; return LIB;
+    });
+  }
   function openLib() {
     $("libModal").hidden = false;
-    if (LIB.length) return;
-    fetch("../social/library.json").then(function (r) { return r.json(); }).then(function (d) {
-      LIB = d || []; $("libCount").textContent = "(" + LIB.length + ")"; renderLib("");
+    if (LIB.length) { $("libCount").textContent = "(" + LIB.length + ")"; renderLib($("libSearch").value); return; }
+    loadLib().then(function () {
+      $("libCount").textContent = "(" + LIB.length + ")"; renderLib("");
     }).catch(function () { $("libGrid").innerHTML = '<span class="t-sub">Could not load library.</span>'; });
   }
   function renderLib(q) {
@@ -421,6 +493,133 @@ MC.ready.then(function () {
   });
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]); }); }
+
+  // ---- bulk scheduler: the whole library, 2 posts/day, in calendar order ----
+  var bulkRunning = false, bulkStop = false;
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function addDays(iso, n) {
+    var d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n);
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  function humanDate(iso) {
+    try { return new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }); } catch (e) { return iso; }
+  }
+  function t12(hm) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(hm || ""); if (!m) return hm || "";
+    var h = +m[1], ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+    return h + ":" + m[2] + " " + ap;
+  }
+  function libCaption(p) { return p.caption + (p.hashtags && p.hashtags.length ? "\n\n" + p.hashtags.join(" ") : ""); }
+  function normCap(s) { return String(s || "").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 64); }
+  (function () { var d = new Date(); d.setDate(d.getDate() + 1);
+    $("bulkStart").value = d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); })();
+
+  function bulkSummary() {
+    loadLib().then(function (lib) {
+      var start = $("bulkStart").value;
+      if (!start) { $("bulkSummary").textContent = "Pick a start date."; return; }
+      var days = lib.reduce(function (m, p) { return Math.max(m, p.day || 1); }, 1);
+      $("bulkSummary").textContent = lib.length + " posts · 2 per day · " + humanDate(start) + " – " +
+        humanDate(addDays(start, days - 1)) + " · " + t12($("bulkT1").value) + " & " + t12($("bulkT2").value);
+    }).catch(function () { $("bulkSummary").textContent = "Could not load the library."; });
+  }
+  ["bulkStart", "bulkT1", "bulkT2"].forEach(function (id) { $(id).addEventListener("input", bulkSummary); });
+
+  $("bulkBtn").addEventListener("click", function () {
+    $("bulkModal").hidden = false; $("bulkMsg").className = "so-msg"; $("bulkMsg").textContent = "";
+    bulkSummary();
+  });
+  Array.prototype.forEach.call($("bulkModal").querySelectorAll("[data-bclose]"), function (el) {
+    el.addEventListener("click", function () { if (bulkRunning) return; $("bulkModal").hidden = true; });
+  });
+  $("bulkCancel").addEventListener("click", function () { bulkStop = true; $("bulkCancel").disabled = true; });
+
+  $("bulkGo").addEventListener("click", function () {
+    if (bulkRunning) return;
+    var msg = $("bulkMsg"); msg.className = "so-msg"; msg.textContent = "";
+    var accts = selectedAccounts();
+    if (!accts.length) { msg.className = "so-msg err"; msg.textContent = "Check at least one account under “Post to” first."; return; }
+    var start = $("bulkStart").value, tm1 = $("bulkT1").value, tm2 = $("bulkT2").value, tz = $("bulkTz").value;
+    if (!start || !tm1 || !tm2) { msg.className = "so-msg err"; msg.textContent = "Pick a start date and both times."; return; }
+
+    bulkRunning = true; bulkStop = false;
+    $("bulkGo").disabled = true; $("bulkCancel").hidden = false; $("bulkCancel").disabled = false;
+    $("bulkProg").hidden = false; $("bulkErrors").hidden = true; $("bulkErrors").innerHTML = "";
+    $("bulkBar").style.width = "0%"; $("bulkProgText").textContent = "Checking what’s already scheduled…";
+
+    Promise.all([
+      loadLib(),
+      api("/api/social-posts?limit=200").then(function (r) { return r.json(); }).catch(function () { return { posts: [] }; })
+    ]).then(function (rr) {
+      var lib = rr[0].slice().sort(function (a, b) { return (a.day - b.day) || (a.slot - b.slot); });
+      var existing = (rr[1] && rr[1].posts) || [];
+      var seenCaps = {}, seenTags = {};
+      existing.forEach(function (p) {
+        if (p && p.content) seenCaps[normCap(p.content)] = 1;
+        (p && Array.isArray(p.tags) ? p.tags : []).forEach(function (t) { seenTags[String(t)] = 1; });
+      });
+      var plan = [], skipped = 0;
+      lib.forEach(function (p) {
+        if (seenTags[p.id] || seenCaps[normCap(libCaption(p))]) { skipped++; return; }
+        plan.push({
+          id: p.id,
+          payload: {
+            content: libCaption(p),
+            mediaUrls: p.images || [],
+            accounts: accts,
+            timezone: tz,
+            publishNow: false,
+            isDraft: false,
+            scheduledFor: addDays(start, (p.day || 1) - 1) + "T" + (p.slot === 2 ? tm2 : tm1) + ":00",
+            tags: ["library", p.id]
+          }
+        });
+      });
+      if (!plan.length) {
+        return { ok: 0, skipped: skipped, errs: [], nothing: true };
+      }
+      var ok = 0, errs = [];
+      return plan.reduce(function (chain, item, i) {
+        return chain.then(function () {
+          if (bulkStop) return;
+          $("bulkProgText").textContent = "Scheduling " + (i + 1) + "/" + plan.length + " (" + item.id + ")…";
+          $("bulkBar").style.width = Math.round((i / plan.length) * 100) + "%";
+          return api("/api/social-post", { method: "POST", body: JSON.stringify(item.payload) })
+            .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+            .then(function (res) {
+              if (res.s === 200 && res.d.ok) ok++;
+              else errs.push(item.id + " — " + ((res.d && res.d.error) || "failed"));
+            })
+            .catch(function () { errs.push(item.id + " — network error"); })
+            .then(function () { return new Promise(function (r2) { setTimeout(r2, 300); }); });
+        });
+      }, Promise.resolve()).then(function () { return { ok: ok, skipped: skipped, errs: errs }; });
+    }).then(function (out) {
+      bulkRunning = false;
+      $("bulkGo").disabled = false; $("bulkCancel").hidden = true;
+      $("bulkBar").style.width = "100%";
+      var bits = [];
+      if (out.nothing) { bits.push("Everything is already in the queue — nothing to schedule."); }
+      else {
+        bits.push("Scheduled " + out.ok);
+        if (out.skipped) bits.push(out.skipped + " already queued (skipped)");
+        if (out.errs.length) bits.push(out.errs.length + " failed");
+        if (bulkStop) bits.push("stopped early");
+      }
+      $("bulkProgText").textContent = bits.join(" · ");
+      msg.className = "so-msg " + (out.errs && out.errs.length ? "err" : "ok");
+      msg.textContent = out.nothing ? "Nothing to do ✓" : (out.errs.length ? "Done, with errors" : "Done ✓");
+      if (out.errs && out.errs.length) {
+        $("bulkErrors").hidden = false;
+        $("bulkErrors").innerHTML = out.errs.map(function (e) { return "<div>" + esc(e) + "</div>"; }).join("");
+      }
+      loadPosts(curFilter);
+    }).catch(function (e) {
+      bulkRunning = false;
+      $("bulkGo").disabled = false; $("bulkCancel").hidden = true;
+      msg.className = "so-msg err"; msg.textContent = (e && e.message) || "Something went wrong.";
+    });
+  });
 
   syncBtn(); loadAccounts(); loadPosts("");
 });
