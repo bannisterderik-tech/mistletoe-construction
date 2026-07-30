@@ -196,6 +196,7 @@
         </div>
       </div>
       <p class="t-sub" id="bulkNote">Posts go to the accounts checked under “Post to” in the composer.</p>
+      <label class="so-radio so-bulk-replace"><input type="checkbox" id="bulkReplace"> Fix posts already scheduled — update them to these accounts &amp; times (adds Google to anything that’s Facebook-only)</label>
       <div id="bulkSummary" class="so-bulk-summary"></div>
       <div id="bulkProg" class="so-bulk-prog" hidden>
         <div class="so-bulk-bar"><div id="bulkBar"></div></div>
@@ -274,6 +275,8 @@
   .so-bulk-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:.8rem; margin:.6rem 0; }
   .so-bulk-grid .so-lbl { margin:.2rem 0 .3rem; }
   .so-bulk-grid input, .so-bulk-grid select { width:100%; }
+  .so-bulk-replace { display:flex; align-items:flex-start; gap:.5rem; font-weight:700; font-size:.88rem; background:#f4f7f4; border:1px solid rgba(28,36,29,.12); border-radius:10px; padding:.6rem .8rem; margin:.6rem 0; }
+  .so-bulk-replace input { width:auto; margin-top:.15rem; }
   .so-bulk-summary { background:#f4f7f4; border:1px solid rgba(28,36,29,.12); border-radius:10px; padding:.6rem .8rem; font-weight:700; font-size:.9rem; color:var(--pine-900); margin:.6rem 0; }
   .so-bulk-prog { margin:.6rem 0; }
   .so-bulk-bar { height:10px; background:#e9ece9; border-radius:999px; overflow:hidden; }
@@ -710,61 +713,65 @@ MC.ready.then(function () {
     $("bulkProg").hidden = false; $("bulkErrors").hidden = true; $("bulkErrors").innerHTML = "";
     $("bulkBar").style.width = "0%"; $("bulkProgText").textContent = "Checking what’s already scheduled…";
 
+    var replace = $("bulkReplace").checked;
     Promise.all([
       loadLib(),
       api("/api/social-posts?limit=200").then(function (r) { return r.json(); }).catch(function () { return { posts: [] }; })
     ]).then(function (rr) {
       var lib = rr[0].slice().sort(function (a, b) { return (a.day - b.day) || (a.slot - b.slot); });
       var existing = (rr[1] && rr[1].posts) || [];
-      var seenCaps = {}, seenTags = {};
+      function editable(p) { var s = (p.status || "").toLowerCase(); return s === "scheduled" || s === "draft" || s === "failed"; }
+      var tagToPost = {}, capToPost = {};
       existing.forEach(function (p) {
-        if (p && p.content) seenCaps[normCap(p.content)] = 1;
-        (p && Array.isArray(p.tags) ? p.tags : []).forEach(function (t) { seenTags[String(t)] = 1; });
+        (p && Array.isArray(p.tags) ? p.tags : []).forEach(function (t) { if (!tagToPost[t]) tagToPost[t] = p; });
+        if (p && p.content) { var k = normCap(p.content); if (!capToPost[k]) capToPost[k] = p; }
       });
       var plan = [], skipped = 0;
       lib.forEach(function (p) {
-        if (seenTags[p.id] || seenCaps[normCap(libCaption(p))]) { skipped++; return; }
-        plan.push({
-          id: p.id,
-          payload: {
-            content: libCaption(p),
-            mediaUrls: p.images || [],
-            accounts: accts,
-            timezone: tz,
-            publishNow: false,
-            isDraft: false,
-            scheduledFor: addDays(start, (p.day || 1) - 1) + "T" + (p.slot === 2 ? tm2 : tm1) + ":00",
-            tags: ["library", p.id]
-          }
-        });
+        var sched = addDays(start, (p.day || 1) - 1) + "T" + (p.slot === 2 ? tm2 : tm1) + ":00";
+        var ex = tagToPost[p.id] || capToPost[normCap(libCaption(p))];
+        if (ex) {
+          if (replace && editable(ex)) {
+            plan.push({ id: p.id, mode: "update", payload: {
+              postId: ex._id || ex.id, content: libCaption(p), mediaUrls: p.images || [],
+              accounts: accts, timezone: tz, isDraft: false, scheduledFor: sched } });
+          } else { skipped++; }
+          return;
+        }
+        plan.push({ id: p.id, mode: "create", payload: {
+          content: libCaption(p), mediaUrls: p.images || [], accounts: accts, timezone: tz,
+          publishNow: false, isDraft: false, scheduledFor: sched, tags: ["library", p.id] } });
       });
       if (!plan.length) {
-        return { ok: 0, skipped: skipped, errs: [], nothing: true };
+        return { created: 0, updated: 0, skipped: skipped, errs: [], nothing: true };
       }
-      var ok = 0, errs = [];
+      var created = 0, updated = 0, errs = [];
       return plan.reduce(function (chain, item, i) {
         return chain.then(function () {
           if (bulkStop) return;
-          $("bulkProgText").textContent = "Scheduling " + (i + 1) + "/" + plan.length + " (" + item.id + ")…";
+          var verb = item.mode === "update" ? "Fixing" : "Scheduling";
+          $("bulkProgText").textContent = verb + " " + (i + 1) + "/" + plan.length + " (" + item.id + ")…";
           $("bulkBar").style.width = Math.round((i / plan.length) * 100) + "%";
-          return api("/api/social-post", { method: "POST", body: JSON.stringify(item.payload) })
+          var url = item.mode === "update" ? "/api/social-update" : "/api/social-post";
+          return api(url, { method: "POST", body: JSON.stringify(item.payload) })
             .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
             .then(function (res) {
-              if (res.s === 200 && res.d.ok) ok++;
+              if (res.s === 200 && res.d.ok) { if (item.mode === "update") updated++; else created++; }
               else errs.push(item.id + " — " + ((res.d && res.d.error) || "failed"));
             })
             .catch(function () { errs.push(item.id + " — network error"); })
             .then(function () { return new Promise(function (r2) { setTimeout(r2, 300); }); });
         });
-      }, Promise.resolve()).then(function () { return { ok: ok, skipped: skipped, errs: errs }; });
+      }, Promise.resolve()).then(function () { return { created: created, updated: updated, skipped: skipped, errs: errs }; });
     }).then(function (out) {
       bulkRunning = false;
       $("bulkGo").disabled = false; $("bulkCancel").hidden = true;
       $("bulkBar").style.width = "100%";
       var bits = [];
-      if (out.nothing) { bits.push("Everything is already in the queue — nothing to schedule."); }
+      if (out.nothing) { bits.push("Everything is already in the queue — nothing to do."); }
       else {
-        bits.push("Scheduled " + out.ok);
+        if (out.created) bits.push("Scheduled " + out.created);
+        if (out.updated) bits.push("Fixed " + out.updated + " existing");
         if (out.skipped) bits.push(out.skipped + " already queued (skipped)");
         if (out.errs.length) bits.push(out.errs.length + " failed");
         if (bulkStop) bits.push("stopped early");
