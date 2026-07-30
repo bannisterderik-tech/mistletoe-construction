@@ -1,6 +1,6 @@
 // Admin-only: create/schedule/publish a social post via Zernio (POST /v1/posts).
 // Body: { content, mediaUrls:[], accounts:[{platform,accountId}], scheduledFor, timezone, publishNow, isDraft, tags:[] }
-const { zernio, requireAdmin } = require("./_zernio.js");
+const { zernio, requireAdmin, buildPlatforms } = require("./_zernio.js");
 
 function mediaType(url) {
   const u = String(url || "").toLowerCase().split("?")[0];
@@ -32,11 +32,7 @@ module.exports = async (req, res) => {
   }
 
   const mediaItems = mediaUrls.map((url) => ({ url: String(url), type: mediaType(url) }));
-  const platforms = accounts.map((a) => {
-    const p = { platform: a.platform, accountId: a.accountId };
-    if (scheduledFor && !publishNow) p.scheduledFor = scheduledFor;
-    return p;
-  });
+  const platforms = buildPlatforms(accounts, mediaItems, content, scheduledFor, publishNow);
 
   const payload = {
     content,

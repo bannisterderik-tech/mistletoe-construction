@@ -113,18 +113,35 @@
 
       <!-- Queue -->
       <div class="panel so-queue">
-        <div class="panel-head">
+        <div class="panel-head so-queue-head">
           <h2>Queue &amp; history</h2>
-          <div class="so-filters">
-            <button class="chip is-on" data-f="">All</button>
-            <button class="chip" data-f="scheduled">Scheduled</button>
-            <button class="chip" data-f="published">Published</button>
-            <button class="chip" data-f="draft">Drafts</button>
-            <button class="chip" data-f="failed">Failed</button>
+          <div class="so-qtools">
+            <select id="qSort" title="Sort">
+              <option value="scheduled-desc">Newest first</option>
+              <option value="scheduled-asc">Oldest first</option>
+              <option value="created-desc">Recently created</option>
+              <option value="created-asc">First created</option>
+            </select>
+            <div class="so-viewtoggle">
+              <button type="button" class="vbtn is-on" data-view="list" title="List view">List</button>
+              <button type="button" class="vbtn" data-view="grid" title="Grid view">Grid</button>
+            </div>
           </div>
+        </div>
+        <div class="so-filters" id="qFilters">
+          <button class="chip is-on" data-f="">All</button>
+          <button class="chip" data-f="scheduled">Scheduled</button>
+          <button class="chip" data-f="published">Published</button>
+          <button class="chip" data-f="draft">Drafts</button>
+          <button class="chip" data-f="failed">Failed</button>
         </div>
         <div class="panel-body">
           <div id="posts" class="so-posts"><span class="t-sub">Loading…</span></div>
+          <div class="so-pager" id="qPager" hidden>
+            <button type="button" class="btn btn-ghost btn-sm" id="qPrev">← Prev</button>
+            <span id="qRange" class="t-sub"></span>
+            <button type="button" class="btn btn-ghost btn-sm" id="qNext">Next →</button>
+          </div>
         </div>
       </div>
     </div>
@@ -194,8 +211,63 @@
   </div>
 </div>
 
+<!-- Post lightbox / editor -->
+<div id="postModal" class="so-modal" hidden>
+  <div class="so-modal-bg" data-pclose></div>
+  <div class="so-modal-card so-post-card">
+    <div class="so-modal-head">
+      <h3>Post <span class="badge" id="pmStatus"></span></h3>
+      <span class="t-sub" id="pmPlats"></span>
+      <button type="button" class="btn btn-ghost btn-sm" data-pclose>Close</button>
+    </div>
+    <div class="so-post-body">
+      <div class="so-post-media" id="pmMedia"></div>
+      <div class="so-post-edit">
+        <label class="so-lbl" for="pmCaption">Caption</label>
+        <textarea id="pmCaption" rows="9"></textarea>
+        <div class="so-count"><span id="pmCount">0</span> characters</div>
+        <label class="so-lbl" for="pmWhen">Scheduled for <span class="t-sub" id="pmTz"></span></label>
+        <input type="datetime-local" id="pmWhen">
+        <div class="so-actions">
+          <button type="button" class="btn btn-primary" id="pmSave">Save changes</button>
+          <a class="btn btn-ghost btn-sm" id="pmOpen" href="#" target="_blank" rel="noopener" hidden>View live ↗</a>
+          <span id="pmMsg" class="so-msg"></span>
+        </div>
+        <p class="t-sub" id="pmHint"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
   .so-topbtns { display:flex; gap:.5rem; flex-wrap:wrap; }
+  /* queue toolbar */
+  .so-queue-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+  .so-qtools { display:flex; align-items:center; gap:.6rem; }
+  .so-qtools select { padding:.3rem .5rem; border-radius:8px; border:1px solid rgba(28,36,29,.2); font-weight:700; font-size:.85rem; }
+  .so-viewtoggle { display:inline-flex; border:1px solid rgba(28,36,29,.2); border-radius:8px; overflow:hidden; }
+  .vbtn { border:0; background:#fff; padding:.3rem .7rem; font-weight:700; font-size:.82rem; cursor:pointer; color:var(--ink-soft); }
+  .vbtn.is-on { background:var(--pine-900); color:#fff; }
+  #qFilters { margin:.4rem 0 .8rem; }
+  .so-pager { display:flex; align-items:center; justify-content:center; gap:1rem; margin-top:1rem; }
+  /* grid view */
+  .so-posts.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.7rem; }
+  .so-posts.grid .so-post { flex-direction:column; padding:0; overflow:hidden; }
+  .so-posts.grid .so-post .g-img { width:100%; height:120px; background:#e9ece9 center/cover no-repeat; }
+  .so-posts.grid .so-post .body { padding:.5rem .6rem; }
+  .so-posts.grid .so-post img { display:none; }
+  .so-post { cursor:pointer; }
+  .so-post:hover { border-color:var(--pine-900); box-shadow:0 4px 14px rgba(0,0,0,.08); }
+  /* lightbox */
+  .so-post-card { width:min(880px,96vw); }
+  .so-post-body { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:0; overflow:hidden; }
+  .so-post-media { background:#0d140c; padding:1rem; overflow-y:auto; max-height:78vh; display:flex; flex-direction:column; gap:.6rem; align-items:center; }
+  .so-post-media img { max-width:100%; border-radius:8px; }
+  .so-post-media .none { color:#9fb2a3; font-size:.85rem; align-self:center; margin:auto; }
+  .so-post-edit { padding:1.1rem 1.2rem; overflow-y:auto; max-height:78vh; }
+  .so-post-edit textarea { width:100%; }
+  .so-post-edit input { width:100%; }
+  @media (max-width:720px){ .so-post-body { grid-template-columns:1fr; } .so-post-media { max-height:38vh; } }
   #bulkModal [hidden] { display:none !important; }
   .so-bulk-card { width:min(640px,96vw); }
   .so-bulk-body { padding:1rem 1.2rem 1.2rem; overflow-y:auto; }
@@ -415,38 +487,129 @@ MC.ready.then(function () {
       if (res.s === 200 && res.d.ok) {
         msg.className = "so-msg ok"; msg.textContent = w === "now" ? "Published ✓" : w === "draft" ? "Draft saved ✓" : "Scheduled ✓";
         $("content").value = ""; $("media").value = ""; $("charCount").textContent = "0"; renderThumbs();
-        loadPosts(curFilter);
+        loadPosts();
       } else { msg.className = "so-msg err"; msg.textContent = (res.d && res.d.error) || "Could not post."; }
     }).catch(function () { btn.disabled = false; btn.textContent = old; msg.className = "so-msg err"; msg.textContent = "Network error."; });
   });
 
   // ---- queue ----
-  var curFilter = "";
+  var curFilter = "", qSort = "scheduled-desc", qView = "list", qSkip = 0, qLimit = 24, qTotal = null, qPosts = [];
   function fmtWhen(p) {
     var t = p.scheduledFor || p.publishedAt || p.createdAt; if (!t) return "";
     try { var d = new Date(t); return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return t; }
   }
-  function loadPosts(filter) {
-    curFilter = filter || "";
-    $("posts").innerHTML = '<span class="t-sub">Loading…</span>';
-    api("/api/social-posts" + (curFilter ? "?status=" + curFilter : "")).then(function (r) { return r.json(); }).then(function (d) {
-      var posts = (d && d.posts) || [];
-      if (!posts.length) { $("posts").innerHTML = '<span class="t-sub">No posts' + (curFilter ? " with status “" + curFilter + "”" : " yet") + '.</span>'; return; }
-      $("posts").innerHTML = posts.map(function (p) {
-        var img = (p.mediaItems && p.mediaItems[0] && p.mediaItems[0].url) || "";
-        var plats = (p.platforms || []).map(function (x) { return '<span class="plat">' + plat((x.platform || "").toLowerCase()) + '</span>'; }).join(" ");
-        var st = (p.status || "draft").toLowerCase();
-        return '<div class="so-post">' + (img ? '<img src="' + esc(img) + '" loading="lazy" alt="">' : "") +
-          '<div class="body"><div class="cap">' + esc(p.content || p.title || "(no caption)") + '</div>' +
-          '<div class="meta"><span class="badge ' + st + '">' + st + '</span>' + plats + '<span>' + fmtWhen(p) + '</span></div></div></div>';
-      }).join("");
+  function postImg(p) { return (p.mediaItems && p.mediaItems[0] && p.mediaItems[0].url) || ""; }
+  function loadPosts() {
+    $("posts").innerHTML = '<span class="t-sub">Loading…</span>'; $("qPager").hidden = true;
+    var qs = "?limit=" + qLimit + "&skip=" + qSkip + "&sortBy=" + qSort + (curFilter ? "&status=" + curFilter : "");
+    api("/api/social-posts" + qs).then(function (r) { return r.json(); }).then(function (d) {
+      qPosts = (d && d.posts) || []; qTotal = (d && d.total != null) ? d.total : null;
+      renderPosts(); renderPager();
     }).catch(function () { $("posts").innerHTML = '<span class="t-sub">Could not load posts.</span>'; });
   }
+  function renderPosts() {
+    if (!qPosts.length) {
+      $("posts").className = "so-posts";
+      $("posts").innerHTML = '<span class="t-sub">No posts' + (curFilter ? " with status “" + curFilter + "”" : " yet") + '.</span>';
+      return;
+    }
+    $("posts").className = "so-posts" + (qView === "grid" ? " grid" : "");
+    $("posts").innerHTML = qPosts.map(function (p, i) {
+      var img = postImg(p), st = (p.status || "draft").toLowerCase();
+      var plats = (p.platforms || []).map(function (x) { return '<span class="plat">' + plat((x.platform || "").toLowerCase()) + '</span>'; }).join(" ");
+      if (qView === "grid") {
+        return '<div class="so-post" data-i="' + i + '">' +
+          '<div class="g-img" style="background-image:url(&quot;' + esc(img) + '&quot;)"></div>' +
+          '<div class="body"><div class="meta"><span class="badge ' + st + '">' + st + '</span>' + plats + '</div>' +
+          '<div class="cap">' + esc(p.content || p.title || "(no caption)") + '</div>' +
+          '<div class="meta"><span>' + fmtWhen(p) + '</span></div></div></div>';
+      }
+      return '<div class="so-post" data-i="' + i + '">' + (img ? '<img src="' + esc(img) + '" loading="lazy" alt="">' : "") +
+        '<div class="body"><div class="cap">' + esc(p.content || p.title || "(no caption)") + '</div>' +
+        '<div class="meta"><span class="badge ' + st + '">' + st + '</span>' + plats + '<span>' + fmtWhen(p) + '</span></div></div></div>';
+    }).join("");
+  }
+  function renderPager() {
+    var full = qPosts.length === qLimit;
+    var hasMore = (qTotal != null) ? (qSkip + qLimit < qTotal) : full;
+    if (qSkip === 0 && !hasMore) { $("qPager").hidden = true; return; }
+    $("qPager").hidden = false;
+    var from = qPosts.length ? qSkip + 1 : 0, to = qSkip + qPosts.length;
+    $("qRange").textContent = from + "–" + to + (qTotal != null ? " of " + qTotal : "");
+    $("qPrev").disabled = qSkip === 0; $("qNext").disabled = !hasMore;
+  }
+  $("qPrev").addEventListener("click", function () { if (qSkip > 0) { qSkip = Math.max(0, qSkip - qLimit); loadPosts(); } });
+  $("qNext").addEventListener("click", function () { qSkip += qLimit; loadPosts(); });
+  $("qSort").addEventListener("change", function () { qSort = this.value; qSkip = 0; loadPosts(); });
+  Array.prototype.forEach.call(document.querySelectorAll(".so-viewtoggle .vbtn"), function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".so-viewtoggle .vbtn").forEach(function (x) { x.classList.remove("is-on"); });
+      b.classList.add("is-on"); qView = b.getAttribute("data-view"); renderPosts();
+    });
+  });
   Array.prototype.forEach.call(document.querySelectorAll(".so-filters .chip"), function (c) {
     c.addEventListener("click", function () {
       document.querySelectorAll(".so-filters .chip").forEach(function (x) { x.classList.remove("is-on"); });
-      c.classList.add("is-on"); loadPosts(c.getAttribute("data-f"));
+      c.classList.add("is-on"); curFilter = c.getAttribute("data-f"); qSkip = 0; loadPosts();
     });
+  });
+  $("posts").addEventListener("click", function (e) {
+    var el = e.target.closest(".so-post"); if (!el) return;
+    openPost(qPosts[+el.getAttribute("data-i")]);
+  });
+
+  // ---- post lightbox / editor ----
+  var pmPost = null;
+  function toInput(iso, tz) {
+    try {
+      var f = new Intl.DateTimeFormat("en-CA", { timeZone: tz || "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+      var parts = {}; f.formatToParts(new Date(iso)).forEach(function (p) { parts[p.type] = p.value; });
+      return parts.year + "-" + parts.month + "-" + parts.day + "T" + (parts.hour === "24" ? "00" : parts.hour) + ":" + parts.minute;
+    } catch (e) { return ""; }
+  }
+  function openPost(p) {
+    if (!p) return;
+    pmPost = p;
+    var st = (p.status || "draft").toLowerCase();
+    $("pmStatus").className = "badge " + st; $("pmStatus").textContent = st;
+    $("pmPlats").innerHTML = (p.platforms || []).map(function (x) {
+      var live = x.platformPostUrl ? ' <a href="' + esc(x.platformPostUrl) + '" target="_blank" rel="noopener">↗</a>' : "";
+      return '<span class="plat">' + plat((x.platform || "").toLowerCase()) + '</span>' + live;
+    }).join(" ");
+    var imgs = (p.mediaItems || []).map(function (m) { return m.url; }).filter(Boolean);
+    $("pmMedia").innerHTML = imgs.length ? imgs.map(function (u) {
+      if (/\.(mp4|mov|webm|m4v)$/i.test(u)) return '<video src="' + esc(u) + '" controls style="max-width:100%"></video>';
+      return '<img src="' + esc(u) + '" alt="" loading="lazy">';
+    }).join("") : '<span class="none">No media</span>';
+    $("pmCaption").value = p.content || ""; $("pmCount").textContent = ($("pmCaption").value).length;
+    var tz = p.timezone || "America/Los_Angeles"; $("pmTz").textContent = "(" + tz + ")";
+    $("pmWhen").value = toInput(p.scheduledFor || p.publishedAt || p.createdAt, tz);
+    var editable = st === "scheduled" || st === "draft" || st === "failed";
+    $("pmSave").disabled = !editable; $("pmWhen").disabled = !editable;
+    $("pmHint").textContent = editable ? "Edits push to Zernio and update every platform on this post." : "Published posts can’t be edited here.";
+    $("pmMsg").className = "so-msg"; $("pmMsg").textContent = "";
+    $("postModal").hidden = false;
+  }
+  $("pmCaption").addEventListener("input", function () { $("pmCount").textContent = this.value.length; });
+  Array.prototype.forEach.call($("postModal").querySelectorAll("[data-pclose]"), function (el) {
+    el.addEventListener("click", function () { $("postModal").hidden = true; });
+  });
+  $("pmSave").addEventListener("click", function () {
+    if (!pmPost) return;
+    var id = pmPost._id || pmPost.id; if (!id) { $("pmMsg").className = "so-msg err"; $("pmMsg").textContent = "Missing post id."; return; }
+    var body = { postId: id, content: $("pmCaption").value, timezone: pmPost.timezone || "America/Los_Angeles" };
+    if ($("pmWhen").value && !$("pmWhen").disabled) body.scheduledFor = $("pmWhen").value.length === 16 ? $("pmWhen").value + ":00" : $("pmWhen").value;
+    var btn = $("pmSave"); btn.disabled = true; var old = btn.textContent; btn.textContent = "Saving…";
+    api("/api/social-update", { method: "POST", body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = old;
+        if (res.s === 200 && res.d.ok) {
+          $("pmMsg").className = "so-msg ok"; $("pmMsg").textContent = "Saved ✓";
+          pmPost.content = body.content; if (body.scheduledFor) pmPost.scheduledFor = res.d.post && res.d.post.scheduledFor || pmPost.scheduledFor;
+          renderPosts();
+        } else { $("pmMsg").className = "so-msg err"; $("pmMsg").textContent = (res.d && res.d.error) || "Could not save."; }
+      }).catch(function () { btn.disabled = false; btn.textContent = old; $("pmMsg").className = "so-msg err"; $("pmMsg").textContent = "Network error."; });
   });
 
   // ---- library ----
@@ -613,7 +776,7 @@ MC.ready.then(function () {
         $("bulkErrors").hidden = false;
         $("bulkErrors").innerHTML = out.errs.map(function (e) { return "<div>" + esc(e) + "</div>"; }).join("");
       }
-      loadPosts(curFilter);
+      loadPosts();
     }).catch(function (e) {
       bulkRunning = false;
       $("bulkGo").disabled = false; $("bulkCancel").hidden = true;
@@ -621,7 +784,7 @@ MC.ready.then(function () {
     });
   });
 
-  syncBtn(); loadAccounts(); loadPosts("");
+  syncBtn(); loadAccounts(); loadPosts();
 });
 </script>
 </body>
