@@ -676,7 +676,20 @@ MC.ready.then(function () {
     return h + ":" + m[2] + " " + ap;
   }
   function libCaption(p) { return p.caption + (p.hashtags && p.hashtags.length ? "\n\n" + p.hashtags.join(" ") : ""); }
-  function normCap(s) { return String(s || "").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 64); }
+  // Match key: strip hashtags, lowercase, collapse whitespace, keep a long prefix.
+  function normCap(s) { return String(s || "").replace(/#[\w]+/g, "").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 140); }
+  // Fetch the WHOLE queue by paging (Zernio caps a page at 100).
+  function fetchAllPosts() {
+    var all = [], page = 0;
+    function next() {
+      return api("/api/social-posts?limit=100&skip=" + (page * 100)).then(function (r) { return r.json(); }).then(function (d) {
+        var posts = (d && d.posts) || []; all = all.concat(posts); page++;
+        if (posts.length === 100 && page < 20) return next();
+        return all;
+      });
+    }
+    return next().catch(function () { return all; });
+  }
   (function () { var d = new Date(); d.setDate(d.getDate() + 1);
     $("bulkStart").value = d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); })();
 
@@ -714,12 +727,9 @@ MC.ready.then(function () {
     $("bulkBar").style.width = "0%"; $("bulkProgText").textContent = "Checking what’s already scheduled…";
 
     var replace = $("bulkReplace").checked;
-    Promise.all([
-      loadLib(),
-      api("/api/social-posts?limit=200").then(function (r) { return r.json(); }).catch(function () { return { posts: [] }; })
-    ]).then(function (rr) {
+    Promise.all([ loadLib(), fetchAllPosts() ]).then(function (rr) {
       var lib = rr[0].slice().sort(function (a, b) { return (a.day - b.day) || (a.slot - b.slot); });
-      var existing = (rr[1] && rr[1].posts) || [];
+      var existing = rr[1] || [];
       function editable(p) { var s = (p.status || "").toLowerCase(); return s === "scheduled" || s === "draft" || s === "failed"; }
       var tagToPost = {}, capToPost = {};
       existing.forEach(function (p) {
@@ -756,8 +766,10 @@ MC.ready.then(function () {
           return api(url, { method: "POST", body: JSON.stringify(item.payload) })
             .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
             .then(function (res) {
+              var em = (res.d && res.d.error) || "";
               if (res.s === 200 && res.d.ok) { if (item.mode === "update") updated++; else created++; }
-              else errs.push(item.id + " — " + ((res.d && res.d.error) || "failed"));
+              else if (res.s === 409 || /already (scheduled|posted|publish)/i.test(em)) { skipped++; }
+              else errs.push(item.id + " — " + (em || "failed"));
             })
             .catch(function () { errs.push(item.id + " — network error"); })
             .then(function () { return new Promise(function (r2) { setTimeout(r2, 300); }); });
