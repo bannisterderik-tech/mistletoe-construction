@@ -168,7 +168,25 @@
       });
     }).catch(function (e) { console.error("MC init:", e); });
 
-    function syncErr(r) { if (r && r.error) console.error("MC sync:", r.error.message); }
+    function syncErr(r) {
+      if (r && r.error) {
+        console.error("MC sync:", r.error.message);
+        if (window.MCUI && MCUI.toast) MCUI.toast("Save failed: " + r.error.message, "err");
+        return true;
+      }
+      return false;
+    }
+    // uuid columns (assigned_to) reject empty strings — send null instead.
+    var UUID_KEYS = { assigned_to: 1 };
+    function clean(obj) {
+      var out = {};
+      Object.keys(obj).forEach(function (k) {
+        var v = obj[k];
+        if (v === "" && UUID_KEYS[k]) v = null;
+        out[k] = v;
+      });
+      return out;
+    }
 
     return {
       mode: "supabase",
@@ -184,18 +202,24 @@
       },
       teamMembers: function () { return (cache.team_seats || []).filter(function (m) { return m.active !== false; }); },
       add: function (e, obj) {
-        if (obj.id === undefined && e !== "partners" && e !== "team_seats") obj.id = e.slice(0, 1) + Date.now().toString(36);
+        if (obj.id === undefined && e !== "partners" && e !== "team_seats")
+          obj.id = e.slice(0, 1) + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
         (cache[e] = cache[e] || []).push(obj);
-        sb.from(e).insert(obj).select().then(function (r) {
-          syncErr(r);
-          if (r.data && r.data[0] && obj.id === undefined) obj.id = r.data[0].id;
+        obj._saved = sb.from(e).insert(clean(obj)).select().then(function (r) {
+          if (r && r.error) {
+            cache[e] = (cache[e] || []).filter(function (x) { return x !== obj; }); // roll back the optimistic row
+            syncErr(r);
+            throw r.error;
+          }
+          if (r.data && r.data[0]) Object.keys(r.data[0]).forEach(function (k) { if (obj[k] == null) obj[k] = r.data[0][k]; });
+          return obj;
         });
         return obj;
       },
       update: function (e, id, patch) {
         var x = this.get(e, id); if (!x) return null;
         Object.keys(patch).forEach(function (k) { x[k] = patch[k]; });
-        sb.from(e).update(patch).eq("id", id).then(syncErr);
+        x._saved = sb.from(e).update(clean(patch)).eq("id", id).then(function (r) { syncErr(r); return r; });
         return x;
       },
       remove: function (e, id) {

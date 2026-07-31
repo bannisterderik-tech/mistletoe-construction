@@ -428,7 +428,8 @@ MC.ready.then(function () {
   document.getElementById("nc-save").addEventListener("click", function () {
     var name = document.getElementById("nc-name").value.trim();
     if (!name) { document.getElementById("nc-name").focus(); return; }
-    MC.add("customers", {
+    var btn = this; btn.disabled = true; var label = btn.textContent; btn.textContent = "Saving…";
+    var rec = MC.add("customers", {
       name: name,
       phone: document.getElementById("nc-phone").value.trim(),
       email: document.getElementById("nc-email").value.trim(),
@@ -438,10 +439,14 @@ MC.ready.then(function () {
       notes: document.getElementById("nc-notes").value.trim(),
       assigned_to: document.getElementById("nc-assign").value || ""
     });
-    addModal.classList.remove("open");
-    ["nc-name", "nc-phone", "nc-email", "nc-address", "nc-notes"].forEach(function (id) { document.getElementById(id).value = ""; });
-    document.getElementById("nc-member").checked = false;
-    render();
+    var done = (rec && rec._saved) ? rec._saved : Promise.resolve(rec);
+    done.then(function () {
+      window.MCUI && MCUI.toast("Customer saved ✓");
+      addModal.classList.remove("open");
+      ["nc-name", "nc-phone", "nc-email", "nc-address", "nc-notes"].forEach(function (id) { document.getElementById(id).value = ""; });
+      document.getElementById("nc-member").checked = false;
+    }).catch(function () { /* data layer already toasted the reason; keep the form open to retry */ })
+      .then(function () { btn.disabled = false; btn.textContent = label; render(); });
   });
 });
 </script>
