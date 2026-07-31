@@ -70,6 +70,7 @@
           <thead><tr><th>Document</th><th>Kind</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
   </main>
@@ -93,6 +94,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
@@ -139,6 +141,22 @@ MC.ready.then(function () {
     document.getElementById("st-drafts").textContent = drafts;
   }
 
+  function docRow(d) {
+    var kindBadge = d.kind === "estimate" ? "<span class='badge pine'>Estimate</span>" : "<span class='badge gray'>Invoice</span>";
+    var statusBadge = "<span class='badge " + (STATUS_BADGE[d.status] || "gray") + "'>" + d.status + "</span>";
+    var act = actionFor(d);
+    return "<tr data-id='" + d.id + "' style='cursor:pointer'>" +
+      "<td><span class='t-strong'>" + d.label + "</span><span class='t-sub'>" + MC.customerName(d.customerId) + "</span></td>" +
+      "<td>" + kindBadge + "</td>" +
+      "<td>" + MC.fmtDate(d.date) + "</td>" +
+      "<td>" + MC.money(d.amount) + "</td>" +
+      "<td>" + statusBadge + "</td>" +
+      "<td>" + (act ? "<button class='btn-icon' data-id='" + d.id + "' data-act='" + act[0] + "'>" + act[1] + "</button>" : "") + "</td>" +
+      "</tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(docRow).join("") : "<tr><td colspan='6'><span class='t-sub'>Nothing here yet.</span></td></tr>";
+  } });
   function renderTable() {
     var docs = MC.list("invoices").filter(function (d) {
       if (filter === "estimates") return d.kind === "estimate";
@@ -147,24 +165,7 @@ MC.ready.then(function () {
       return true;
     });
     docs.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
-
-    if (!docs.length) {
-      rows.innerHTML = "<tr><td colspan='6'><span class='t-sub'>Nothing here yet.</span></td></tr>";
-      return;
-    }
-    rows.innerHTML = docs.map(function (d) {
-      var kindBadge = d.kind === "estimate" ? "<span class='badge pine'>Estimate</span>" : "<span class='badge gray'>Invoice</span>";
-      var statusBadge = "<span class='badge " + (STATUS_BADGE[d.status] || "gray") + "'>" + d.status + "</span>";
-      var act = actionFor(d);
-      return "<tr data-id='" + d.id + "' style='cursor:pointer'>" +
-        "<td><span class='t-strong'>" + d.label + "</span><span class='t-sub'>" + MC.customerName(d.customerId) + "</span></td>" +
-        "<td>" + kindBadge + "</td>" +
-        "<td>" + MC.fmtDate(d.date) + "</td>" +
-        "<td>" + MC.money(d.amount) + "</td>" +
-        "<td>" + statusBadge + "</td>" +
-        "<td>" + (act ? "<button class='btn-icon' data-id='" + d.id + "' data-act='" + act[0] + "'>" + act[1] + "</button>" : "") + "</td>" +
-        "</tr>";
-    }).join("");
+    pager.set(docs);
   }
 
   function render() { renderStats(); renderTable(); }
@@ -251,7 +252,7 @@ MC.ready.then(function () {
     filter = btn.dataset.filter;
     this.querySelectorAll("button").forEach(function (b) { b.classList.remove("active"); });
     btn.classList.add("active");
-    renderTable();
+    pager.first(); renderTable();
   });
 
   /* New estimate modal */

@@ -63,6 +63,7 @@
           <thead><tr><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
   </main>
@@ -90,6 +91,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
@@ -125,31 +127,28 @@ MC.ready.then(function () {
     document.getElementById("s-inactive").textContent = inactive;
   }
 
+  function seatRow(s) {
+    var isActive = s.active !== false;
+    var roleBadge = isActive
+      ? "<span class='badge " + (ROLE_BADGE[s.role] || "gray") + "'>" + (ROLE_LABEL[s.role] || s.role) + "</span>"
+      : "<span class='badge gray'>inactive</span>";
+    var statusBadge = isActive ? "<span class='badge green'>Active</span>" : "<span class='badge gray'>Inactive</span>";
+    var action = isActive
+      ? "<button class='btn-icon' data-id='" + s.id + "' data-act='deactivate'>Deactivate</button>"
+      : "<button class='btn-icon' data-id='" + s.id + "' data-act='reactivate'>Reactivate</button>";
+    return "<tr>" +
+      "<td><span class='t-strong'>" + s.name + "</span><span class='t-sub'>" + (s.email || "") + "</span></td>" +
+      "<td>" + roleBadge + "</td>" +
+      "<td>" + statusBadge + "</td>" +
+      "<td>" + action + "</td></tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(seatRow).join("")
+      : "<tr><td colspan='4'><span class='t-sub'>No seats yet. Add your first with “+ Add seat”.</span></td></tr>";
+  } });
   function render() {
     renderStats();
-    var seats = MC.list("team_seats");
-    if (!seats.length) {
-      rows.innerHTML = "<tr><td colspan='4'><span class='t-sub'>No seats yet. Add your first with “+ Add seat”.</span></td></tr>";
-      return;
-    }
-    rows.innerHTML = seats.map(function (s) {
-      var isActive = s.active !== false;
-      var roleBadge = isActive
-        ? "<span class='badge " + (ROLE_BADGE[s.role] || "gray") + "'>" + (ROLE_LABEL[s.role] || s.role) + "</span>"
-        : "<span class='badge gray'>inactive</span>";
-      var statusBadge = isActive
-        ? "<span class='badge green'>Active</span>"
-        : "<span class='badge gray'>Inactive</span>";
-      var action = isActive
-        ? "<button class='btn-icon' data-id='" + s.id + "' data-act='deactivate'>Deactivate</button>"
-        : "<button class='btn-icon' data-id='" + s.id + "' data-act='reactivate'>Reactivate</button>";
-      return "<tr>" +
-        "<td><span class='t-strong'>" + s.name + "</span><span class='t-sub'>" + (s.email || "") + "</span></td>" +
-        "<td>" + roleBadge + "</td>" +
-        "<td>" + statusBadge + "</td>" +
-        "<td>" + action + "</td>" +
-        "</tr>";
-    }).join("");
+    pager.set(MC.list("team_seats"));
   }
   render();
 

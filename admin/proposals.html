@@ -71,6 +71,7 @@
           <thead><tr><th>Title</th><th>Amount</th><th>Status</th><th>Created</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
   </main>
@@ -130,6 +131,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require(["admin","sales"], "../portal/login.html"); if (!ses) return;
@@ -191,15 +193,7 @@ MC.ready.then(function () {
   }
 
   /* ---------- table ---------- */
-  function renderTable() {
-    var props = MC.list("proposals").sort(function (a, b) {
-      return String(a.id) < String(b.id) ? 1 : String(a.id) > String(b.id) ? -1 : 0;
-    });
-    if (!props.length) {
-      rows.innerHTML = "<tr><td colspan='5'><span class='t-sub'>No proposals yet. Build one with “+ New Proposal”.</span></td></tr>";
-      return;
-    }
-    rows.innerHTML = props.map(function (p) {
+  function propRow(p) {
       var statusBadge = "<span class='badge " + (STATUS_BADGE[p.status] || "gray") + "'>" + p.status + "</span>";
       if (p.agreement_signed_at) statusBadge += "<span class='t-sub' title='Signed by " + (p.agreement_signer || "") + "' style='display:block'>✍ signed</span>";
       var url = shareUrl(p);
@@ -229,7 +223,16 @@ MC.ready.then(function () {
         "<td>" + created + "</td>" +
         "<td><div style='display:flex;gap:0.4rem;flex-wrap:wrap'>" + actions + "</div></td>" +
         "</tr>";
-    }).join("");
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(propRow).join("")
+      : "<tr><td colspan='5'><span class='t-sub'>No proposals yet. Build one with “+ New Proposal”.</span></td></tr>";
+  } });
+  function renderTable() {
+    var props = MC.list("proposals").sort(function (a, b) {
+      return String(a.id) < String(b.id) ? 1 : String(a.id) > String(b.id) ? -1 : 0;
+    });
+    pager.set(props);
   }
 
   function render() { renderStats(); renderTable(); }

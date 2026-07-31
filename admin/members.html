@@ -73,6 +73,7 @@
           </thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
 
@@ -105,6 +106,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
@@ -126,6 +128,22 @@ MC.ready.then(function () {
 
   function todayISO() { return new Date().toISOString().slice(0, 10); }
 
+  var _visits = [], _today = "";
+  function memberRow(c) {
+    var mine = _visits.filter(function (v) { return v.customerId === c.id; });
+    var future = mine.filter(function (v) { return v.date >= _today; }).sort(function (a, b) { return a.date.localeCompare(b.date); })[0];
+    var past = mine.filter(function (v) { return v.date < _today; }).sort(function (a, b) { return b.date.localeCompare(a.date); })[0];
+    return "<tr data-id='" + c.id + "' style='cursor:pointer'>" +
+      "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span></td>" +
+      "<td>" + c.city + "</td>" +
+      "<td>" + (future ? MC.fmtDate(future.date) + "<span class='t-sub'>" + future.type + "</span>" : "<span class='badge amber'>Not scheduled</span>") + "</td>" +
+      "<td>" + (past ? MC.fmtDate(past.date) + "<span class='t-sub'>" + past.type + "</span>" : "—") + "</td>" +
+      "<td><button class='btn-icon' data-log='" + c.id + "'>Log Visit</button></td></tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(memberRow).join("")
+      : "<tr><td colspan='5' style='color:var(--ink-soft)'>No members yet.</td></tr>";
+  } });
   function render() {
     var today = todayISO();
     var members = MC.list("customers").filter(function (c) { return c.member; });
@@ -138,32 +156,9 @@ MC.ready.then(function () {
       return !v.summary && v.date >= today;
     }).length;
 
-    /* Roster */
-    rows.innerHTML = "";
-    members.forEach(function (c) {
-      var mine = visits.filter(function (v) { return v.customerId === c.id; });
-      var future = mine.filter(function (v) { return v.date >= today; })
-        .sort(function (a, b) { return a.date.localeCompare(b.date); })[0];
-      var past = mine.filter(function (v) { return v.date < today; })
-        .sort(function (a, b) { return b.date.localeCompare(a.date); })[0];
-      var tr = document.createElement("tr");
-      tr.dataset.id = c.id;
-      tr.style.cursor = "pointer";
-      tr.innerHTML =
-        "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span></td>" +
-        "<td>" + c.city + "</td>" +
-        "<td>" + (future
-          ? MC.fmtDate(future.date) + "<span class='t-sub'>" + future.type + "</span>"
-          : "<span class='badge amber'>Not scheduled</span>") + "</td>" +
-        "<td>" + (past
-          ? MC.fmtDate(past.date) + "<span class='t-sub'>" + past.type + "</span>"
-          : "—") + "</td>" +
-        "<td><button class='btn-icon' data-log='" + c.id + "'>Log Visit</button></td>";
-      rows.appendChild(tr);
-    });
-    if (!members.length) {
-      rows.innerHTML = "<tr><td colspan='5' style='color:var(--ink-soft)'>No members yet.</td></tr>";
-    }
+    /* Roster (paginated) */
+    _visits = visits; _today = today;
+    pager.set(members);
 
     /* Upcoming visits panel */
     var upcoming = visits.filter(function (v) { return v.date >= today; })

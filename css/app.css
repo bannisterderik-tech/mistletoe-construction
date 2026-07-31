@@ -140,3 +140,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 0.94rem; }
   .panel-head, .panel-body { padding-left: 1rem; padding-right: 1rem; }
   .modal { padding: 1.2rem; }
 }
+
+/* ---- table pagination (MCPager) ---- */
+.mc-pager { display:flex; align-items:center; justify-content:center; gap:1rem; margin-top:1rem; padding-top:.4rem; }
+.mc-pager[hidden] { display:none; }
+.mc-pager-range { font-size:.85rem; font-weight:700; color:var(--ink-soft); }
+.mc-pager .btn[disabled] { opacity:.4; pointer-events:none; }

@@ -60,6 +60,7 @@
           </thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
   </main>
@@ -119,6 +120,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require(["admin","sales"], "../portal/login.html"); if (!ses) return;
@@ -150,35 +152,32 @@ MC.ready.then(function () {
     }).join("");
   }
 
+  function custRow(c, jobs) {
+    var jobCount = jobs.filter(function (j) { return j.customerId === c.id; }).length;
+    return "<tr data-id='" + c.id + "' style='cursor:pointer'>" +
+      "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span>" +
+      (c.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(c.assigned_to) + "</span>" : "") + "</td>" +
+      "<td>" + c.city + "</td>" +
+      "<td>" + (c.phone || "—") + "</td>" +
+      "<td>" + (c.member ? "<span class='badge green'>Member</span>" : "<span class='badge gray'>—</span>") + "</td>" +
+      "<td>" + jobCount + "</td>" +
+      "<td><button class='btn-icon' data-view='" + c.id + "'>View</button></td></tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    var jobs = MC.list("jobs");
+    rows.innerHTML = slice.length ? slice.map(function (c) { return custRow(c, jobs); }).join("")
+      : "<tr><td colspan='6' style='color:var(--ink-soft)'>No customers match.</td></tr>";
+  } });
   function render() {
     var q = search.value.trim().toLowerCase();
-    var jobs = MC.list("jobs");
     var customers = MC.list("customers").filter(function (c) {
       if (!q) return true;
       return (c.name + " " + c.city + " " + c.address).toLowerCase().indexOf(q) !== -1;
     });
-    rows.innerHTML = "";
-    customers.forEach(function (c) {
-      var jobCount = jobs.filter(function (j) { return j.customerId === c.id; }).length;
-      var tr = document.createElement("tr");
-      tr.dataset.id = c.id;
-      tr.style.cursor = "pointer";
-      tr.innerHTML =
-        "<td class='t-strong'>" + c.name + "<span class='t-sub'>" + (c.address || "—") + "</span>" +
-        (c.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(c.assigned_to) + "</span>" : "") + "</td>" +
-        "<td>" + c.city + "</td>" +
-        "<td>" + (c.phone || "—") + "</td>" +
-        "<td>" + (c.member ? "<span class='badge green'>Member</span>" : "<span class='badge gray'>—</span>") + "</td>" +
-        "<td>" + jobCount + "</td>" +
-        "<td><button class='btn-icon' data-view='" + c.id + "'>View</button></td>";
-      rows.appendChild(tr);
-    });
-    if (!customers.length) {
-      rows.innerHTML = "<tr><td colspan='6' style='color:var(--ink-soft)'>No customers match.</td></tr>";
-    }
+    pager.set(customers);
   }
   render();
-  search.addEventListener("input", render);
+  search.addEventListener("input", function () { pager.first(); render(); });
 
   /* ---------- Click-through profile panel (MCUI) ---------- */
   var payLink = function (rec) {

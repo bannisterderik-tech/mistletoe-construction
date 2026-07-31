@@ -70,6 +70,7 @@
           <thead><tr><th>Agent</th><th>Brokerage</th><th>City</th><th>Phone</th><th>Email</th><th>Status</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
   </main>
@@ -78,6 +79,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script src="../js/partners-data.js"></script>
 <script>
 MC.ready.then(function () {
@@ -137,41 +139,45 @@ MC.ready.then(function () {
   /* table */
   var filter = "all", query = "";
   var tb = document.getElementById("rows");
+  function partnerRow(p) {
+    var i = p._idx, st = statuses[p.name] || "new";
+    var emailCell = p.email
+      ? "<a href='mailto:" + p.email + "'>" + p.email + "</a>" + (p.confidence === "inferred" ? " <span class='badge amber'>inferred</span>" : "")
+      : "<span style='color:var(--ink-soft)'>—</span>";
+    var opts = STATUS_OPTS.map(function (o) { return "<option" + (o === st ? " selected" : "") + ">" + o + "</option>"; }).join("");
+    return "<tr data-idx='" + i + "' style='cursor:pointer'>" +
+      "<td class='t-strong'>" + p.name + (p.title ? "<span class='t-sub'>" + p.title + "</span>" : "") + "</td>" +
+      "<td>" + (p.brokerage || "—") + "</td><td>" + (p.city || "—") + "</td>" +
+      "<td>" + (p.phone ? "<a href='tel:" + p.phone.replace(/\D/g, "") + "'>" + p.phone + "</a>" : "—") + "</td>" +
+      "<td>" + emailCell + "</td>" +
+      "<td><span class='badge " + badgeFor[st] + "' style='margin-right:0.4rem'>" + st + "</span>" +
+      "<select data-name='" + p.name.replace(/'/g, "&#39;") + "' style='width:auto;padding:0.3rem 0.5rem;font-size:0.85rem'>" + opts + "</select></td></tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 30, onPage: function (slice) {
+    tb.innerHTML = slice.length ? slice.map(partnerRow).join("")
+      : "<tr><td colspan='6' style='color:var(--ink-soft)'>No agents match.</td></tr>";
+  } });
   function render() {
-    tb.innerHTML = "";
     var q = query.toLowerCase();
-    P.forEach(function (p, i) {
+    var filtered = P.filter(function (p, i) {
+      p._idx = i;
       var st = statuses[p.name] || "new";
-      if (filter === "email" && !p.email) return;
-      if (filter === "phone" && !p.phone) return;
-      if (filter === "partner" && st !== "partner") return;
-      if (q && (p.name + " " + p.brokerage + " " + p.city).toLowerCase().indexOf(q) === -1) return;
-      var tr = document.createElement("tr");
-      tr.dataset.idx = i;
-      tr.style.cursor = "pointer";
-      var emailCell = p.email
-        ? "<a href='mailto:" + p.email + "'>" + p.email + "</a>" + (p.confidence === "inferred" ? " <span class='badge amber'>inferred</span>" : "")
-        : "<span style='color:var(--ink-soft)'>—</span>";
-      var opts = STATUS_OPTS.map(function (o) {
-        return "<option" + (o === st ? " selected" : "") + ">" + o + "</option>";
-      }).join("");
-      tr.innerHTML = "<td class='t-strong'>" + p.name + (p.title ? "<span class='t-sub'>" + p.title + "</span>" : "") + "</td>" +
-        "<td>" + (p.brokerage || "—") + "</td><td>" + (p.city || "—") + "</td>" +
-        "<td>" + (p.phone ? "<a href='tel:" + p.phone.replace(/\D/g, "") + "'>" + p.phone + "</a>" : "—") + "</td>" +
-        "<td>" + emailCell + "</td>" +
-        "<td><span class='badge " + badgeFor[st] + "' style='margin-right:0.4rem'>" + st + "</span>" +
-        "<select data-name='" + p.name.replace(/'/g, "&#39;") + "' style='width:auto;padding:0.3rem 0.5rem;font-size:0.85rem'>" + opts + "</select></td>";
-      tb.appendChild(tr);
+      if (filter === "email" && !p.email) return false;
+      if (filter === "phone" && !p.phone) return false;
+      if (filter === "partner" && st !== "partner") return false;
+      if (q && (p.name + " " + p.brokerage + " " + p.city).toLowerCase().indexOf(q) === -1) return false;
+      return true;
     });
+    pager.set(filtered);
   }
   tb.addEventListener("change", function (e) {
     var n = e.target.getAttribute("data-name");
     if (!n) return;
     statuses[n] = e.target.value; saveSt(n, e.target.value); refreshPartnerStat(); render();
   });
-  document.getElementById("q").addEventListener("input", function (e) { query = e.target.value; render(); });
+  document.getElementById("q").addEventListener("input", function (e) { query = e.target.value; pager.first(); render(); });
   document.querySelectorAll(".f-btn").forEach(function (b) {
-    b.addEventListener("click", function () { filter = b.dataset.f; render(); });
+    b.addEventListener("click", function () { filter = b.dataset.f; pager.first(); render(); });
   });
 
   /* ---------- Click-through partner detail panel (MCUI) ---------- */

@@ -81,6 +81,7 @@
           </thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="mc-pager" id="pager" hidden></div>
       </div>
     </div>
   </main>
@@ -110,6 +111,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/app-data.js"></script>
 <script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
 <script>
 MC.ready.then(function () {
   var ses = MC.auth.require(["admin","sales","field"], "../portal/login.html"); if (!ses) return;
@@ -146,31 +148,28 @@ MC.ready.then(function () {
     document.getElementById("st-done").textContent = done.length;
   }
 
+  function jobRow(j) {
+    var action = "";
+    if (j.status === "scheduled") action = "<button class='btn-icon' data-advance='" + j.id + "'>Start</button>";
+    else if (j.status === "in-progress") action = "<button class='btn-icon' data-advance='" + j.id + "'>Complete</button>";
+    return "<tr data-id='" + j.id + "' style='cursor:pointer'>" +
+      "<td class='t-strong'>" + j.title + "<span class='t-sub'>" + MC.customerName(j.customerId) + "</span>" +
+      (j.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(j.assigned_to) + "</span>" : "") + "</td>" +
+      "<td>" + MC.fmtDate(j.start) + "</td>" +
+      "<td>" + MC.money(j.value) + "</td>" +
+      "<td><span class='badge " + (STATUS_BADGE[j.status] || "gray") + "'>" + (STATUS_LABEL[j.status] || j.status) + "</span></td>" +
+      "<td style='max-width:16rem'>" + (j.note || "—") + "</td>" +
+      "<td>" + action + "</td></tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(jobRow).join("")
+      : "<tr><td colspan='6' style='color:var(--ink-soft)'>No jobs in this view.</td></tr>";
+  } });
   function render() {
     renderStats();
     var jobs = MC.list("jobs").filter(function (j) { return filter === "all" || j.status === filter; });
     jobs.sort(function (a, b) { return (a.start || "").localeCompare(b.start || ""); });
-    rows.innerHTML = "";
-    jobs.forEach(function (j) {
-      var action = "";
-      if (j.status === "scheduled") action = "<button class='btn-icon' data-advance='" + j.id + "'>Start</button>";
-      else if (j.status === "in-progress") action = "<button class='btn-icon' data-advance='" + j.id + "'>Complete</button>";
-      var tr = document.createElement("tr");
-      tr.dataset.id = j.id;
-      tr.style.cursor = "pointer";
-      tr.innerHTML =
-        "<td class='t-strong'>" + j.title + "<span class='t-sub'>" + MC.customerName(j.customerId) + "</span>" +
-        (j.assigned_to ? "<span class='t-sub'>→ " + MC.memberName(j.assigned_to) + "</span>" : "") + "</td>" +
-        "<td>" + MC.fmtDate(j.start) + "</td>" +
-        "<td>" + MC.money(j.value) + "</td>" +
-        "<td><span class='badge " + (STATUS_BADGE[j.status] || "gray") + "'>" + (STATUS_LABEL[j.status] || j.status) + "</span></td>" +
-        "<td style='max-width:16rem'>" + (j.note || "—") + "</td>" +
-        "<td>" + action + "</td>";
-      rows.appendChild(tr);
-    });
-    if (!jobs.length) {
-      rows.innerHTML = "<tr><td colspan='6' style='color:var(--ink-soft)'>No jobs in this view.</td></tr>";
-    }
+    pager.set(jobs);
   }
   render();
 
@@ -320,7 +319,7 @@ MC.ready.then(function () {
       b.classList.toggle("btn-primary", b === btn);
       b.classList.toggle("btn-outline", b !== btn);
     });
-    render();
+    pager.first(); render();
   });
 
   /* New job modal */
