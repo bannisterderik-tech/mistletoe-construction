@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
     }
     res.status(200).json({
       id: p.id, title: p.title, items: p.items || [], amount: p.amount,
+      created: p.created || null,
       status: p.status, stripe_invoice_url: p.stripe_invoice_url || null,
       stripe_invoice_pdf: p.stripe_invoice_pdf || null,
       note: p.note || "", customer: customer,

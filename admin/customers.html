@@ -205,35 +205,51 @@ MC.ready.then(function () {
       ["Notes", c.notes || ""]
     ]);
 
-    /* Jobs */
+    var editHint = "<span class='t-sub' style='opacity:.7'> · click to edit</span>";
+    var pdfBtn = function (href, label) { return "<a class='btn-icon' target='_blank' rel='noopener' href='" + MCUI.esc(href) + "'>" + label + "</a>"; };
+
+    /* Jobs — click to edit */
     var jobsList = MCUI.list(jobs.map(function (j) {
-      return { main: j.title, sub: j.status + (j.start ? " · " + MC.fmtDate(j.start) : ""), right: MC.money(j.value) };
+      return { id: j.id, mainRaw: "<a href='#' data-edit='job:" + MCUI.esc(j.id) + "'>" + MCUI.esc(j.title) + "</a>",
+        sub: statusLabel(j.status) + (j.start ? " · " + MC.fmtDate(j.start) : ""), right: MC.money(j.value) };
     }), "No jobs yet.");
 
-    /* Proposals */
+    /* Proposals — click to edit + PDF / agreement */
     var propList = MCUI.list(proposals.map(function (p) {
-      var it = { main: p.title, sub: statusLabel(p.status), rightRaw: MC.money(p.amount) };
-      if (p.token) it.mainRaw = "<a href='/proposal.html?t=" + MCUI.esc(p.token) + "' target='_blank' rel='noopener'>" + MCUI.esc(p.title) + "</a>";
-      return it;
+      var links = MC.money(p.amount);
+      if (p.token) links += "<div style='margin-top:.2rem'>" + pdfBtn("/proposal.html?t=" + p.token, "PDF") + pdfBtn("/contract.html?t=" + p.token, "Agreement") + "</div>";
+      return { mainRaw: "<a href='#' data-edit='proposal:" + MCUI.esc(p.id) + "'>" + MCUI.esc(p.title) + "</a>" + (p.agreement_signed_at ? " ✍" : ""),
+        sub: statusLabel(p.status), right: MC.money(p.amount), rightRaw: links };
     }), "No proposals yet.");
 
-    /* Invoices & payments — invoices table + proposals invoiced/paid */
+    /* Invoices & payments — manual invoices (editable) + proposals invoiced/paid (PDF/pay) */
     var payRows = invoices.map(function (i) {
-      return { label: i.label, status: i.status, amount: i.amount, rec: i };
+      return { label: i.label, status: i.status, amount: i.amount, rec: i, manual: true };
     }).concat(proposals.filter(function (p) {
       return p.status === "invoiced" || p.status === "paid";
     }).map(function (p) {
-      return { label: p.title, status: p.status, amount: p.amount, rec: p };
+      return { label: p.title, status: p.status, amount: p.amount, rec: p, manual: false };
     }));
     var invList = MCUI.list(payRows.map(function (r) {
       var isPaid = String(r.status) === "paid";
-      var right = MC.money(r.amount) + (isPaid ? " <span class='badge green'>Paid</span>" : "") + payLink(r.rec);
-      return { main: r.label, sub: statusLabel(r.status), rightRaw: right };
+      var right = MC.money(r.amount) + (isPaid ? " <span class='badge green'>Paid</span>" : "");
+      var main;
+      if (r.manual) {
+        main = "<a href='#' data-edit='inv:" + MCUI.esc(r.rec.id) + "'>" + MCUI.esc(r.label) + "</a>";
+      } else {
+        main = MCUI.esc(r.label);
+        var pl = "";
+        if (r.rec.stripe_invoice_url) pl += pdfBtn(r.rec.stripe_invoice_url, "Pay / view");
+        if (r.rec.stripe_invoice_pdf) pl += pdfBtn(r.rec.stripe_invoice_pdf, "Invoice PDF");
+        if (pl) right += "<div style='margin-top:.2rem'>" + pl + "</div>";
+      }
+      return { mainRaw: main, sub: statusLabel(r.status), right: MC.money(r.amount), rightRaw: right };
     }), "No invoices yet.");
 
-    /* Visits */
+    /* Visits — click to edit */
     var visitList = MCUI.list(visits.map(function (v) {
-      return { main: v.type, sub: v.date ? MC.fmtDate(v.date) : "", right: v.summary || "" };
+      return { mainRaw: "<a href='#' data-edit='visit:" + MCUI.esc(v.id) + "'>" + MCUI.esc(v.type) + "</a>",
+        sub: v.date ? MC.fmtDate(v.date) : "", right: v.summary || "—", rightRaw: MCUI.esc(v.summary || "") };
     }), "No visits logged.");
 
     var body =
@@ -264,7 +280,99 @@ MC.ready.then(function () {
       title: c.name,
       subtitle: [c.city, c.member ? "Member" : ""].filter(Boolean).join(" · "),
       bodyHTML: body,
-      actions: actions
+      actions: actions,
+      onBody: function (bodyEl) {
+        bodyEl.addEventListener("click", function (e) {
+          var a = e.target.closest("[data-edit]"); if (!a) return;
+          e.preventDefault();
+          var parts = String(a.getAttribute("data-edit")).split(":"), type = parts[0], id = parts.slice(1).join(":");
+          if (type === "job") openRecordForm(c, "jobs", MC.get("jobs", id));
+          else if (type === "visit") openRecordForm(c, "visits", MC.get("visits", id));
+          else if (type === "inv") openRecordForm(c, "invoices", MC.get("invoices", id));
+          else if (type === "proposal") openRecordForm(c, "proposals", MC.get("proposals", id));
+        });
+      }
+    });
+  }
+
+  /* ---------- Inline record editor (jobs / visits / invoices / proposals) ---------- */
+  function dOnly(v) { return v ? String(v).slice(0, 10) : ""; }
+  var FIELD_DEFS = {
+    jobs: [
+      { key: "title", label: "Job title" },
+      { key: "status", label: "Status", type: "select", options: ["scheduled", "in-progress", "done"] },
+      { key: "start", label: "Start date", type: "date" },
+      { key: "value", label: "Value ($)", type: "number" },
+      { key: "note", label: "Notes", type: "textarea" }
+    ],
+    visits: [
+      { key: "type", label: "Visit type" },
+      { key: "date", label: "Date", type: "date" },
+      { key: "summary", label: "Summary", type: "textarea" }
+    ],
+    invoices: [
+      { key: "label", label: "Invoice label" },
+      { key: "status", label: "Status", type: "select", options: ["draft", "sent", "paid"] },
+      { key: "amount", label: "Amount ($)", type: "number" },
+      { key: "date", label: "Date", type: "date" }
+    ],
+    proposals: [
+      { key: "title", label: "Proposal title" },
+      { key: "status", label: "Status", type: "select", options: ["draft", "sent", "signed", "invoiced", "paid"] },
+      { key: "note", label: "Note", type: "textarea" }
+    ]
+  };
+  var ENTITY_LABEL = { jobs: "Job", visits: "Visit", invoices: "Invoice", proposals: "Proposal" };
+
+  function openRecordForm(c, entity, rec) {
+    if (!rec) return;
+    var defs = FIELD_DEFS[entity];
+    var fields = defs.map(function (f) {
+      var v = rec[f.key]; if (f.type === "date") v = dOnly(v);
+      var inp;
+      if (f.type === "textarea") inp = "<textarea id='ed-" + f.key + "' rows='3'>" + MCUI.esc(v == null ? "" : v) + "</textarea>";
+      else if (f.type === "select") inp = "<select id='ed-" + f.key + "'>" + f.options.map(function (o) {
+        return "<option value='" + MCUI.esc(o) + "'" + (String(o) === String(v) ? " selected" : "") + ">" + statusLabel(o) + "</option>"; }).join("") + "</select>";
+      else inp = "<input id='ed-" + f.key + "' type='" + (f.type || "text") + "'" + (f.type === "number" ? " step='0.01'" : "") + " value='" + MCUI.esc(v == null ? "" : v) + "'>";
+      return "<div class='mcui-sec'><label for='ed-" + f.key + "' style='font-weight:700;display:block;margin-bottom:.3rem'>" + MCUI.esc(f.label) + "</label>" + inp + "</div>";
+    }).join("");
+
+    var links = "";
+    if (entity === "proposals" && rec.token) {
+      links = "<div class='mcui-sec' style='display:flex;gap:.5rem;flex-wrap:wrap'>" +
+        "<a class='btn btn-outline btn-sm' target='_blank' rel='noopener' href='/proposal.html?t=" + rec.token + "'>Proposal PDF</a>" +
+        "<a class='btn btn-outline btn-sm' target='_blank' rel='noopener' href='/contract.html?t=" + rec.token + "'>Agreement</a>" +
+        (rec.stripe_invoice_pdf ? "<a class='btn btn-outline btn-sm' target='_blank' rel='noopener' href='" + MCUI.esc(rec.stripe_invoice_pdf) + "'>Invoice PDF</a>" : "") +
+        "</div><p class='t-sub'>Edit line items on the Proposals page.</p>";
+    }
+
+    var canDelete = ((MC.auth.session() || {}).role) === "admin";
+    var html = "<div class='mcui-sec'><h4 style='margin-top:0'>Edit " + ENTITY_LABEL[entity] + "</h4></div>" + fields + links +
+      "<div style='display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem'>" +
+        "<button type='button' class='btn btn-primary btn-sm' id='ed-save'>Save</button>" +
+        "<button type='button' class='btn btn-outline btn-sm' id='ed-back'>Back</button>" +
+        (canDelete ? "<button type='button' class='btn btn-outline btn-sm' id='ed-del' style='margin-left:auto'>Delete</button>" : "") +
+      "</div>";
+
+    MCUI.setBody(html);
+    var d = MCUI.drawer;
+    d.querySelector("#ed-back").addEventListener("click", function () { openProfile(c); });
+    if (canDelete) d.querySelector("#ed-del").addEventListener("click", function () {
+      if (!window.confirm("Delete this " + ENTITY_LABEL[entity].toLowerCase() + "?")) return;
+      MC.remove(entity, rec.id); MCUI.toast(ENTITY_LABEL[entity] + " deleted"); openProfile(c); render();
+    });
+    d.querySelector("#ed-save").addEventListener("click", function () {
+      var patch = {};
+      defs.forEach(function (f) {
+        var el = d.querySelector("#ed-" + f.key); if (!el) return;
+        var v = el.value; if (f.type === "number") v = Number(v || 0);
+        patch[f.key] = v;
+      });
+      var btn = d.querySelector("#ed-save"); btn.disabled = true; btn.textContent = "Saving…";
+      var res = MC.update(entity, rec.id, patch);
+      var done = (res && res._saved) ? res._saved : Promise.resolve(res);
+      done.then(function () { MCUI.toast(ENTITY_LABEL[entity] + " saved ✓"); openProfile(c); render(); })
+        .catch(function () { btn.disabled = false; btn.textContent = "Save"; });
     });
   }
 

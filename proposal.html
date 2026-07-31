@@ -12,11 +12,73 @@
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css?v=3">
 <style>
+  :root { --doc-green:#1b3d26; --doc-gold:#b98b2e; --doc-line:rgba(28,36,29,.14); --doc-soft:#5c6b5f; }
+  body { background:#e9ece7; }
+  .doc-shell { max-width:60rem; margin:2rem auto; padding:0 1rem; }
+  .doc-bar { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .paper { background:#fff; border-radius:10px; box-shadow:0 10px 40px rgba(12,20,14,.14); overflow:hidden; }
+  .paper-in { padding:2.6rem 2.8rem; }
+  /* letterhead */
+  .lh { display:flex; justify-content:space-between; align-items:flex-start; gap:1.5rem; border-bottom:3px solid var(--doc-green); padding-bottom:1.3rem; }
+  .lh-brand { display:flex; gap:.9rem; align-items:center; }
+  .lh-brand img { width:58px; height:58px; }
+  .lh-brand .co { font-family:var(--font-display,'Mulish'); font-weight:900; color:var(--doc-green); font-size:1.5rem; line-height:1; letter-spacing:-.01em; }
+  .lh-brand .tag { color:var(--doc-soft); font-size:.82rem; margin-top:.25rem; }
+  .lh-meta { text-align:right; font-size:.82rem; color:var(--doc-soft); line-height:1.5; }
+  .lh-meta b { color:var(--doc-green); }
+  /* title band */
+  .doc-title { display:flex; justify-content:space-between; align-items:flex-end; margin:1.6rem 0 1.2rem; }
+  .doc-title h1 { font-size:2.1rem; letter-spacing:.14em; color:var(--doc-green); margin:0; font-weight:900; }
+  .doc-title .est-meta { text-align:right; font-size:.86rem; color:var(--doc-soft); line-height:1.6; }
+  .doc-title .est-meta b { color:var(--ink); }
+  /* parties */
+  .parties { display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; margin:1.2rem 0 1.6rem; }
+  .party h3 { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--doc-gold); margin:0 0 .35rem; }
+  .party .nm { font-weight:800; color:var(--doc-green); font-size:1.05rem; }
+  .party div { font-size:.9rem; color:var(--ink); line-height:1.5; }
+  .proj-band { background:var(--doc-green); color:#fff; border-radius:8px; padding:.7rem 1rem; margin-bottom:1.2rem; }
+  .proj-band .k { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; opacity:.7; }
+  .proj-band .v { font-weight:800; font-size:1.1rem; }
+  /* items */
+  table.items { width:100%; border-collapse:collapse; margin:.4rem 0 0; }
+  table.items thead th { background:var(--doc-green); color:#fff; font-size:.74rem; letter-spacing:.06em; text-transform:uppercase; padding:.6rem .7rem; text-align:left; }
+  table.items thead th.r { text-align:right; }
+  table.items tbody td { padding:.7rem; border-bottom:1px solid var(--doc-line); font-size:.92rem; vertical-align:top; }
+  table.items tbody td.r { text-align:right; white-space:nowrap; }
+  table.items tbody tr:nth-child(even) td { background:#f7f9f6; }
+  table.items tbody .num { color:var(--doc-soft); width:1.6rem; }
+  /* totals */
+  .totals { display:flex; justify-content:flex-end; margin-top:1rem; }
+  .totals table { border-collapse:collapse; min-width:20rem; }
+  .totals td { padding:.4rem .7rem; font-size:.95rem; }
+  .totals td.lab { color:var(--doc-soft); }
+  .totals td.val { text-align:right; font-weight:700; white-space:nowrap; }
+  .totals tr.grand td { border-top:2px solid var(--doc-green); font-size:1.25rem; color:var(--doc-green); font-weight:900; padding-top:.6rem; }
+  .totals tr.dep td { color:var(--doc-gold); font-weight:800; }
+  /* scope + terms */
+  .block { margin-top:1.8rem; }
+  .block h3 { font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--doc-gold); margin:0 0 .5rem; border-bottom:1px solid var(--doc-line); padding-bottom:.3rem; }
+  .scope-note { font-size:.92rem; line-height:1.6; color:var(--ink); white-space:pre-line; }
+  .terms { columns:2; column-gap:2rem; font-size:.8rem; color:var(--doc-soft); line-height:1.5; }
+  .terms p { margin:0 0 .5rem; break-inside:avoid; }
+  .terms b { color:var(--doc-green); }
+  /* acceptance */
+  .accept { margin-top:1.8rem; border:2px solid var(--doc-green); border-radius:10px; padding:1.2rem 1.4rem; background:#f7f9f6; }
+  .accept h3 { margin:0 0 .4rem; color:var(--doc-green); border:0; text-transform:none; letter-spacing:0; font-size:1.15rem; }
+  .sig-lines { display:none; }
+  .doc-foot { margin-top:2rem; border-top:1px solid var(--doc-line); padding-top:1rem; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-size:.78rem; color:var(--doc-soft); }
+  .doc-foot b { color:var(--doc-green); }
+  @media (max-width:640px){ .parties { grid-template-columns:1fr; } .terms { columns:1; } .paper-in { padding:1.5rem 1.3rem; } .doc-title { flex-direction:column; align-items:flex-start; gap:.4rem; } .doc-title .est-meta { text-align:left; } }
   @media print {
-    .site-header, .site-footer, .page-hero, #p-accept-box, #p-done, .p-actions { display:none !important; }
+    @page { margin:0.5in; }
     body { background:#fff; }
+    .site-header, .site-footer, .doc-bar, #p-accept-box, #p-done, .accept .screen-only { display:none !important; }
+    .doc-shell { margin:0; max-width:100%; padding:0; }
+    .paper { box-shadow:none; border-radius:0; }
+    .paper-in { padding:0; }
+    .sig-lines { display:block; }
+    .block, .accept, table.items tr { break-inside:avoid; }
   }
-  .p-actions { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.2rem; }
 </style>
 </head>
 <body>
@@ -25,71 +87,143 @@
     <a class="brand" href="/" aria-label="Mistletoe Construction — home">
       <img src="/images/logo-lockup-white.png" alt="Mistletoe Construction LLC" width="1342" height="251">
     </a>
-    <nav class="nav-main" aria-label="Main">
-      <a class="nav-phone" href="tel:+15416705005">(541) 670-5005</a>
-    </nav>
+    <nav class="nav-main" aria-label="Main"><a class="nav-phone" href="tel:+15416705005">(541) 670-5005</a></nav>
   </div>
 </header>
 
 <main id="main">
-  <section class="page-hero">
-    <div class="wrap on-dark">
-      <p class="kicker on-dark">Your Proposal</p>
-      <h1 id="p-title">Loading your proposal…</h1>
-      <p class="hero-lede" id="p-for"></p>
+  <div class="doc-shell">
+    <div id="p-loading" style="color:var(--doc-soft);padding:2rem">Loading your proposal…</div>
+    <div id="p-error" style="display:none;color:var(--doc-soft);padding:2rem">
+      <h3>We couldn't find this proposal.</h3>
+      <p>The link may be old or mistyped. Call or text us at <a href="tel:+15416705005">(541) 670-5005</a> and we'll sort it out.</p>
     </div>
-  </section>
 
-  <section class="section">
-    <div class="wrap" style="max-width:52rem">
-      <div id="p-loading" style="color:var(--ink-soft)">One moment…</div>
+    <div id="p-body" style="display:none">
+      <div class="doc-bar">
+        <button class="btn btn-primary btn-sm" id="p-print">⬇ Download PDF</button>
+        <a class="btn btn-ghost btn-sm" id="p-agree" href="#">Review &amp; Sign Agreement →</a>
+      </div>
 
-      <div id="p-body" style="display:none">
-        <div class="p-actions">
-          <button class="btn btn-ghost btn-sm" id="p-print">Download PDF</button>
-        </div>
-        <div class="prose">
-          <div class="table-scroll">
-            <table>
-              <thead><tr><th>Scope of work</th><th style="text-align:right">Qty</th><th style="text-align:right">Price</th></tr></thead>
-              <tbody id="p-items"></tbody>
-              <tfoot><tr><th colspan="2" style="text-align:right;font-size:1.1rem">Total</th><th id="p-total" style="text-align:right;font-size:1.1rem"></th></tr></tfoot>
-            </table>
+      <div class="paper"><div class="paper-in">
+        <!-- letterhead -->
+        <div class="lh">
+          <div class="lh-brand">
+            <img src="/images/logo-badge.png" alt="">
+            <div>
+              <div class="co">Mistletoe Construction</div>
+              <div class="tag">Roofing &amp; Construction · Riddle &amp; all of Douglas County, Oregon</div>
+            </div>
           </div>
-          <div id="p-note" class="callout" style="display:none"></div>
+          <div class="lh-meta">
+            <b>Oregon CCB #255729</b><br>
+            595 E Third St, Riddle, OR 97469<br>
+            (541) 670-5005<br>
+            Alex@mistletoeconstruction.com<br>
+            mistletoeconstruction.com
+          </div>
         </div>
 
-        <div id="p-accept-box" style="margin-top:2rem;padding:1.6rem;background:var(--cream);border:1px solid rgba(28,36,29,0.1);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft)">
-          <h3 style="margin-top:0">Ready to move forward?</h3>
-          <p style="color:var(--ink-soft)">Accept this proposal to review and sign your Construction Agreement. After you sign, we'll email a secure invoice you can pay online. Questions first? Call or text <a href="tel:+15416705005">(541) 670-5005</a>.</p>
-          <button class="btn btn-primary" id="p-accept">Accept &amp; Review Agreement</button>
-          <p class="form-note" id="p-msg" style="font-size:0.9rem;color:var(--ink-soft);margin-top:0.9rem"></p>
+        <!-- title -->
+        <div class="doc-title">
+          <h1>PROPOSAL</h1>
+          <div class="est-meta">
+            <div>Estimate <b id="p-no">—</b></div>
+            <div>Date: <b id="p-date">—</b></div>
+            <div>Valid through: <b id="p-valid">—</b></div>
+          </div>
         </div>
 
-        <div id="p-done" style="display:none;margin-top:2rem;padding:1.6rem;background:#e3f2db;border:1px solid rgba(63,145,40,0.3);border-radius:var(--radius-lg)">
-          <h3 style="margin-top:0;color:var(--pine-800)">Accepted — thank you! 🎉</h3>
-          <p>We've emailed your invoice. You can pay it securely online anytime:</p>
-          <p><a class="btn btn-primary" id="p-paylink" href="#" target="_blank" rel="noopener">Pay My Invoice →</a></p>
-          <p style="font-size:0.9rem;color:var(--ink-soft)">We'll be in touch to schedule. Reminders will come from Stripe until it's paid — or just pay now above.</p>
+        <!-- parties -->
+        <div class="parties">
+          <div class="party">
+            <h3>Prepared for</h3>
+            <div class="nm" id="p-cust-name">—</div>
+            <div id="p-cust-lines"></div>
+          </div>
+          <div class="party">
+            <h3>From</h3>
+            <div class="nm">Mistletoe Construction LLC</div>
+            <div>Alex Smith, Owner<br>595 E Third St, Riddle, OR 97469<br>(541) 670-5005<br>Alex@mistletoeconstruction.com</div>
+          </div>
         </div>
+
+        <div class="proj-band">
+          <div class="k">Project</div>
+          <div class="v" id="p-project">—</div>
+        </div>
+
+        <!-- items -->
+        <table class="items">
+          <thead><tr><th class="num">#</th><th>Description</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead>
+          <tbody id="p-items"></tbody>
+        </table>
+
+        <div class="totals">
+          <table>
+            <tr><td class="lab">Subtotal</td><td class="val" id="p-subtotal">—</td></tr>
+            <tr class="dep"><td class="lab">Deposit due on acceptance (50%)</td><td class="val" id="p-deposit">—</td></tr>
+            <tr class="grand"><td class="lab">Contract total</td><td class="val" id="p-total">—</td></tr>
+          </table>
+        </div>
+
+        <div class="block" id="p-scope-block" style="display:none">
+          <h3>Scope &amp; notes</h3>
+          <div class="scope-note" id="p-note"></div>
+        </div>
+
+        <div class="block">
+          <h3>Terms &amp; what to expect</h3>
+          <div class="terms">
+            <p><b>Payment.</b> Residential projects: 50% deposit due on acceptance to reserve materials and your install date; balance due upon substantial completion unless otherwise stated.</p>
+            <p><b>Agreement.</b> This proposal is incorporated into our Master Construction Agreement, which you'll review and e-sign before work begins.</p>
+            <p><b>Concealed conditions.</b> Rot, structural, or other hidden conditions discovered after work begins are billed as approved change orders.</p>
+            <p><b>Warranty.</b> One-year workmanship warranty from substantial completion; manufacturer warranties pass through per product.</p>
+            <p><b>Validity.</b> This proposal is valid for 30 days from the date above. Material pricing may change after that.</p>
+            <p><b>Licensed &amp; insured.</b> Oregon CCB #255729. Owens Corning contractor. Local crew — no storm chasers.</p>
+          </div>
+        </div>
+
+        <!-- acceptance -->
+        <div class="accept">
+          <h3>Ready to move forward?</h3>
+          <p class="screen-only" style="color:var(--doc-soft);margin:.2rem 0 0">Accept below to review and e-sign your Construction Agreement. After you sign, we'll email a secure invoice you can pay online. Questions first? Call or text <a href="tel:+15416705005">(541) 670-5005</a>.</p>
+          <div class="sig-lines" style="margin-top:1rem">
+            <table style="width:100%"><tr>
+              <td style="width:60%;padding-top:1.6rem;border-bottom:1px solid var(--doc-green)"></td>
+              <td style="width:6%"></td>
+              <td style="width:34%;padding-top:1.6rem;border-bottom:1px solid var(--doc-green)"></td>
+            </tr><tr>
+              <td style="font-size:.78rem;color:var(--doc-soft);padding-top:.3rem">Owner signature</td><td></td>
+              <td style="font-size:.78rem;color:var(--doc-soft);padding-top:.3rem">Date</td>
+            </tr></table>
+          </div>
+        </div>
+
+        <div class="doc-foot">
+          <div><b>Thank you for the opportunity.</b> — Alex &amp; the Mistletoe crew</div>
+          <div><b>Mistletoe Construction LLC</b> · Oregon CCB #255729 · Licensed &amp; Insured</div>
+        </div>
+      </div></div>
+
+      <!-- interactive accept / done (screen only) -->
+      <div id="p-accept-box" style="margin-top:1.4rem;padding:1.4rem;background:#fff;border:1px solid var(--doc-line);border-radius:10px">
+        <button class="btn btn-primary" id="p-accept">Accept &amp; Review Agreement</button>
+        <p class="form-note" id="p-msg" style="font-size:.9rem;color:var(--doc-soft);margin-top:.8rem"></p>
       </div>
-
-      <div id="p-error" style="display:none;color:var(--ink-soft)">
-        <h3>We couldn't find this proposal.</h3>
-        <p>The link may be old or mistyped. Call or text us at <a href="tel:+15416705005">(541) 670-5005</a> and we'll sort it out.</p>
+      <div id="p-done" style="display:none;margin-top:1.4rem;padding:1.4rem;background:#e3f2db;border:1px solid rgba(63,145,40,.3);border-radius:10px">
+        <h3 style="margin-top:0;color:var(--pine-800)">Accepted — thank you!</h3>
+        <p>You can pay your invoice securely online anytime:</p>
+        <p><a class="btn btn-primary" id="p-paylink" href="#" target="_blank" rel="noopener">Pay My Invoice →</a></p>
       </div>
     </div>
-  </section>
+  </div>
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">
-    <div class="footer-legal" style="border:0;padding-top:1.5rem">
-      <span>© 2026 Mistletoe Construction LLC</span>
-      <span>Oregon CCB #255729 · Licensed &amp; Insured</span>
-      <span>595 E Third St, Riddle, OR 97469</span>
-    </div>
-  </div>
+  <div class="wrap"><div class="footer-legal" style="border:0;padding-top:1.5rem">
+    <span>© 2026 Mistletoe Construction LLC</span><span>Oregon CCB #255729 · Licensed &amp; Insured</span><span>595 E Third St, Riddle, OR 97469</span>
+  </div></div>
 </footer>
 
 <script>
@@ -97,26 +231,47 @@
   var money = function (n) { return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
   var token = (new URLSearchParams(location.search).get("t") || "").replace(/[^a-f0-9]/gi, "");
   var $ = function (id) { return document.getElementById(id); };
-  function show(id) { $(id).style.display = "block"; }
-  function hide(id) { $(id).style.display = "none"; }
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]); }); };
+  function show(id) { $(id).style.display = "block"; } function hide(id) { $(id).style.display = "none"; }
+  function fdate(d) { try { return new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); } catch (e) { return ""; } }
 
-  if (!token) { hide("p-loading"); show("p-error"); $("p-title").textContent = "Proposal"; return; }
+  if (!token) { hide("p-loading"); show("p-error"); return; }
   $("p-print").addEventListener("click", function () { window.print(); });
+  $("p-agree").href = "/contract.html?t=" + token;
 
   fetch("/api/get-proposal?t=" + token).then(function (r) { return r.json(); }).then(function (p) {
-    if (!p || p.error) { hide("p-loading"); show("p-error"); $("p-title").textContent = "Proposal"; return; }
-    $("p-title").textContent = p.title || "Your Proposal";
-    if (p.customer && p.customer.name) $("p-for").textContent = "Prepared for " + p.customer.name + (p.customer.city ? " · " + p.customer.city : "");
-    var tb = $("p-items"); var total = 0;
-    (p.items || []).forEach(function (it) {
-      var qty = Math.max(1, parseInt(it.qty || 1, 10));
-      var line = Number(it.unit || 0) * qty; total += line;
+    if (!p || p.error) { hide("p-loading"); show("p-error"); return; }
+    document.title = (p.title || "Proposal") + " | Mistletoe Construction";
+    $("p-no").textContent = "EST-" + token.slice(0, 8).toUpperCase();
+    var created = p.created ? new Date(p.created) : new Date();
+    $("p-date").textContent = fdate(created);
+    var valid = new Date(created.getTime()); valid.setDate(valid.getDate() + 30);
+    $("p-valid").textContent = fdate(valid);
+    $("p-project").textContent = p.title || "Roofing / construction project";
+
+    var cust = p.customer || {};
+    $("p-cust-name").textContent = cust.name || "Property Owner";
+    var lines = [];
+    if (cust.address) lines.push(esc(cust.address));
+    if (cust.city) lines.push(esc(cust.city) + ", OR");
+    if (cust.phone) lines.push(esc(cust.phone));
+    if (cust.email) lines.push(esc(cust.email));
+    $("p-cust-lines").innerHTML = lines.join("<br>");
+
+    var tb = $("p-items"), subtotal = 0;
+    (p.items || []).forEach(function (it, i) {
+      var qty = Math.max(1, parseInt(it.qty || 1, 10)), unit = Number(it.unit || 0), line = unit * qty; subtotal += line;
       var tr = document.createElement("tr");
-      tr.innerHTML = "<td>" + (it.desc || "") + "</td><td style='text-align:right'>" + qty + "</td><td style='text-align:right'>" + money(line) + "</td>";
+      tr.innerHTML = "<td class='num'>" + (i + 1) + "</td><td>" + esc(it.desc || "") + "</td>" +
+        "<td class='r'>" + qty + "</td><td class='r'>" + money(unit) + "</td><td class='r'>" + money(line) + "</td>";
       tb.appendChild(tr);
     });
-    $("p-total").textContent = money(p.amount || total);
-    if (p.note) { var n = $("p-note"); n.innerHTML = p.note.replace(/</g, "&lt;"); n.style.display = "block"; }
+    var total = Number(p.amount || subtotal);
+    $("p-subtotal").textContent = money(subtotal || total);
+    $("p-deposit").textContent = money(total * 0.5);
+    $("p-total").textContent = money(total);
+    if (p.note) { $("p-note").textContent = p.note; show("p-scope-block"); }
+
     hide("p-loading"); show("p-body");
 
     if (p.status === "invoiced" || p.status === "paid") {
@@ -127,17 +282,13 @@
         dl.href = p.stripe_invoice_pdf; dl.target = "_blank"; dl.rel = "noopener"; dl.textContent = "Download Invoice PDF";
         $("p-paylink").insertAdjacentElement("afterend", dl);
       }
-      if (p.status === "paid") { $("p-done").querySelector("h3").textContent = "Paid in full — thank you! ✅"; $("p-paylink").style.display = "none"; }
+      if (p.status === "paid") { $("p-done").querySelector("h3").textContent = "Paid in full — thank you!"; $("p-paylink").style.display = "none"; }
       return;
     }
-    // Already signed but not yet invoiced -> send them to the agreement to continue.
     if (p.signed) { $("p-accept").textContent = "Continue to Agreement & Invoice →"; }
   }).catch(function () { hide("p-loading"); show("p-error"); });
 
-  // Accept -> go review & sign the Construction Agreement (which then creates the invoice).
-  $("p-accept").addEventListener("click", function () {
-    window.location.href = "/contract.html?t=" + token;
-  });
+  $("p-accept").addEventListener("click", function () { window.location.href = "/contract.html?t=" + token; });
 })();
 </script>
 </body>
