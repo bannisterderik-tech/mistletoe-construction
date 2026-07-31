@@ -1,6 +1,6 @@
 // Single source of truth for roof-estimate pricing. Stored in Supabase
 // app_settings (key='roof_pricing'); falls back to these defaults.
-const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const { sbGet, SUPABASE_URL } = require("./_supabase.js");
 
 const DEFAULTS = {
   waste: 1.10,          // quoted area = measured * waste
@@ -24,13 +24,8 @@ function merge(cfg) {
 
 // read current pricing (service role); returns defaults on any problem
 async function getPricing() {
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc) return merge(null);
   try {
-    const r = await fetch(SUPABASE_URL + "/rest/v1/app_settings?key=eq.roof_pricing&select=value", {
-      headers: { apikey: svc, Authorization: "Bearer " + svc }
-    });
-    const rows = await r.json();
+    const rows = await sbGet("app_settings?key=eq.roof_pricing&select=value");
     return merge(rows && rows[0] && rows[0].value);
   } catch (e) { return merge(null); }
 }

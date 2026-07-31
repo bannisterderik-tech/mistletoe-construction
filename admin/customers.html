@@ -378,6 +378,8 @@ MC.ready.then(function () {
 
   /* ---------- Inline invoice form (swaps drawer body) ---------- */
   function openInvoiceForm(c) {
+    // stable per-form id so a double-click can't create two invoices
+    var invReqId = "inv-" + c.id + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     function lineRow() {
       return "<div class='inv-line' style='display:grid;grid-template-columns:1fr 4rem 5.5rem 1.6rem;gap:.4rem;margin-bottom:.4rem;align-items:center'>" +
         "<input class='inv-desc' placeholder='Description'>" +
@@ -446,7 +448,7 @@ MC.ready.then(function () {
           return fetch("/api/create-invoice", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-            body: JSON.stringify({ customerId: c.id, title: title, items: res.items })
+            body: JSON.stringify({ customerId: c.id, title: title, items: res.items, requestId: invReqId })
           });
         }).then(function (resp) { return resp.json(); }).then(function (data) {
           if (data && data.url) {

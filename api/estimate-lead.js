@@ -6,56 +6,50 @@
 // Secrets from env: SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY.
 const notifyTeam = require("./_notify.js");
 const crypto = require("crypto");
-const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const { sbGet, sbInsert, genId, hasService } = require("./_supabase.js");
 
 function esc(s) { return String(s == null ? "" : s).replace(/[<>&]/g, function (c) { return ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c]; }); }
 function money(n) { return "$" + Math.round(Number(n) || 0).toLocaleString("en-US"); }
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") { res.status(405).end(); return; }
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc) { res.status(503).json({ error: "Not configured" }); return; }
+  if (!hasService()) { res.status(503).json({ error: "Not configured" }); return; }
 
   let b = req.body;
   try { if (typeof b === "string") b = JSON.parse(b || "{}"); } catch (e) { b = {}; }
   b = b || {};
+  if (String(b.company || "").trim()) { res.status(200).json({ ok: true }); return; } // honeypot
   const name = String(b.name || "").trim();
   const phone = String(b.phone || "").trim();
   const email = String(b.email || "").trim().toLowerCase();
   const address = String(b.address || "").trim();
   const est = b.estimate || {};
   if (!name || (!phone && !email)) { res.status(400).json({ error: "Add a name and a phone or email." }); return; }
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { res.status(400).json({ error: "That email doesn't look right." }); return; }
 
-  const h = { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" };
   const today = new Date().toISOString().slice(0, 10);
 
   try {
     // 1) customer — reuse by email, else create
     let customerId = null;
     if (email) {
-      const ex = await fetch(SUPABASE_URL + "/rest/v1/customers?email=eq." + encodeURIComponent(email) + "&select=id&limit=1", { headers: h }).then((r) => r.json());
+      const ex = await sbGet("customers?email=eq." + encodeURIComponent(email) + "&select=id&limit=1");
       if (ex && ex[0]) customerId = ex[0].id;
     }
     if (!customerId) {
-      customerId = "c" + Date.now().toString(36);
-      await fetch(SUPABASE_URL + "/rest/v1/customers", {
-        method: "POST", headers: Object.assign({ Prefer: "return=minimal" }, h),
-        body: JSON.stringify({ id: customerId, name: name, phone: phone, email: email,
-          city: String(est.city || "").trim(), address: address, member: false, notes: "From the instant roof estimate." })
-      });
+      customerId = genId("c");
+      await sbInsert("customers", { id: customerId, name: name, phone: phone, email: email,
+        city: String(est.city || "").trim(), address: address, member: false, notes: "From the instant roof estimate." });
     }
 
     // 1b) drop a lead into the pipeline in the NEW stage
-    await fetch(SUPABASE_URL + "/rest/v1/leads", {
-      method: "POST", headers: Object.assign({ Prefer: "return=minimal" }, h),
-      body: JSON.stringify({
-        id: "l" + crypto.randomBytes(5).toString("hex"),
-        name: name, phone: phone, city: String(est.city || "").trim(),
-        service: "Roof Replacement — instant estimate", stage: "new",
-        note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
-          (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "") + (email ? "[email: " + email + "]" : ""),
-        created: today
-      })
+    await sbInsert("leads", {
+      id: genId("l"),
+      name: name, phone: phone, city: String(est.city || "").trim(),
+      service: "Roof Replacement — instant estimate", stage: "new",
+      note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
+        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "") + (email ? "[email: " + email + "]" : ""),
+      created: today
     });
 
     // 2) draft proposal pre-filled from the estimate
@@ -66,19 +60,15 @@ module.exports = async (req, res) => {
     if (est.material) descBits.push(est.material);
     const desc = "Roof replacement" + (descBits.length ? " — " + descBits.join(", ") : "");
     const token = crypto.randomBytes(16).toString("hex");
-    const propId = "p" + Date.now().toString(36);
     const note = "Auto-created from the instant roof estimate." +
       (est.costLow != null ? " Estimated range " + money(est.costLow) + "–" + money(est.costHigh) + "." : "") +
       (est.custom ? " Steep pitch (9+/12) — needs a manual quote." : "") +
       (address ? " Property: " + address + "." : "") +
       " Review and adjust the line items before sending.";
-    await fetch(SUPABASE_URL + "/rest/v1/proposals", {
-      method: "POST", headers: Object.assign({ Prefer: "return=minimal" }, h),
-      body: JSON.stringify({
-        id: propId, customerId: customerId, title: "Roof replacement — instant estimate",
-        items: [{ desc: desc, qty: 1, unit: mid }], amount: mid, status: "draft",
-        token: token, note: note, created: today
-      })
+    await sbInsert("proposals", {
+      id: genId("p"), customerId: customerId, title: "Roof replacement — instant estimate",
+      items: [{ desc: desc, qty: 1, unit: mid }], amount: mid, status: "draft",
+      token: token, note: note, created: today
     });
 
     // 3) notify the team

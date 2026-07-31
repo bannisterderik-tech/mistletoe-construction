@@ -2,12 +2,11 @@
 // Records signer + acknowledgements + IP, marks the proposal 'signed'.
 // The invoice is then created by accept-proposal (which requires a signature).
 const notifyTeam = require("./_notify.js");
-const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const { sbGet, sbPatch, hasService } = require("./_supabase.js");
 const AGREEMENT_VERSION = "MCA-2026-01";
 
 module.exports = async (req, res) => {
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc) { res.status(503).json({ error: "Not configured yet" }); return; }
+  if (!hasService()) { res.status(503).json({ error: "Not configured yet" }); return; }
   if (req.method !== "POST") { res.status(405).end(); return; }
 
   let body = req.body;
@@ -24,10 +23,9 @@ module.exports = async (req, res) => {
   if (!lienAck) { res.status(400).json({ error: "Please acknowledge the Notice of Right to a Lien." }); return; }
 
   const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || null;
-  const h = { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" };
 
   try {
-    const rows = await fetch(SUPABASE_URL + "/rest/v1/proposals?token=eq." + token + "&select=id,title,status,agreement_signed_at,customerId", { headers: h }).then((r) => r.json());
+    const rows = await sbGet("proposals?token=eq." + token + "&select=id,title,status,agreement_signed_at,customerId");
     const p = rows && rows[0];
     if (!p) { res.status(404).json({ error: "Proposal not found" }); return; }
     if (p.agreement_signed_at) { res.status(200).json({ ok: true, already: true }); return; }
@@ -41,9 +39,7 @@ module.exports = async (req, res) => {
       lien_notice_ack: true,
       status: (p.status === "invoiced" || p.status === "paid") ? p.status : "signed"
     };
-    await fetch(SUPABASE_URL + "/rest/v1/proposals?id=eq." + encodeURIComponent(p.id), {
-      method: "PATCH", headers: Object.assign({ Prefer: "return=minimal" }, h), body: JSON.stringify(patch)
-    });
+    await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), patch);
 
     notifyTeam("🖊️ Agreement signed — " + (p.title || "proposal"),
       "<h2 style='color:#1b3d26'>Master Construction Agreement signed</h2><p><strong>" + signer + "</strong>" +

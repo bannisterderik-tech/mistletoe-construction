@@ -1,24 +1,21 @@
 // Public, token-gated read of a single proposal (for the customer accept page).
 // Uses the Supabase service role server-side so the proposals table stays admin-only in RLS.
-const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const { sbGet, hasService } = require("./_supabase.js");
 
 module.exports = async (req, res) => {
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc) { res.status(503).json({ error: "Not configured yet" }); return; }
+  if (!hasService()) { res.status(503).json({ error: "Not configured yet" }); return; }
   const token = (req.query && req.query.t ? String(req.query.t) : "").replace(/[^a-f0-9]/gi, "");
   if (!token) { res.status(400).json({ error: "Missing token" }); return; }
 
-  const h = { apikey: svc, Authorization: "Bearer " + svc };
   try {
-    const pr = await fetch(SUPABASE_URL + "/rest/v1/proposals?token=eq." + token + "&select=*", { headers: h });
-    const rows = await pr.json();
+    const rows = await sbGet("proposals?token=eq." + token + "&select=*");
     const p = rows && rows[0];
     if (!p) { res.status(404).json({ error: "Proposal not found" }); return; }
 
     let customer = null;
     if (p.customerId) {
-      const cr = await fetch(SUPABASE_URL + "/rest/v1/customers?id=eq." + encodeURIComponent(p.customerId) + "&select=name,email,address,city", { headers: h });
-      const cs = await cr.json(); customer = cs && cs[0] || null;
+      const cs = await sbGet("customers?id=eq." + encodeURIComponent(p.customerId) + "&select=name,email,phone,address,city");
+      customer = cs && cs[0] || null;
     }
     res.status(200).json({
       id: p.id, title: p.title, items: p.items || [], amount: p.amount,

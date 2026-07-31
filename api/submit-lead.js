@@ -1,7 +1,7 @@
 // Contact-form handler: writes the lead to Supabase with the service role
 // (reliable — no dependency on anon RLS) and emails the team a notification.
 // Secrets from env only: SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY.
-const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const { sbInsert, genId, hasService } = require("./_supabase.js");
 const NOTIFY_TO = ["alex@mistletoeconstruction.com", "bannisterderik@gmail.com"];
 const FROM = "Mistletoe Leads <alex@hi.mistletoeconstruction.com>";
 
@@ -9,34 +9,32 @@ function esc(s) { return String(s == null ? "" : s).replace(/[<>&]/g, function (
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") { res.status(405).end(); return; }
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc) { res.status(503).json({ error: "Not configured" }); return; }
+  if (!hasService()) { res.status(503).json({ error: "Not configured" }); return; }
 
   let b = req.body;
   try { if (typeof b === "string") b = JSON.parse(b || "{}"); } catch (e) { b = {}; }
   b = b || {};
+  // Honeypot: real users never fill the hidden "company" field; bots do.
+  if (String(b.company || "").trim()) { res.status(200).json({ ok: true }); return; }
   const name = String(b.name || "").trim();
   const phone = String(b.phone || "").trim();
   const email = String(b.email || "").trim();
   if (!name || (!phone && !email)) { res.status(400).json({ error: "Please include a name and a phone or email." }); return; }
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { res.status(400).json({ error: "That email doesn't look right." }); return; }
 
   const service = String(b.service || "Something else").trim();
   const city = String(b.city || "").trim();
   const message = String(b.message || b.note || "").trim();
   const note = message + (email ? "  [email: " + email + "]" : "");
   const lead = {
-    id: "l" + Date.now().toString(36),
+    id: genId("l"),
     name: name, phone: phone, city: city, service: service,
     note: note, stage: "new", created: new Date().toISOString().slice(0, 10)
   };
 
   // 1) write the lead (service role bypasses RLS)
   try {
-    const r = await fetch(SUPABASE_URL + "/rest/v1/leads", {
-      method: "POST",
-      headers: { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify(lead)
-    });
+    const r = await sbInsert("leads", lead);
     if (!r.ok) { const t = await r.text(); res.status(502).json({ error: "Could not save lead", detail: t.slice(0, 300) }); return; }
   } catch (e) {
     res.status(502).json({ error: "Could not reach the database" }); return;

@@ -1,14 +1,13 @@
-// Customer accepts a proposal -> creates a REAL Stripe invoice with per-line products,
+// Customer accepts a proposal -> creates a REAL Stripe invoice (ad-hoc line items),
 // finalizes + emails it, and Stripe then auto-sends payment reminders until it's paid.
 // Secrets from env only: STRIPE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY.
 const Stripe = require("stripe");
 const notifyTeam = require("./_notify.js");
-const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
+const { sbGet, sbPatch, hasService } = require("./_supabase.js");
 
 module.exports = async (req, res) => {
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const key = process.env.STRIPE_SECRET_KEY;
-  if (!svc || !key) { res.status(503).json({ error: "Invoicing isn't fully switched on yet." }); return; }
+  if (!hasService() || !key) { res.status(503).json({ error: "Invoicing isn't fully switched on yet." }); return; }
   if (req.method !== "POST") { res.status(405).end(); return; }
 
   let body = req.body;
@@ -16,10 +15,6 @@ module.exports = async (req, res) => {
   body = body || {};
   const token = String(body.token || "").replace(/[^a-f0-9]/gi, "");
   if (!token) { res.status(400).json({ error: "Missing token" }); return; }
-
-  const h = { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" };
-  const sbGet = (q) => fetch(SUPABASE_URL + "/rest/v1/" + q, { headers: h }).then((r) => r.json());
-  const sbPatch = (q, patch) => fetch(SUPABASE_URL + "/rest/v1/" + q, { method: "PATCH", headers: Object.assign({ Prefer: "return=minimal" }, h), body: JSON.stringify(patch) });
 
   try {
     const rows = await sbGet("proposals?token=eq." + token + "&select=*");
@@ -42,19 +37,17 @@ module.exports = async (req, res) => {
     const found = await stripe.customers.list({ email: email, limit: 1 });
     const customer = found.data[0] || await stripe.customers.create({ email: email, name: name });
 
-    // One real Product+Price per line item -> pending invoice items
+    // Ad-hoc invoice items (amount + description) — no throwaway Products/Prices.
     const items = Array.isArray(p.items) ? p.items : [];
-    let any = false;
+    let any = false, n = 0;
     for (const it of items) {
       const qty = Math.max(1, parseInt(it.qty || 1, 10));
       const unitCents = Math.round(Number(it.unit || 0) * 100);
       if (!(unitCents > 0)) continue;
-      const price = await stripe.prices.create({
-        currency: "usd",
-        unit_amount: unitCents,
-        product_data: { name: String(it.desc || "Roofing / construction service").slice(0, 250) }
-      });
-      await stripe.invoiceItems.create({ customer: customer.id, price: price.id, quantity: qty });
+      await stripe.invoiceItems.create({
+        customer: customer.id, currency: "usd", amount: unitCents * qty,
+        description: (qty > 1 ? qty + " × " : "") + String(it.desc || "Roofing / construction service").slice(0, 250)
+      }, { idempotencyKey: "prop-" + p.id + "-li-" + (n++) });
       any = true;
     }
     if (!any) { res.status(400).json({ error: "Proposal has no billable items." }); return; }
@@ -68,11 +61,11 @@ module.exports = async (req, res) => {
       pending_invoice_items_behavior: "include",
       description: p.title,
       metadata: { proposalId: p.id }
-    });
+    }, { idempotencyKey: "prop-" + p.id + "-inv" });
     const finalized = await stripe.invoices.finalizeInvoice(invoice.id);
     await stripe.invoices.sendInvoice(invoice.id);
 
-    await sbPatch("proposals?id=eq." + encodeURIComponent(p.id), {
+    await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), {
       status: "invoiced",
       stripe_invoice_id: invoice.id,
       stripe_invoice_url: finalized.hosted_invoice_url || null,

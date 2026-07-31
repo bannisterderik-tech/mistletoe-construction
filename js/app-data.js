@@ -79,6 +79,10 @@
       mode: "demo",
       ready: Promise.resolve(),
       list: function (e) { return (db[e] || []).slice(); },
+      page: function (e, opts) {
+        opts = opts || {}; var all = (db[e] || []).slice(), off = opts.offset || 0, lim = opts.limit || 50;
+        return Promise.resolve({ rows: all.slice(off, off + lim), count: all.length });
+      },
       get: function (e, id) { return (db[e] || []).find(function (x) { return String(x.id) === String(id); }) || null; },
       customerName: function (id) { var c = this.get("customers", id); return c ? c.name : "—"; },
       memberName: function (id) {
@@ -193,6 +197,19 @@
       ready: ready,
       client: function () { return sb; },
       list: function (e) { return (cache[e] || []).slice(); },
+      // Server-side paginated/filtered fetch (for large tables, so we don't hold
+      // every row in memory). opts: { limit, offset, order, desc, ilike:{col,q} }.
+      // Returns Promise<{ rows, count }>. RLS still applies.
+      page: function (e, opts) {
+        opts = opts || {};
+        var limit = opts.limit || 50, offset = opts.offset || 0;
+        var q = sb.from(e).select("*", { count: "exact" });
+        if (opts.ilike && opts.ilike.col && opts.ilike.q) q = q.ilike(opts.ilike.col, "%" + opts.ilike.q + "%");
+        if (opts.order) q = q.order(opts.order, { ascending: !opts.desc });
+        return q.range(offset, offset + limit - 1).then(function (r) {
+          return { rows: r.data || [], count: (r.count != null ? r.count : (r.data ? r.data.length : 0)) };
+        }).catch(function () { return { rows: [], count: 0 }; });
+      },
       get: function (e, id) { return (cache[e] || []).find(function (x) { return String(x.id) === String(id); }) || null; },
       customerName: function (id) { var c = this.get("customers", id); return c ? c.name : "—"; },
       memberName: function (id) {

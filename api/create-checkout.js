@@ -2,6 +2,7 @@
 // Reads the secret ONLY from process.env.STRIPE_SECRET_KEY (set in Vercel env vars).
 // The secret never appears in this file or anywhere in the repo.
 const Stripe = require("stripe");
+const { sbGet, hasService } = require("./_supabase.js");
 
 const ORIGIN = "https://mistletoeconstruction.com";
 
@@ -49,20 +50,29 @@ module.exports = async (req, res) => {
       });
 
     } else if (body.kind === "invoice") {
-      const amount = Math.round(Number(body.amount) * 100);
-      if (!Number.isFinite(amount) || amount < 100) { res.status(400).json({ error: "Invalid amount" }); return; }
+      // Look the invoice up server-side — never trust a client-supplied amount.
+      const invoiceId = String(body.invoiceId || "").slice(0, 64);
+      if (!invoiceId) { res.status(400).json({ error: "Missing invoice" }); return; }
+      if (!hasService()) { res.status(503).json({ error: "Payments not fully configured." }); return; }
+      const rows = await sbGet("invoices?id=eq." + encodeURIComponent(invoiceId) + "&select=amount,label,status");
+      const inv = rows && rows[0];
+      if (!inv) { res.status(404).json({ error: "Invoice not found" }); return; }
+      if (inv.status === "paid") { res.status(409).json({ error: "This invoice is already paid." }); return; }
+      const amount = Math.round(Number(inv.amount || 0) * 100);
+      if (!Number.isFinite(amount) || amount < 100) { res.status(400).json({ error: "Invoice amount is invalid." }); return; }
       session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [{
           price_data: {
             currency: "usd",
-            product_data: { name: (body.label || "Mistletoe Construction — invoice").slice(0, 250) },
+            product_data: { name: (inv.label || "Mistletoe Construction — invoice").slice(0, 250) },
             unit_amount: amount
           },
           quantity: 1
         }],
         customer_email: body.email || undefined,
-        metadata: { kind: "invoice", invoiceId: (body.invoiceId || "").slice(0, 64) },
+        // expectedCents lets the webhook confirm the paid amount matches the invoice.
+        metadata: { kind: "invoice", invoiceId: invoiceId, expectedCents: String(amount) },
         success_url: ORIGIN + "/portal/index.html?paid=1",
         cancel_url: ORIGIN + "/portal/index.html"
       });

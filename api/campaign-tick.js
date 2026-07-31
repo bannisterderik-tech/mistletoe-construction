@@ -6,7 +6,7 @@ const CONTACTS = require("./_campaign-contacts.js");
 const EM = require("./_campaign-emails.js");
 
 const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
-const TOKEN = "mc-cron-9f27a1b4";
+const TOKEN = process.env.CRON_TOKEN || "mc-cron-9f27a1b4";
 const DAILY_CAP = 50;
 
 module.exports.config = { maxDuration: 60 };
@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
 
     // eligible = active, not finished
     const eligible = CONTACTS.map((c) => {
-      const s = state[c.email] || { step: 0, status: "active" };
+      const s = state[(c.email || "").toLowerCase()] || { step: 0, status: "active" };
       return { c: c, step: s.step || 0, status: s.status || "active" };
     }).filter((x) => x.status !== "unsubscribed" && x.step < NSTEPS);
 

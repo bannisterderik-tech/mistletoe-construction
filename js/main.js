@@ -86,7 +86,8 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: g('name'), phone: g('phone'), email: g('email'),
-          service: g('service') || 'Something else', message: g('message')
+          service: g('service') || 'Something else', message: g('message'),
+          company: g('company') // honeypot — hidden field, must stay empty
         })
       }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
