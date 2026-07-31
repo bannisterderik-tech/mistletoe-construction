@@ -49,8 +49,15 @@ module.exports = async (req, res) => {
     const r = await fetch(SUPABASE_URL + "/rest/v1/campaign_state?select=email,step,last_sent,status", { headers: h });
     (await r.json() || []).forEach((row) => { state[(row.email || "").toLowerCase()] = row; });
 
-    const sentToday = Object.values(state).filter((s) => s.last_sent === today).length;
+    const stateRows = Object.values(state);
+    const sentToday = stateRows.filter((s) => s.last_sent === today).length;
     const budget = Math.max(0, DAILY_CAP - sentToday);
+    // lifetime totals
+    const totalSent = stateRows.reduce((a, s) => a + (s.step || 0), 0);
+    const contactsStarted = stateRows.length;
+    const unsubscribed = stateRows.filter((s) => s.status === "unsubscribed").length;
+    const byStep = {};
+    stateRows.forEach((s) => { var k = s.step || 0; byStep[k] = (byStep[k] || 0) + 1; });
 
     // eligible = active, not finished
     const eligible = CONTACTS.map((c) => {
@@ -67,7 +74,8 @@ module.exports = async (req, res) => {
     const summary = {
       today, currentEmail: minStep + 1, currentSubject: EM.steps[minStep].subject,
       sentToday, cap: DAILY_CAP, remainingBudget: budget,
-      waitingInColumn: column.length, toSendNow: batch.length, dry
+      waitingInColumn: column.length, toSendNow: batch.length, dry,
+      totalSent, contactsStarted, contactsTotal: CONTACTS.length, unsubscribed, byStep
     };
     if (dry) { summary.preview = batch.slice(0, 5).map((x) => x.c.email); res.status(200).json(summary); return; }
     if (!batch.length) { res.status(200).json(Object.assign({ sent: 0 }, summary)); return; }
