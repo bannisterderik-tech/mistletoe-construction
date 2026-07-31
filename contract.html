@@ -32,13 +32,21 @@
   .fillrow { margin:.3rem 0; font-size:.9rem; }
   .fillrow b { color:var(--pine-900); }
   .sign-box { margin-top:2rem; padding:1.6rem; background:var(--cream); border:1px solid rgba(28,36,29,.12); border-radius:14px; }
-  .sign-box label.cb { display:flex; gap:.6rem; align-items:flex-start; margin:.7rem 0; font-size:.92rem; }
-  .sign-box .cb input { margin-top:.25rem; }
+  .sign-box label.cb { display:flex; gap:.6rem; align-items:flex-start; margin:.9rem 0; font-size:.92rem; line-height:1.4; }
+  .sign-box .cb input[type="checkbox"] { width:1.15rem !important; height:1.15rem; flex:0 0 auto; margin:.15rem 0 0; accent-color:var(--pine-900); }
   .sign-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
   .sign-grid label { display:block; font-weight:700; margin-bottom:.3rem; }
   .signed-banner { background:#e3f2db; border:1px solid rgba(63,145,40,.4); border-radius:12px; padding:1rem 1.2rem; margin-bottom:1.2rem; }
   .signed-banner .sig { font-family:Georgia,serif; font-size:1.4rem; font-style:italic; color:var(--pine-900); }
-  @media (max-width:560px){ .sign-grid { grid-template-columns:1fr; } }
+  @media (max-width:560px){
+    .sign-grid { grid-template-columns:1fr; }
+    .doc { padding:1.3rem 1.15rem; }
+    .doc-head { flex-direction:column; }
+    .doc-head .meta { text-align:left; }
+    .lien { padding:.9rem 1rem; }
+    .sign-box { padding:1.2rem; }
+    .scope-table th, .scope-table td { padding:.4rem .35rem; font-size:.82rem; }
+  }
   @media print {
     .site-header, .site-footer, .doc-actions, .page-hero, .sign-inputs, #signAction { display:none !important; }
     body { background:#fff; }
