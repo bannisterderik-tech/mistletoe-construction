@@ -23,7 +23,12 @@ module.exports = async (req, res) => {
     res.status(200).json({
       id: p.id, title: p.title, items: p.items || [], amount: p.amount,
       status: p.status, stripe_invoice_url: p.stripe_invoice_url || null,
-      note: p.note || "", customer: customer
+      stripe_invoice_pdf: p.stripe_invoice_pdf || null,
+      note: p.note || "", customer: customer,
+      signed: !!p.agreement_signed_at,
+      agreement_signer: p.agreement_signer || null,
+      agreement_signed_at: p.agreement_signed_at || null,
+      agreement_version: p.agreement_version || null
     });
   } catch (e) {
     res.status(500).json({ error: (e && e.message) || "Error" });

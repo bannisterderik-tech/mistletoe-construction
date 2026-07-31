@@ -26,6 +26,8 @@ module.exports = async (req, res) => {
     const p = rows && rows[0];
     if (!p) { res.status(404).json({ error: "Proposal not found" }); return; }
     if (p.status === "invoiced" || p.status === "paid") { res.status(200).json({ url: p.stripe_invoice_url, already: true }); return; }
+    // Require a signed Master Construction Agreement before invoicing.
+    if (!p.agreement_signed_at) { res.status(409).json({ error: "Please sign the agreement first.", needsSignature: true }); return; }
 
     let email = String(body.email || "").trim(), name = "Customer";
     if (p.customerId) {
@@ -73,7 +75,8 @@ module.exports = async (req, res) => {
     await sbPatch("proposals?id=eq." + encodeURIComponent(p.id), {
       status: "invoiced",
       stripe_invoice_id: invoice.id,
-      stripe_invoice_url: finalized.hosted_invoice_url || null
+      stripe_invoice_url: finalized.hosted_invoice_url || null,
+      stripe_invoice_pdf: finalized.invoice_pdf || null
     });
 
     await notifyTeam("✍️ Proposal accepted — " + (p.title || "proposal"),

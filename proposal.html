@@ -11,6 +11,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css?v=3">
+<style>
+  @media print {
+    .site-header, .site-footer, .page-hero, #p-accept-box, #p-done, .p-actions { display:none !important; }
+    body { background:#fff; }
+  }
+  .p-actions { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -38,6 +45,9 @@
       <div id="p-loading" style="color:var(--ink-soft)">One moment…</div>
 
       <div id="p-body" style="display:none">
+        <div class="p-actions">
+          <button class="btn btn-ghost btn-sm" id="p-print">Download PDF</button>
+        </div>
         <div class="prose">
           <div class="table-scroll">
             <table>
@@ -51,12 +61,8 @@
 
         <div id="p-accept-box" style="margin-top:2rem;padding:1.6rem;background:var(--cream);border:1px solid rgba(28,36,29,0.1);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft)">
           <h3 style="margin-top:0">Ready to move forward?</h3>
-          <p style="color:var(--ink-soft)">Accept this proposal and we'll email you a secure invoice you can pay online. No pressure — questions first? Call or text <a href="tel:+15416705005">(541) 670-5005</a>.</p>
-          <div id="p-email-row" style="display:none;margin-bottom:1rem">
-            <label for="p-email">Email for your invoice *</label>
-            <input id="p-email" type="email" placeholder="you@example.com" style="max-width:24rem">
-          </div>
-          <button class="btn btn-primary" id="p-accept">Accept &amp; Get My Invoice</button>
+          <p style="color:var(--ink-soft)">Accept this proposal to review and sign your Construction Agreement. After you sign, we'll email a secure invoice you can pay online. Questions first? Call or text <a href="tel:+15416705005">(541) 670-5005</a>.</p>
+          <button class="btn btn-primary" id="p-accept">Accept &amp; Review Agreement</button>
           <p class="form-note" id="p-msg" style="font-size:0.9rem;color:var(--ink-soft);margin-top:0.9rem"></p>
         </div>
 
@@ -95,6 +101,7 @@
   function hide(id) { $(id).style.display = "none"; }
 
   if (!token) { hide("p-loading"); show("p-error"); $("p-title").textContent = "Proposal"; return; }
+  $("p-print").addEventListener("click", function () { window.print(); });
 
   fetch("/api/get-proposal?t=" + token).then(function (r) { return r.json(); }).then(function (p) {
     if (!p || p.error) { hide("p-loading"); show("p-error"); $("p-title").textContent = "Proposal"; return; }
@@ -115,34 +122,21 @@
     if (p.status === "invoiced" || p.status === "paid") {
       hide("p-accept-box"); show("p-done");
       if (p.stripe_invoice_url) $("p-paylink").href = p.stripe_invoice_url;
+      if (p.stripe_invoice_pdf) {
+        var dl = document.createElement("a"); dl.className = "btn btn-ghost btn-sm"; dl.style.marginLeft = ".5rem";
+        dl.href = p.stripe_invoice_pdf; dl.target = "_blank"; dl.rel = "noopener"; dl.textContent = "Download Invoice PDF";
+        $("p-paylink").insertAdjacentElement("afterend", dl);
+      }
       if (p.status === "paid") { $("p-done").querySelector("h3").textContent = "Paid in full — thank you! ✅"; $("p-paylink").style.display = "none"; }
       return;
     }
-    if (!(p.customer && p.customer.email)) { $("p-email-row").style.display = "block"; }
+    // Already signed but not yet invoiced -> send them to the agreement to continue.
+    if (p.signed) { $("p-accept").textContent = "Continue to Agreement & Invoice →"; }
   }).catch(function () { hide("p-loading"); show("p-error"); });
 
+  // Accept -> go review & sign the Construction Agreement (which then creates the invoice).
   $("p-accept").addEventListener("click", function () {
-    var email = ($("p-email") ? $("p-email").value.trim() : "");
-    var emailRow = $("p-email-row").style.display !== "none";
-    if (emailRow && !/.+@.+\..+/.test(email)) { $("p-msg").textContent = "Please enter a valid email so we can send your invoice."; return; }
-    var btn = $("p-accept"); btn.disabled = true; btn.textContent = "Creating your invoice…";
-    fetch("/api/accept-proposal", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token, email: email })
-    }).then(function (r) { return r.json(); }).then(function (d) {
-      if (d && d.url) {
-        hide("p-accept-box"); show("p-done"); $("p-paylink").href = d.url;
-        // Auto-redirect straight to secure checkout; the button stays as a fallback.
-        $("p-done").querySelector("h3").textContent = "Accepted — taking you to secure checkout…";
-        setTimeout(function () { window.location.href = d.url; }, 1200);
-      } else {
-        btn.disabled = false; btn.textContent = "Accept & Get My Invoice";
-        $("p-msg").textContent = (d && d.error) || "Something went wrong — call us at (541) 670-5005.";
-      }
-    }).catch(function () {
-      btn.disabled = false; btn.textContent = "Accept & Get My Invoice";
-      $("p-msg").textContent = "Couldn't reach the server. Call or text (541) 670-5005.";
-    });
+    window.location.href = "/contract.html?t=" + token;
   });
 })();
 </script>

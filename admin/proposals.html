@@ -201,6 +201,7 @@ MC.ready.then(function () {
     }
     rows.innerHTML = props.map(function (p) {
       var statusBadge = "<span class='badge " + (STATUS_BADGE[p.status] || "gray") + "'>" + p.status + "</span>";
+      if (p.agreement_signed_at) statusBadge += "<span class='t-sub' title='Signed by " + (p.agreement_signer || "") + "' style='display:block'>✍ signed</span>";
       var url = shareUrl(p);
       var actions = "";
       if (p.status === "draft") {
@@ -208,9 +209,13 @@ MC.ready.then(function () {
       } else {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='copy'>Copy Link</button>";
       }
-      actions += "<a class='btn-icon' href='" + url + "' target='_blank' rel='noopener'>Open</a>";
+      actions += "<a class='btn-icon' href='" + url + "' target='_blank' rel='noopener'>Open / PDF</a>";
+      actions += "<a class='btn-icon' href='" + location.origin + "/contract.html?t=" + p.token + "' target='_blank' rel='noopener'>Agreement</a>";
       if (p.stripe_invoice_url) {
         actions += "<a class='btn-icon' href='" + p.stripe_invoice_url + "' target='_blank' rel='noopener'>Invoice →</a>";
+      }
+      if (p.stripe_invoice_pdf) {
+        actions += "<a class='btn-icon' href='" + p.stripe_invoice_pdf + "' target='_blank' rel='noopener'>Invoice PDF</a>";
       }
       actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='edit'>Edit</button>";
       if (((MC.auth.session() || {}).role) === "admin") {

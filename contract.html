@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Construction Agreement | Mistletoe Construction</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/images/logo-badge.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css?v=3">
+<style>
+  .doc-wrap { max-width:52rem; margin:0 auto; }
+  .doc-actions { display:flex; gap:.6rem; flex-wrap:wrap; margin:1rem 0 2rem; }
+  .doc { background:#fff; border:1px solid rgba(28,36,29,.12); border-radius:14px; padding:2rem 2.2rem; box-shadow:var(--shadow-soft); }
+  .doc h2 { margin:1.6rem 0 .5rem; font-size:1.05rem; }
+  .doc h2:first-child { margin-top:0; }
+  .doc p, .doc li { font-size:.92rem; line-height:1.55; color:var(--ink); }
+  .doc ul { margin:.3rem 0 .3rem 1.2rem; }
+  .doc .sec { font-weight:800; color:var(--pine-900); }
+  .doc-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; border-bottom:2px solid var(--pine-900); padding-bottom:1rem; margin-bottom:1.2rem; }
+  .doc-head .co { font-weight:800; color:var(--pine-900); font-size:1.15rem; }
+  .doc-head .meta { font-size:.82rem; color:var(--ink-soft); text-align:right; }
+  .scope-table { width:100%; border-collapse:collapse; margin:.6rem 0; }
+  .scope-table th, .scope-table td { border-bottom:1px solid rgba(28,36,29,.12); padding:.5rem; text-align:left; font-size:.9rem; }
+  .scope-table td.r, .scope-table th.r { text-align:right; }
+  .scope-table tfoot th { border-top:2px solid var(--pine-900); border-bottom:0; font-size:1.05rem; }
+  .lien { border:2px solid #b5321f; border-radius:10px; padding:1rem 1.2rem; margin-top:1.2rem; }
+  .lien h3 { color:#b5321f; margin:.2rem 0; text-align:center; }
+  .lien .warn { text-align:center; font-weight:800; }
+  .fillrow { margin:.3rem 0; font-size:.9rem; }
+  .fillrow b { color:var(--pine-900); }
+  .sign-box { margin-top:2rem; padding:1.6rem; background:var(--cream); border:1px solid rgba(28,36,29,.12); border-radius:14px; }
+  .sign-box label.cb { display:flex; gap:.6rem; align-items:flex-start; margin:.7rem 0; font-size:.92rem; }
+  .sign-box .cb input { margin-top:.25rem; }
+  .sign-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
+  .sign-grid label { display:block; font-weight:700; margin-bottom:.3rem; }
+  .signed-banner { background:#e3f2db; border:1px solid rgba(63,145,40,.4); border-radius:12px; padding:1rem 1.2rem; margin-bottom:1.2rem; }
+  .signed-banner .sig { font-family:Georgia,serif; font-size:1.4rem; font-style:italic; color:var(--pine-900); }
+  @media (max-width:560px){ .sign-grid { grid-template-columns:1fr; } }
+  @media print {
+    .site-header, .site-footer, .doc-actions, .page-hero, .sign-inputs, #signAction { display:none !important; }
+    body { background:#fff; }
+    .doc { border:0; box-shadow:none; border-radius:0; padding:0; }
+    .doc-wrap { max-width:100%; }
+    .lien { break-inside:avoid; }
+    .doc h2 { break-after:avoid; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Mistletoe Construction — home">
+      <img src="/images/logo-lockup-white.png" alt="Mistletoe Construction LLC" width="1342" height="251">
+    </a>
+    <nav class="nav-main" aria-label="Main"><a class="nav-phone" href="tel:+15416705005">(541) 670-5005</a></nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero">
+    <div class="wrap on-dark">
+      <p class="kicker on-dark">Construction Agreement</p>
+      <h1 id="c-title">Loading your agreement…</h1>
+      <p class="hero-lede" id="c-for"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="doc-wrap">
+      <div id="c-loading" style="color:var(--ink-soft)">One moment…</div>
+      <div id="c-error" style="display:none;color:var(--ink-soft)">
+        <h3>We couldn't find this agreement.</h3>
+        <p>The link may be old or mistyped. Call or text us at <a href="tel:+15416705005">(541) 670-5005</a>.</p>
+      </div>
+
+      <div id="c-main" style="display:none">
+        <div class="doc-actions">
+          <button class="btn btn-ghost btn-sm" id="c-print">Download PDF</button>
+          <a class="btn btn-ghost btn-sm" id="c-proposal" href="#">View proposal</a>
+        </div>
+
+        <div id="signedBanner" class="signed-banner" style="display:none"></div>
+
+        <div class="doc" id="doc">
+          <div class="doc-head">
+            <div>
+              <div class="co">Mistletoe Construction LLC</div>
+              <div class="meta" style="text-align:left">Oregon CCB #255729 · Licensed &amp; Insured</div>
+            </div>
+            <div class="meta">
+              595 E Third St, Riddle, OR 97469<br>
+              (541) 670-5005<br>
+              Alex@mistletoeconstruction.com<br>
+              mistletoeconstruction.com
+            </div>
+          </div>
+
+          <h2 style="text-align:center;font-size:1.3rem;border:0">MASTER CONSTRUCTION AGREEMENT</h2>
+          <p>This Master Construction Agreement (“Agreement”) is entered into between <b>Mistletoe Construction LLC</b> (“Contractor”) and the individual(s) or entity identified below and on the attached Proposal/Estimate (“Owner”). The attached Proposal/Estimate is incorporated into this Agreement and, together with any approved Change Orders, constitutes the entire agreement between the parties.</p>
+
+          <div class="fillrow"><b>Owner:</b> <span id="f-owner">—</span></div>
+          <div class="fillrow"><b>Property:</b> <span id="f-prop">—</span></div>
+          <div class="fillrow"><b>Project:</b> <span id="f-project">—</span></div>
+
+          <h2 class="incorp">Incorporated Proposal / Estimate</h2>
+          <table class="scope-table">
+            <thead><tr><th>Scope of work</th><th class="r">Qty</th><th class="r">Price</th></tr></thead>
+            <tbody id="c-items"></tbody>
+            <tfoot><tr><th colspan="2" class="r">Contract Price</th><th class="r" id="c-total"></th></tr></tfoot>
+          </table>
+          <div id="c-note" class="callout" style="display:none"></div>
+
+          <h2><span class="sec">1. Scope of Work.</span></h2>
+          <p>Contractor agrees to furnish labor, materials, equipment, supervision, and services necessary to complete the work described in the attached Proposal/Estimate. Any work not specifically listed in the Proposal is excluded.</p>
+          <h2><span class="sec">2. Contract Documents.</span></h2>
+          <p>The Contract consists of this Master Construction Agreement, the attached Proposal/Estimate, approved Change Orders, manufacturer specifications (when applicable), and warranty documents.</p>
+          <h2><span class="sec">3. Contract Price.</span></h2>
+          <p>Owner agrees to pay Contractor the amount shown on the attached Proposal plus any approved Change Orders. Applicable taxes, permit fees, and unforeseen conditions not included within the Proposal shall be billed separately unless specifically included.</p>
+          <h2><span class="sec">4. Payment Terms.</span></h2>
+          <p><b>Residential Projects:</b> 50% deposit due upon acceptance; remaining balance due according to the attached Proposal or immediately upon substantial completion unless otherwise stated. The deposit is used for project scheduling, labor, mobilization, ordering materials, and reserving installation dates. <b>Commercial Projects:</b> unless otherwise stated, Net 30 payment terms; progress billing may be utilized; invoices not paid within thirty (30) days shall be considered past due.</p>
+          <h2><span class="sec">5. Late Payments.</span></h2>
+          <p>Past due balances shall accrue interest at the lesser of 1.5% per month or the maximum rate permitted by Oregon law. Owner agrees to pay all reasonable collection costs, attorney fees, court costs, and lien filing expenses if collection becomes necessary.</p>
+          <h2><span class="sec">6. Change Orders.</span></h2>
+          <p>No additional work shall be performed without written approval from Owner except when emergency conditions threaten life or property. Approved Change Orders become part of this Agreement.</p>
+          <h2><span class="sec">7. Concealed Conditions.</span></h2>
+          <p>Contract price does not include repairs resulting from concealed conditions including but not limited to rotten wood, structural deficiencies, mold, water damage, dry rot, insect or termite damage, asbestos, lead paint, hidden electrical or plumbing deficiencies, foundation movement, and code violations not visible during estimating. Discovery of concealed conditions shall constitute additional work.</p>
+          <h2><span class="sec">8. Sheathing and Structural Repairs.</span></h2>
+          <p>Roof decking, wall sheathing, framing, rafters, trusses, fascia, soffit, blocking, or structural members requiring replacement are excluded unless specifically listed. Owner shall approve additional repairs before work proceeds whenever reasonably possible.</p>
+          <h2><span class="sec">9. Building Code Requirements.</span></h2>
+          <p>If code-required repairs become necessary after work begins, Contractor shall notify Owner. Additional code-required work shall be billed separately unless specifically included.</p>
+          <h2><span class="sec">10. Material Availability.</span></h2>
+          <p>Material shortages, discontinued products, shipping delays, manufacturer delays, or supply chain interruptions may delay completion. Contractor may substitute substantially equivalent materials with Owner approval when necessary.</p>
+          <h2><span class="sec">11. Weather Delays.</span></h2>
+          <p>Contractor shall not be responsible for delays caused by rain, snow, ice, high winds, excessive heat, smoke, wildfire, acts of God, or government restrictions. Completion dates shall automatically extend for such delays.</p>
+          <h2><span class="sec">12. Owner Responsibilities.</span></h2>
+          <p>Owner agrees to provide clear jobsite access, maintain pets away from work areas, remove fragile personal property, provide water and electricity when reasonably necessary, and obtain HOA approvals unless otherwise agreed.</p>
+          <h2><span class="sec">13. Permits.</span></h2>
+          <p>Unless specifically stated otherwise, Contractor shall obtain required permits. Permit fees are included only when listed in the Proposal.</p>
+          <h2><span class="sec">14. Subcontractors.</span></h2>
+          <p>Contractor may utilize qualified subcontractors while remaining responsible for completion of the contracted work.</p>
+          <h2><span class="sec">15. Property Protection.</span></h2>
+          <p>Contractor shall exercise reasonable care to protect the property. Owner understands construction activities may result in dust, noise, vibration, lawn damage, landscape disturbance, nail debris, tire marks, and minor incidental damage typical of construction.</p>
+          <h2><span class="sec">16. Cleanup.</span></h2>
+          <p>Contractor shall remove construction debris generated by Contractor and perform a general cleanup upon completion. Deep cleaning or professional housekeeping is excluded unless specifically included.</p>
+          <h2><span class="sec">17. Customer-Supplied Materials.</span></h2>
+          <p>Contractor provides no warranty on customer-supplied materials. Labor associated with defective customer materials remains billable.</p>
+          <h2><span class="sec">18. Roofing Provisions.</span></h2>
+          <p>Owner understands roofing may expose concealed defects. Roof decking replacement is not included unless specifically stated. Roof color variations between production lots are considered normal. Roof completion dates remain weather dependent.</p>
+          <h2><span class="sec">19. Remodeling Provisions.</span></h2>
+          <p>Hidden plumbing, electrical, framing, insulation, drywall, or structural deficiencies discovered during demolition constitute additional work.</p>
+          <h2><span class="sec">20. Insurance Claims.</span></h2>
+          <p>Contractor is not responsible for insurance company coverage decisions. Owner remains responsible for all contract amounts regardless of insurance reimbursement.</p>
+          <h2><span class="sec">21. Warranties.</span></h2>
+          <p>Contractor warrants workmanship for one (1) year from substantial completion unless otherwise stated. Warranty excludes acts of God, windstorms, hail, earthquakes, fire, abuse, neglect, lack of maintenance, foot traffic, other contractors, alterations by others, normal wear, and manufacturer defects. Manufacturer warranties remain solely the responsibility of the manufacturer.</p>
+          <h2><span class="sec">22. Warranty Claims.</span></h2>
+          <p>Owner shall notify Contractor in writing within a reasonable time after discovering any alleged defect. Contractor shall be given a reasonable opportunity to inspect and correct covered workmanship issues before Owner hires others.</p>
+          <h2><span class="sec">23. Suspension of Work.</span></h2>
+          <p>Contractor may suspend work for non-payment, unsafe conditions, lack of access, Owner interference, or permit issues beyond Contractor's control. Time extensions shall apply accordingly.</p>
+          <h2><span class="sec">24. Termination.</span></h2>
+          <p>Contractor may terminate this Agreement for material breach by Owner, including failure to make required payments. Owner shall pay for all completed work, ordered materials, restocking fees, mobilization costs, and reasonable overhead incurred through the date of termination.</p>
+          <h2><span class="sec">25. Mechanic's Lien Rights.</span></h2>
+          <p>Contractor reserves all rights available under Oregon law to file and enforce construction liens for unpaid labor, materials, services, and authorized extras.</p>
+          <h2><span class="sec">26. Dispute Resolution.</span></h2>
+          <p>The parties agree to attempt good-faith negotiation before commencing litigation. If mutually agreed, disputes may be submitted to mediation before filing suit. Nothing in this Agreement waives any statutory rights available under Oregon law.</p>
+          <h2><span class="sec">27. Attorney Fees.</span></h2>
+          <p>In any action arising from this Agreement, the prevailing party shall be entitled to recover reasonable attorney fees, expert witness fees, court costs, and expenses to the extent permitted by Oregon law.</p>
+          <h2><span class="sec">28. Force Majeure.</span></h2>
+          <p>Neither party shall be liable for delays caused by events beyond reasonable control including natural disasters, labor shortages, strikes, pandemics, governmental actions, supplier failures, transportation interruptions, or utility failures.</p>
+          <h2><span class="sec">29. Photographs.</span></h2>
+          <p>Contractor may photograph the project before, during, and after construction for documentation, warranty administration, quality control, and insurance purposes. Photographs used for marketing will not identify the Owner without permission unless otherwise permitted by law.</p>
+          <h2><span class="sec">30. Entire Agreement.</span></h2>
+          <p>This Agreement, together with the attached Proposal and approved Change Orders, constitutes the entire agreement between the parties. No oral statements modify this Agreement.</p>
+          <h2><span class="sec">31. Severability.</span></h2>
+          <p>If any provision is determined unenforceable, the remaining provisions shall remain in full force and effect.</p>
+          <h2><span class="sec">32. Electronic Signatures.</span></h2>
+          <p>Electronic signatures shall have the same force and effect as original signatures.</p>
+          <h2><span class="sec">33. Governing Law.</span></h2>
+          <p>This Agreement shall be governed by the laws of the State of Oregon.</p>
+          <h2><span class="sec">34. Oregon Consumer Notice.</span></h2>
+          <p>For residential projects subject to Oregon law, Contractor will provide all notices required by the Oregon Construction Contractors Board (CCB), including applicable consumer protection information and lien-related notices. The Owner acknowledges receipt of any required notices provided with this Agreement or before work begins.</p>
+
+          <!-- Oregon Notice of Right to a Lien -->
+          <div class="lien">
+            <h3>NOTICE OF RIGHT TO A LIEN</h3>
+            <p style="text-align:center;margin:.1rem 0">(ORS 87.021)</p>
+            <p class="warn">Warning: Read this notice. Protect yourself from paying any contractor or supplier twice for the same service.</p>
+            <div class="fillrow"><b>To (Owner):</b> <span id="l-owner">—</span></div>
+            <div class="fillrow"><b>Owner's address:</b> <span id="l-addr">—</span></div>
+            <p>This is to inform you that <b>Mistletoe Construction LLC</b> (name of contractor) has begun to provide <span id="l-desc">roofing / construction labor, materials, equipment and services</span> (description of materials, equipment, labor or services) for improvements to property you own. The property is located at <span id="l-prop">—</span>.</p>
+            <p>A lien may be claimed for all materials, equipment, labor and services furnished after a date that is eight days, not including Saturdays, Sundays, and holidays, as defined in ORS 187.010, before this notice was mailed to you. Even if you or your mortgage lender has made full payment to the contractor who ordered these materials or services, your property may still be subject to a lien unless the supplier providing this notice is paid.</p>
+            <p><b>THIS IS NOT A LIEN.</b> It is a notice sent to you for your protection in compliance with the construction lien laws of the State of Oregon.</p>
+            <p><b>This notice has been sent to you by:</b><br>Name: Mistletoe Construction LLC<br>Address: 595 E Third St, Riddle, OR 97469<br>Phone: (541) 670-5005</p>
+            <p style="font-size:.85rem;color:var(--ink-soft)">Under Oregon's laws, those who work on your property or provide labor, equipment, services or materials and are not paid have a right to enforce their claim for payment against your property (a construction lien). Ways to protect yourself: recognize this notice may result in a lien unless all those supplying a notice have been paid; learn more from an attorney or the CCB; ask for a statement of work provided; consider joint checks; get evidence of payment or lien waivers; and consult an attorney, escrow company, or your mortgage lender. Learn more in the CCB Construction Liens pamphlet at oregon.gov/CCB.</p>
+          </div>
+
+          <h2 style="margin-top:1.6rem">Acceptance</h2>
+          <p>By signing below, Owner acknowledges that they have read this Agreement, understand its terms, received the attached Proposal, received the Notice of Right to a Lien, authorize Contractor to begin work, and agree to pay according to the terms of this Agreement.</p>
+          <div id="sig-block"></div>
+        </div>
+
+        <!-- Sign form (screen only) -->
+        <div class="sign-box sign-inputs" id="signBox">
+          <h3 style="margin-top:0">Sign your agreement</h3>
+          <p style="color:var(--ink-soft)">Type your full legal name to sign electronically. This has the same force as a handwritten signature (Section 32).</p>
+          <div class="sign-grid">
+            <div><label for="s-name">Your full legal name *</label><input id="s-name" type="text" placeholder="Jane A. Owner"></div>
+            <div><label for="s-co">Co-owner name (if any)</label><input id="s-co" type="text" placeholder="Optional"></div>
+          </div>
+          <div id="s-email-row" style="display:none;margin-bottom:.4rem">
+            <label for="s-email" style="display:block;font-weight:700;margin-bottom:.3rem">Email for your invoice *</label>
+            <input id="s-email" type="email" placeholder="you@example.com" style="max-width:24rem">
+          </div>
+          <label class="cb"><input type="checkbox" id="s-agree"> I have read and agree to the Master Construction Agreement above, and I received the attached Proposal.</label>
+          <label class="cb"><input type="checkbox" id="s-lien"> I acknowledge receipt of the Notice of Right to a Lien (ORS 87.021).</label>
+          <div id="signAction" style="margin-top:1rem">
+            <button class="btn btn-primary" id="s-sign">Sign &amp; Continue to Invoice</button>
+            <p class="form-note" id="s-msg" style="font-size:.9rem;color:var(--ink-soft);margin-top:.8rem"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><div class="footer-legal" style="border:0;padding-top:1.5rem">
+    <span>© 2026 Mistletoe Construction LLC</span><span>Oregon CCB #255729 · Licensed &amp; Insured</span><span>595 E Third St, Riddle, OR 97469</span>
+  </div></div>
+</footer>
+
+<script>
+(function () {
+  var money = function (n) { return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var token = (new URLSearchParams(location.search).get("t") || "").replace(/[^a-f0-9]/gi, "");
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]); }); };
+  var P = null;
+
+  if (!token) { $("c-loading").style.display = "none"; $("c-error").style.display = "block"; $("c-title").textContent = "Agreement"; return; }
+  $("c-proposal").href = "/proposal.html?t=" + token;
+  $("c-print").addEventListener("click", function () { window.print(); });
+
+  function fmtDate(iso) { try { return new Date(iso).toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" }); } catch (e) { return iso; } }
+
+  function renderSigned() {
+    $("signBox").style.display = "none";
+    var b = $("signedBanner"); b.style.display = "block";
+    b.innerHTML = "<strong>Signed.</strong> <span class='sig'>" + esc(P.agreement_signer || "") + "</span><br>" +
+      "<span style='color:var(--ink-soft);font-size:.9rem'>Electronically signed " + esc(fmtDate(P.agreement_signed_at)) +
+      (P.agreement_version ? " · " + esc(P.agreement_version) : "") + "</span>";
+    var sig = "<div style='margin-top:1rem;border-top:1px solid rgba(0,0,0,.1);padding-top:1rem'><b>OWNER</b><br>Signature: <span style='font-family:Georgia,serif;font-style:italic;font-size:1.2rem'>" +
+      esc(P.agreement_signer || "") + "</span><br>Date: " + esc(fmtDate(P.agreement_signed_at)) + "</div>";
+    $("sig-block").innerHTML = sig;
+    // Continue to invoice / payment
+    if (P.status === "invoiced" || P.status === "paid") {
+      var links = "<div class='doc-actions' style='margin-top:1.2rem'>";
+      if (P.stripe_invoice_url) links += "<a class='btn btn-primary' target='_blank' rel='noopener' href='" + esc(P.stripe_invoice_url) + "'>Pay / view invoice</a>";
+      if (P.stripe_invoice_pdf) links += "<a class='btn btn-ghost btn-sm' target='_blank' rel='noopener' href='" + esc(P.stripe_invoice_pdf) + "'>Download invoice PDF</a>";
+      links += "</div>";
+      b.insertAdjacentHTML("beforeend", links);
+    }
+  }
+
+  function load() {
+    fetch("/api/get-proposal?t=" + token).then(function (r) { return r.json(); }).then(function (p) {
+      if (!p || p.error) { $("c-loading").style.display = "none"; $("c-error").style.display = "block"; $("c-title").textContent = "Agreement"; return; }
+      P = p;
+      var cust = p.customer || {};
+      var owner = cust.name || "Owner";
+      var prop = [cust.address, cust.city].filter(Boolean).join(", ") || "Property address on file";
+      $("c-title").textContent = "Construction Agreement";
+      $("c-for").textContent = "Prepared for " + owner + (cust.city ? " · " + cust.city : "");
+      $("f-owner").textContent = owner + (cust.email ? " (" + cust.email + ")" : "");
+      $("f-prop").textContent = prop;
+      $("f-project").textContent = p.title || "Roofing / construction project";
+      $("l-owner").textContent = owner;
+      $("l-addr").textContent = prop;
+      $("l-prop").textContent = prop;
+      $("l-desc").textContent = (p.title ? p.title + " — " : "") + "roofing / construction labor, materials, equipment and services";
+
+      var tb = $("c-items"), total = 0;
+      (p.items || []).forEach(function (it) {
+        var qty = Math.max(1, parseInt(it.qty || 1, 10)), line = Number(it.unit || 0) * qty; total += line;
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + esc(it.desc || "") + "</td><td class='r'>" + qty + "</td><td class='r'>" + money(line) + "</td>";
+        tb.appendChild(tr);
+      });
+      $("c-total").textContent = money(p.amount || total);
+      if (p.note) { var n = $("c-note"); n.innerHTML = esc(p.note); n.style.display = "block"; }
+
+      if (!(cust.email)) { $("s-email-row").style.display = "block"; }
+      $("c-loading").style.display = "none"; $("c-main").style.display = "block";
+      if (p.signed) renderSigned();
+    }).catch(function () { $("c-loading").style.display = "none"; $("c-error").style.display = "block"; });
+  }
+  load();
+
+  $("s-sign").addEventListener("click", function () {
+    var name = $("s-name").value.trim(), co = $("s-co").value.trim();
+    var agree = $("s-agree").checked, lien = $("s-lien").checked;
+    var msg = $("s-msg");
+    if (!name) { msg.textContent = "Please type your full legal name to sign."; return; }
+    if (!agree) { msg.textContent = "Please check the box to agree to the Agreement."; return; }
+    if (!lien) { msg.textContent = "Please acknowledge the Notice of Right to a Lien."; return; }
+    var btn = $("s-sign"); btn.disabled = true; btn.textContent = "Signing…"; msg.textContent = "";
+    fetch("/api/sign-contract", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token, signer: name, cosigner: co, agree: true, lienAck: true }) })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) { btn.disabled = false; btn.textContent = "Sign & Continue to Invoice"; msg.textContent = (d && d.error) || "Could not sign — call (541) 670-5005."; return; }
+        P.signed = true; P.agreement_signer = name; P.agreement_signed_at = d.signedAt || new Date().toISOString(); P.agreement_version = P.agreement_version || "MCA-2026-01";
+        renderSigned();
+        btn.textContent = "Creating your invoice…";
+        var email = ($("s-email") ? $("s-email").value.trim() : "");
+        // Now create the invoice (accept), then send to secure payment.
+        fetch("/api/accept-proposal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: token, email: email }) })
+          .then(function (r) { return r.json(); }).then(function (a) {
+            if (a && a.url) { msg.textContent = "Signed — taking you to secure payment…"; setTimeout(function () { window.location.href = a.url; }, 1400); }
+            else { msg.textContent = "Signed. We'll email your invoice shortly."; }
+          }).catch(function () { msg.textContent = "Signed. We'll email your invoice shortly."; });
+      }).catch(function () { btn.disabled = false; btn.textContent = "Sign & Continue to Invoice"; msg.textContent = "Couldn't reach the server. Call (541) 670-5005."; });
+  });
+})();
+</script>
+</body>
+</html>
