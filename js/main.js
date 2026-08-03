@@ -92,6 +92,7 @@
       }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         form.reset();
+        if (window.mcTrackLead) window.mcTrackLead(); // Google Ads lead conversion
         if (btn) { btn.textContent = 'Request Sent ✓'; }
         if (note) { note.textContent = "Got it! We'll reply within one business day. Urgent? Call or text (541) 670-5005."; }
       }).catch(function () {

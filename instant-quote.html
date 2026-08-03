@@ -178,6 +178,7 @@
   .lead-ok[hidden] { display: none; }
   .req { color: var(--copper); }
 </style>
+<script src="/js/gtag.js" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -659,7 +660,8 @@
         service: "Roof Replacement — instant estimate",
         message: "Instant estimator · Address: " + (addr || "(none)") + " · Roof type: " + roof +
           " · Consent given: TCPA (calls/texts incl. automated/AI) + email opt-in, per Terms & Privacy." })
-    }).catch(function () {});
+    }).then(function () { if (window.mcTrackLead) window.mcTrackLead(); }) // Google Ads lead conversion
+      .catch(function () {});
   }
 
   // ---- Address autocomplete (Google Places, proxied) ----
