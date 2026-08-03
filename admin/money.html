@@ -115,9 +115,35 @@ MC.ready.then(function () {
   var rows = document.getElementById("rows");
   var filter = "all";
 
-  var STATUS_BADGE = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red" };
+  var STATUS_BADGE = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red", declined: "red" };
+
+  /* Proposals ARE estimates/invoices. Map a proposal into the money-doc shape and
+     merge it with the legacy `invoices` collection so both show in one place.
+     Proposal lifecycle: draft/sent → estimate · accepted → approved estimate ·
+     invoiced → unpaid invoice (has a Stripe invoice) · paid → paid invoice. */
+  function propToDoc(p) {
+    var st = p.status, kind, status;
+    if (st === "invoiced") { kind = "invoice"; status = "sent"; }
+    else if (st === "paid") { kind = "invoice"; status = "paid"; }
+    else if (st === "accepted") { kind = "estimate"; status = "approved"; }
+    else if (st === "declined") { kind = "estimate"; status = "declined"; }
+    else { kind = "estimate"; status = (st === "sent" ? "sent" : "draft"); }
+    return {
+      id: p.id, _src: "proposal", customerId: p.customerId,
+      kind: kind, label: p.title || "Proposal", amount: Number(p.amount || 0),
+      status: status, date: (p.created || "").slice(0, 10),
+      hosted_invoice_url: p.stripe_invoice_url || null,
+      stripe_invoice_pdf: p.stripe_invoice_pdf || null, token: p.token
+    };
+  }
+  function allDocs() {
+    var inv = MC.list("invoices").map(function (d) { d = Object.assign({ _src: "invoice" }, d); return d; });
+    var props = MC.list("proposals").map(propToDoc);
+    return props.concat(inv);
+  }
 
   function actionFor(doc) {
+    if (doc._src === "proposal") return null; // lifecycle driven by the customer + Stripe flow
     if (doc.status === "draft") return ["send", "Send"];
     if (doc.kind === "estimate" && doc.status === "sent") return ["approve", "Mark Approved"];
     if (doc.kind === "estimate" && doc.status === "approved") return ["convert", "Convert to Invoice"];
@@ -126,7 +152,7 @@ MC.ready.then(function () {
   }
 
   function renderStats() {
-    var docs = MC.list("invoices");
+    var docs = allDocs();
     var now = new Date(), thisMonth = now.toISOString().slice(0, 7);
     var pipeline = 0, owed = 0, collected = 0, drafts = 0;
     docs.forEach(function (d) {
@@ -158,7 +184,7 @@ MC.ready.then(function () {
     rows.innerHTML = slice.length ? slice.map(docRow).join("") : "<tr><td colspan='6'><span class='t-sub'>Nothing here yet.</span></td></tr>";
   } });
   function renderTable() {
-    var docs = MC.list("invoices").filter(function (d) {
+    var docs = allDocs().filter(function (d) {
       if (filter === "estimates") return d.kind === "estimate";
       if (filter === "invoices") return d.kind === "invoice";
       if (filter === "unpaid") return d.kind === "invoice" && d.status !== "paid";
@@ -187,38 +213,53 @@ MC.ready.then(function () {
       ["Status", statusVal, "raw"],
       ["Date", d.date ? MC.fmtDate(d.date) : ""]
     ];
+    if (d._src === "proposal") pairs.push(["Source", "Proposal"]);
     if (d.hosted_invoice_url) {
       pairs.push(["Payment link", "<a href='" + MCUI.esc(d.hosted_invoice_url) + "' target='_blank' rel='noopener'>Open Stripe invoice &#8599;</a>", "raw"]);
+    }
+    if (d.stripe_invoice_pdf) {
+      pairs.push(["Invoice PDF", "<a href='" + MCUI.esc(d.stripe_invoice_pdf) + "' target='_blank' rel='noopener'>Download PDF &#8599;</a>", "raw"]);
     }
 
     var body = MCUI.section("Details", MCUI.kv(pairs));
 
     var actions = [];
-    if (!isPaid) {
-      actions.push({ label: "Mark paid", kind: "primary", onClick: function () {
-        MC.update("invoices", d.id, { status: "paid" });
-        render();
-        MCUI.toast("Marked paid ✓");
-        openDoc(MC.get("invoices", d.id));
-      } });
-    }
-    if (d.hosted_invoice_url) {
-      actions.push({ label: "Open invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
-    }
-    actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
-    if (((MC.auth.session() || {}).role) === "admin") {
-      var noun = (kindLabel(d.kind) || "record").toLowerCase();
-      actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
-        if (!window.confirm("Delete this " + noun + "? This can't be undone.")) return;
-        MC.remove("invoices", d.id);
-        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
-        render();
-        window.MCUI && MCUI.toast(noun.charAt(0).toUpperCase() + noun.slice(1) + " deleted");
-      } });
+    if (d._src === "proposal") {
+      // Proposals are driven by the customer + Stripe flow — manage them there, don't mutate locally.
+      if (d.hosted_invoice_url) {
+        actions.push({ label: "Open Stripe invoice ↗", kind: "primary", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
+      } else if (d.token) {
+        actions.push({ label: "Open proposal ↗", kind: "primary", onClick: function () { window.open(location.origin + "/proposal.html?t=" + d.token, "_blank"); } });
+      }
+      actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html"; } });
+      actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+    } else {
+      if (!isPaid) {
+        actions.push({ label: "Mark paid", kind: "primary", onClick: function () {
+          MC.update("invoices", d.id, { status: "paid" });
+          render();
+          MCUI.toast("Marked paid ✓");
+          openDoc(MC.get("invoices", d.id));
+        } });
+      }
+      if (d.hosted_invoice_url) {
+        actions.push({ label: "Open invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
+      }
+      actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+      if (((MC.auth.session() || {}).role) === "admin") {
+        var noun = (kindLabel(d.kind) || "record").toLowerCase();
+        actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+          if (!window.confirm("Delete this " + noun + "? This can't be undone.")) return;
+          MC.remove("invoices", d.id);
+          (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+          render();
+          window.MCUI && MCUI.toast(noun.charAt(0).toUpperCase() + noun.slice(1) + " deleted");
+        } });
+      }
     }
 
     MCUI.open({
-      eyebrow: kindLabel(d.kind),
+      eyebrow: kindLabel(d.kind) + (d._src === "proposal" ? " · from Proposal" : ""),
       title: d.label,
       subtitle: MC.customerName(d.customerId),
       bodyHTML: body,
@@ -229,7 +270,8 @@ MC.ready.then(function () {
   rows.addEventListener("click", function (e) {
     if (e.target.closest("button") || e.target.closest("a")) return;
     var tr = e.target.closest("tr[data-id]"); if (!tr) return;
-    openDoc(MC.get("invoices", tr.dataset.id));
+    var id = tr.dataset.id;
+    openDoc(allDocs().filter(function (x) { return x.id === id; })[0]);
   });
 
   /* Row actions */
@@ -255,13 +297,10 @@ MC.ready.then(function () {
     pager.first(); renderTable();
   });
 
-  /* New estimate modal */
+  /* New estimate == new proposal (same thing) — send admins to the proposal builder. */
   var modal = document.getElementById("est-modal");
   document.getElementById("add-estimate").addEventListener("click", function () {
-    document.getElementById("ne-customer").innerHTML = MC.list("customers").map(function (c) {
-      return "<option value='" + c.id + "'>" + c.name + "</option>";
-    }).join("");
-    modal.classList.add("open");
+    location.href = "proposals.html";
   });
   document.getElementById("ne-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
   document.getElementById("ne-save").addEventListener("click", function () {

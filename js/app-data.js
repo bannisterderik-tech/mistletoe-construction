@@ -59,6 +59,13 @@
         { id: "i4", customerId: "c5", kind: "invoice", label: "INV-2032 · Metal roof progress", amount: 6200, status: "sent", date: d(-1) },
         { id: "i5", customerId: "c1", kind: "estimate", label: "EST-1043 · Zinc strips + treatment", amount: 640, status: "draft", date: d(0) }
       ],
+      proposals: [
+        { id: "p1", customerId: "c1", title: "Zinc strips + moss treatment", amount: 640, status: "draft", created: d(0), token: "demo-p1" },
+        { id: "p2", customerId: "c4", title: "Valley + flashing repair", amount: 1450, status: "sent", created: d(-3), token: "demo-p2" },
+        { id: "p3", customerId: "c3", title: "Full roof replacement — Bradford Ave", amount: 16800, status: "invoiced", created: d(-10), token: "demo-p3", stripe_invoice_url: "#", stripe_invoice_pdf: "#" },
+        { id: "p4", customerId: "c2", title: "Gutter guards — micro-mesh", amount: 1980, status: "paid", created: d(-12), token: "demo-p4", stripe_invoice_url: "#" },
+        { id: "p5", customerId: "c5", title: "Skylight reflash", amount: 820, status: "declined", created: d(-20), token: "demo-p5" }
+      ],
       partners: [],
       team_seats: [
         { id: "t1", email: "casey@mistletoeconstruction.com", name: "Casey Rivera", role: "sales", active: true },
