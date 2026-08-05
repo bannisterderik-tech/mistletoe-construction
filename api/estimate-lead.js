@@ -43,12 +43,13 @@ module.exports = async (req, res) => {
     }
 
     // 1b) drop a lead into the pipeline in the NEW stage
+    const leadId = genId("l");
     await sbInsert("leads", {
-      id: genId("l"),
-      name: name, phone: phone, city: String(est.city || "").trim(),
+      id: leadId,
+      name: name, phone: phone, email: email, city: String(est.city || "").trim(),
       service: "Roof Replacement — instant estimate", stage: "new",
       note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
-        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "") + (email ? "[email: " + email + "]" : ""),
+        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : ""),
       created: today
     });
 
@@ -66,7 +67,7 @@ module.exports = async (req, res) => {
       (address ? " Property: " + address + "." : "") +
       " Review and adjust the line items before sending.";
     await sbInsert("proposals", {
-      id: genId("p"), customerId: customerId, title: "Roof replacement — instant estimate",
+      id: genId("p"), customerId: customerId, lead_id: leadId, title: "Roof replacement — instant estimate",
       items: [{ desc: desc, qty: 1, unit: mid }], amount: mid, status: "draft",
       token: token, note: note, created: today
     });
