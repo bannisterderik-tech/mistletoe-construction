@@ -211,7 +211,13 @@ MC.ready.then(function () {
         });
         // Stage auto-advances to "Proposal Created" when the proposal is saved,
         // then "Proposal Sent" when it's sent (see proposals.html advanceLead).
-        location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
+        // Wait for the customer to actually persist before navigating — otherwise the
+        // Proposals page reloads and can't find the just-created customer (Supabase race).
+        var go = function () { location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1"; };
+        if (c && c._saved && typeof c._saved.then === "function") {
+          window.MCUI && MCUI.toast("Setting up proposal…");
+          c._saved.then(go).catch(function () { alert("Couldn't create the customer record — check your connection and try again."); });
+        } else { go(); }
       }
     }];
     if (lead.phone) {
