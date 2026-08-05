@@ -44,13 +44,13 @@
     <div class="app-topbar">
       <div>
         <h1>Money</h1>
-        <p class="sub">Estimates and invoices — send, approve, convert, collect.</p>
+        <p class="sub">Proposals and invoices — send, accept, collect.</p>
       </div>
-      <button class="btn btn-primary btn-sm" id="add-estimate">+ New Estimate</button>
+      <button class="btn btn-primary btn-sm" id="add-estimate">+ New Proposal</button>
     </div>
 
     <div class="stat-row">
-      <div class="stat"><div class="stat-label">Pipeline</div><div class="stat-num" id="st-pipeline">$0</div><div class="stat-sub">Estimates out for review</div></div>
+      <div class="stat"><div class="stat-label">Pipeline</div><div class="stat-num" id="st-pipeline">$0</div><div class="stat-sub">Proposals out for review</div></div>
       <div class="stat"><div class="stat-label">Owed</div><div class="stat-num" id="st-owed">$0</div><div class="stat-sub">Invoices awaiting payment</div></div>
       <div class="stat"><div class="stat-label">Collected this month</div><div class="stat-num" id="st-collected">$0</div><div class="stat-sub">Paid invoices</div></div>
       <div class="stat"><div class="stat-label">Drafts</div><div class="stat-num" id="st-drafts">0</div><div class="stat-sub">Not yet sent</div></div>
@@ -61,7 +61,7 @@
         <h2>Documents</h2>
         <div class="login-tabs" id="filters" style="margin-bottom:0">
           <button type="button" class="active" data-filter="all">All</button>
-          <button type="button" data-filter="estimates">Estimates</button>
+          <button type="button" data-filter="estimates">Proposals</button>
           <button type="button" data-filter="invoices">Invoices</button>
           <button type="button" data-filter="unpaid">Unpaid</button>
         </div>
@@ -79,7 +79,7 @@
 
 <div class="modal-back" id="est-modal">
   <div class="modal">
-    <h3>New Estimate</h3>
+    <h3>New Proposal</h3>
     <div style="margin-bottom:0.9rem"><label for="ne-customer">Customer *</label><select id="ne-customer"></select></div>
     <div class="form-row">
       <div><label for="ne-desc">Description *</label><input id="ne-desc" placeholder="e.g. Moss removal + treatment"></div>
@@ -169,7 +169,7 @@ MC.ready.then(function () {
   }
 
   function docRow(d) {
-    var kindBadge = d.kind === "estimate" ? "<span class='badge pine'>Estimate</span>" : "<span class='badge gray'>Invoice</span>";
+    var kindBadge = d.kind === "estimate" ? "<span class='badge pine'>Proposal</span>" : "<span class='badge gray'>Invoice</span>";
     var statusBadge = "<span class='badge " + (STATUS_BADGE[d.status] || "gray") + "'>" + d.status + "</span>";
     var act = actionFor(d);
     return "<tr data-id='" + d.id + "' style='cursor:pointer'>" +
@@ -200,7 +200,7 @@ MC.ready.then(function () {
 
   /* ---------- Click-through invoice/estimate detail (MCUI) ---------- */
   function statusLabel(s) { s = String(s || ""); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
-  function kindLabel(k) { return k === "estimate" ? "Estimate" : "Invoice"; }
+  function kindLabel(k) { return k === "estimate" ? "Proposal" : "Invoice"; }
 
   function openDoc(d) {
     if (!d) return;
