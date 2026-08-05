@@ -2,12 +2,24 @@
 // up to 50 contacts/day; only advance to the next email once EVERYONE has the
 // current one (column-by-column). State in Supabase campaign_state. Never >50/day.
 // Secrets from env: RESEND_API_KEY, SUPABASE_SERVICE_ROLE_KEY.
+const crypto = require("crypto");
 const CONTACTS = require("./_campaign-contacts.js");
 const EM = require("./_campaign-emails.js");
 
 const SUPABASE_URL = "https://touydwcbxgrigmxvwnvx.supabase.co";
 const TOKEN = process.env.CRON_TOKEN || "mc-cron-9f27a1b4";
+const UNSUB_SECRET = process.env.UNSUB_SECRET || TOKEN;
 const DAILY_CAP = 50;
+
+// Hard suppression — never email these, regardless of campaign_state (belt-and-suspenders).
+const ALWAYS_SUPPRESS = new Set(["kim@theoregonlife.com"]);
+
+function unsubToken(email) {
+  return crypto.createHmac("sha256", UNSUB_SECRET).update(String(email || "").toLowerCase()).digest("hex").slice(0, 16);
+}
+function unsubUrl(email) {
+  return "https://mistletoeconstruction.com/api/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + unsubToken(email);
+}
 
 module.exports.config = { maxDuration: 60 };
 
@@ -26,6 +38,7 @@ function render(inner, c) {
     .replace(/{{city}}/g, city);
   return EM.wrapper.replace("{BODY}", body)
     .replace(/{UNSUB}/g, EM.unsub)
+    .replace(/{UNSUB_TOKEN}/g, unsubToken(c.email))
     .replace(/{EMAIL_ENC}/g, encodeURIComponent(c.email));
 }
 
@@ -63,7 +76,7 @@ module.exports = async (req, res) => {
     const eligible = CONTACTS.map((c) => {
       const s = state[(c.email || "").toLowerCase()] || { step: 0, status: "active" };
       return { c: c, step: s.step || 0, status: s.status || "active" };
-    }).filter((x) => x.status !== "unsubscribed" && x.step < NSTEPS);
+    }).filter((x) => x.status !== "unsubscribed" && x.step < NSTEPS && !ALWAYS_SUPPRESS.has((x.c.email || "").toLowerCase()));
 
     if (!eligible.length) { res.status(200).json({ done: true, message: "all contacts completed all 14 emails" }); return; }
 
@@ -85,7 +98,10 @@ module.exports = async (req, res) => {
     const payload = batch.map((x) => ({
       from: EM.from, to: [x.c.email], reply_to: EM.reply_to, subject: step.subject,
       html: render(step.inner, x.c),
-      headers: { "List-Unsubscribe": "<mailto:" + EM.unsub + "?subject=Unsubscribe>" }
+      headers: {
+        "List-Unsubscribe": "<" + unsubUrl(x.c.email) + ">, <mailto:" + EM.unsub + "?subject=Unsubscribe>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+      }
     }));
     const send = await fetch("https://api.resend.com/emails/batch", {
       method: "POST", headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
