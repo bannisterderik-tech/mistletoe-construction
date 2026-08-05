@@ -37,13 +37,23 @@ alter table proposals
 create index if not exists proposals_lead_id_idx on proposals(lead_id);
 create index if not exists proposals_second_due_idx on proposals(second_payment_due_at);
 
+-- Deleting a lead should UNLINK its proposals (not be blocked, not cascade-delete).
+alter table proposals drop constraint if exists proposals_lead_id_fkey;
+alter table proposals add constraint proposals_lead_id_fkey
+  foreign key (lead_id) references leads(id) on delete set null;
+
 -- ============ Invoices ownership of split invoices ============
 alter table invoices
   add column if not exists proposal_id text,
   add column if not exists kind text;   -- 'deposit' | 'final' | 'full' | null (legacy admin)
 
--- ============ Normalize legacy lead stage ============
-update leads set stage = 'proposal_sent' where stage = 'quoted';
+-- ============ Allow the new lead stages, then normalize legacy 'quoted' ============
+-- (The old CHECK constraint only allowed the original stage names, which silently
+--  blocked contact_attempted / proposal_created / proposal_sent from ever saving.)
+alter table leads drop constraint if exists leads_stage_check;
+alter table leads add constraint leads_stage_check
+  check (stage in ('new','contact_attempted','contacted','inspection','proposal_created','proposal_sent','won','lost','quoted'));
+update leads set stage = 'proposal_created' where stage = 'quoted';
 
 -- ============ BACKFILL: link proposals -> leads on a UNIQUE, OPEN name match ============
 with candidate as (
