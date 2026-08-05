@@ -99,9 +99,12 @@ MC.ready.then(function () {
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
   var STAGES = [
-    ["new", "New"], ["contacted", "Contacted"], ["inspection", "Inspection"],
-    ["quoted", "Quoted"], ["won", "Won"], ["lost", "Lost"]
+    ["new", "New"], ["contact_attempted", "Contact Attempted"], ["contacted", "Contacted"],
+    ["inspection", "Inspection"], ["proposal_created", "Proposal Created"],
+    ["proposal_sent", "Proposal Sent"], ["won", "Won"], ["lost", "Lost"]
   ];
+  /* legacy "quoted" leads show under Proposal Created */
+  function normStage(s) { return s === "quoted" ? "proposal_created" : s; }
 
   var board = document.getElementById("board");
 
@@ -118,7 +121,7 @@ MC.ready.then(function () {
       var stage = s[0], label = s[1];
       var col = document.createElement("div");
       col.className = "kcol"; col.dataset.stage = stage;
-      var items = leads.filter(function (l) { return l.stage === stage; });
+      var items = leads.filter(function (l) { return normStage(l.stage) === stage; });
       col.innerHTML = "<div class='kcol-head'><span>" + label + "</span><span class='count'>" + items.length + "</span></div>";
       items.forEach(function (l) {
         var card = document.createElement("div");
@@ -169,6 +172,7 @@ MC.ready.then(function () {
 
   /* ---------- lead detail panel ---------- */
   function stageLabel(stage) {
+    stage = normStage(stage);
     for (var i = 0; i < STAGES.length; i++) { if (STAGES[i][0] === stage) return STAGES[i][1]; }
     return stage || "—";
   }
@@ -205,7 +209,8 @@ MC.ready.then(function () {
           assigned_to: lead.assigned_to || "",
           notes: "Converted from lead" + (lead.note ? ": " + lead.note : "")
         });
-        MC.update("leads", lead.id, { stage: "quoted" });
+        // Stage auto-advances to "Proposal Created" when the proposal is saved,
+        // then "Proposal Sent" when it's sent (see proposals.html advanceLead).
         location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
       }
     }];

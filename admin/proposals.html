@@ -150,6 +150,19 @@ MC.ready.then(function () {
   })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
+  /* Auto-advance a lead through the pipeline when its proposal is created/sent.
+     Leads link to customers by name (same convention as won-lead → customer). */
+  var STAGE_ORDER = ["new","contact_attempted","contacted","inspection","proposal_created","proposal_sent","won","lost"];
+  function advanceLead(customerId, target) {
+    var cust = MC.get("customers", customerId); if (!cust) return;
+    var lead = MC.list("leads").filter(function (l) {
+      return l.name === cust.name && l.stage !== "won" && l.stage !== "lost";
+    })[0];
+    if (!lead) return;
+    var cur = lead.stage === "quoted" ? "proposal_created" : lead.stage;
+    if (STAGE_ORDER.indexOf(cur) < STAGE_ORDER.indexOf(target)) MC.update("leads", lead.id, { stage: target });
+  }
+
   var rows = document.getElementById("rows");
   var STATUS_BADGE = { draft: "gray", sent: "blue", accepted: "amber", invoiced: "blue", paid: "green", declined: "red" };
   var editingId = null;
@@ -251,6 +264,7 @@ MC.ready.then(function () {
         return;
       }
       MC.update("proposals", id, { status: "sent" });
+      advanceLead(p.customerId, "proposal_sent");
       render();
       showShare(p);
     } else if (act === "copy") {
@@ -439,6 +453,7 @@ MC.ready.then(function () {
       note: note,
       created: created.toISOString().slice(0, 10)
     });
+    advanceLead(customerId, "proposal_created");
 
     modal.classList.remove("open");
     render();

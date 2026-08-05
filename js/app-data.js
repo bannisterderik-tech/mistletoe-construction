@@ -34,11 +34,11 @@
       ],
       leads: [
         { id: "l1", name: "Karen Mosley", phone: "(541) 555-0190", city: "Winston", service: "Roof Replacement", stage: "new", note: "Web form — granules in gutters, 22-yr roof", created: d(-1) },
-        { id: "l2", name: "Tom Beckett", phone: "(541) 555-0155", city: "Roseburg", service: "Moss Removal", stage: "new", note: "Called — north slope fully green", created: d(-2) },
+        { id: "l2", name: "Tom Beckett", phone: "(541) 555-0155", city: "Roseburg", service: "Moss Removal", stage: "contact_attempted", note: "Left voicemail — north slope fully green", created: d(-2) },
         { id: "l3", name: "Alicia Fry", phone: "(541) 555-0171", city: "Sutherlin", service: "Roof Repair", stage: "contacted", note: "Leak over garage, photos texted", created: d(-4) },
         { id: "l4", name: "Gene Harmon", phone: "(541) 555-0118", city: "Oakland", service: "Roof Replacement", stage: "inspection", note: "Inspection booked — historic home, brick chimney", created: d(-6) },
-        { id: "l5", name: "Priya Nair", phone: "(541) 555-0136", city: "Green", service: "Gutter Guards", stage: "quoted", note: "Quoted $1,850 micro-mesh", created: d(-9) },
-        { id: "l6", name: "Walt Simmons", phone: "(541) 555-0147", city: "Camas Valley", service: "Metal Roofing", stage: "quoted", note: "Shop + house, DECRA samples shown", created: d(-12) }
+        { id: "l5", name: "Priya Nair", phone: "(541) 555-0136", city: "Green", service: "Gutter Guards", stage: "proposal_sent", note: "Quoted $1,850 micro-mesh", created: d(-9) },
+        { id: "l6", name: "Walt Simmons", phone: "(541) 555-0147", city: "Camas Valley", service: "Metal Roofing", stage: "proposal_created", note: "Shop + house, DECRA samples shown", created: d(-12) }
       ],
       jobs: [
         { id: "j1", customerId: "c3", title: "Full roof replacement — Bradford Ave", status: "in-progress", start: d(-2), value: 16800, note: "Tear-off done, dried-in. Shingles tomorrow." },
