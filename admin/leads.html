@@ -224,8 +224,9 @@ MC.ready.then(function () {
   function openLeadPanel(id) {
     var lead = MC.get("leads", id); if (!lead) return;
 
+    var derived = MC.leadStageFor ? MC.leadStageFor(lead) : normStage(lead.stage);
     var stageBtns = STAGES.map(function (s) {
-      var active = s[0] === lead.stage;
+      var active = s[0] === derived;   // highlight the ACTUAL (derived) stage, not the manual field
       return "<button type='button' class='btn btn-" + (active ? "primary" : "outline") + " btn-sm' data-stage='" + s[0] + "'" +
         (active ? " disabled" : "") + " style='margin:0 .35rem .35rem 0'>" + MCUI.esc(s[1]) + "</button>";
     }).join("");
@@ -242,7 +243,6 @@ MC.ready.then(function () {
           "<a class='btn-icon' href='proposals.html?edit=" + encodeURIComponent(p.id) + "'>Edit</a>" +
         "</span></div>";
     }).join("") : "<span class='t-sub'>No proposal linked yet. Use “Create proposal →” below, or open a proposal and “Link lead”.</span>";
-    var derived = MC.leadStageFor ? MC.leadStageFor(lead) : normStage(lead.stage);
 
     var bodyHTML =
       MCUI.section("Details", MCUI.kv([
