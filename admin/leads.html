@@ -121,7 +121,7 @@ MC.ready.then(function () {
       var stage = s[0], label = s[1];
       var col = document.createElement("div");
       col.className = "kcol"; col.dataset.stage = stage;
-      var items = leads.filter(function (l) { return normStage(l.stage) === stage; });
+      var items = leads.filter(function (l) { return (MC.leadStageFor ? MC.leadStageFor(l) : normStage(l.stage)) === stage; });
       col.innerHTML = "<div class='kcol-head'><span>" + label + "</span><span class='count'>" + items.length + "</span></div>";
       items.forEach(function (l) {
         var card = document.createElement("div");
@@ -213,7 +213,7 @@ MC.ready.then(function () {
         // then "Proposal Sent" when it's sent (see proposals.html advanceLead).
         // Wait for the customer to actually persist before navigating — otherwise the
         // Proposals page reloads and can't find the just-created customer (Supabase race).
-        var go = function () { location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1"; };
+        var go = function () { location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1&lead=" + encodeURIComponent(lead.id); };
         if (c && c._saved && typeof c._saved.then === "function") {
           window.MCUI && MCUI.toast("Setting up proposal…");
           c._saved.then(go).catch(function () { alert("Couldn't create the customer record — check your connection and try again."); });

@@ -153,10 +153,14 @@ MC.ready.then(function () {
   })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
-  /* Auto-advance a lead through the pipeline when its proposal is created/sent.
-     Leads link to customers by name (same convention as won-lead → customer). */
+  var pendingLeadId = null; // set when arriving from a lead's "Create proposal →"
+
+  /* Lead kanban stage is now DERIVED from the linked proposal's milestones
+     (MC.leadStageFor in app-data.js) — no longer written from here. Kept as a
+     no-op so existing call sites stay harmless. */
   var STAGE_ORDER = ["new","contact_attempted","contacted","inspection","proposal_created","proposal_sent","won","lost"];
   function advanceLead(customerId, target) {
+    return; // derived stage; intentionally does nothing
     var cust = MC.get("customers", customerId); if (!cust) return;
     var lead = MC.list("leads").filter(function (l) {
       return l.name === cust.name && l.stage !== "won" && l.stage !== "lost";
@@ -232,11 +236,21 @@ MC.ready.then(function () {
   }
 
   /* ---------- table ---------- */
+  function chipColor(m) {
+    if (m.dead) return "red";
+    var k = m.key;
+    if (k === "final_paid_at" || k === "deposit_paid_at") return "green";
+    if (k === "agreement_signed_at" || k === "accepted_at" || k === "deposit_invoiced_at" || k === "final_invoiced_at" || k === "job_completed_at") return "green";
+    if (k === "sent_at" || k === "first_viewed_at" || k === "agreement_first_viewed_at") return "blue";
+    return "gray";
+  }
   function propRow(p) {
-      var statusBadge = "<span class='badge " + (STATUS_BADGE[p.status] || "gray") + "'>" + p.status + "</span>";
-      if (p.agreement_signed_at) statusBadge += "<span class='t-sub' title='Signed by " + (p.agreement_signer || "") + "' style='display:block'>✍ signed</span>";
+      var m = MC.dealMilestone ? MC.dealMilestone(p) : { key: p.status, label: p.status || "—", stage: null, dead: false };
+      var statusBadge = "<span class='badge " + chipColor(m) + "'>" + m.label + "</span>";
+      if (p.needs_review) statusBadge += " <span title='Needs review' style='color:#c0392b'>●</span>";
+      if (!p.lead_id) statusBadge += "<span class='t-sub' style='display:block;opacity:.7'>unlinked</span>";
       var url = shareUrl(p);
-      var actions = "";
+      var actions = "<button class='btn-icon' data-id='" + p.id + "' data-act='timeline'>Timeline</button>";
       if (p.status === "draft") {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='send'>Send</button>";
       } else if (p.status === "sent") {
@@ -254,6 +268,9 @@ MC.ready.then(function () {
         actions += "<a class='btn-icon' href='" + p.stripe_invoice_pdf + "' target='_blank' rel='noopener'>Invoice PDF</a>";
       }
       actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='edit'>Edit</button>";
+      if (!p.lead_id && ((MC.auth.session() || {}).role) === "admin") {
+        actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='linklead'>Link lead</button>";
+      }
       if (((MC.auth.session() || {}).role) === "admin") {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='delete'>Delete</button>";
       }
@@ -301,6 +318,10 @@ MC.ready.then(function () {
       });
     } else if (act === "edit") {
       openEditProposal(id);
+    } else if (act === "timeline") {
+      openTimeline(p);
+    } else if (act === "linklead") {
+      openLinkLead(p);
     } else if (act === "delete") {
       if (((MC.auth.session() || {}).role) !== "admin") return;
       if (!confirm("Delete this proposal? This can't be undone.")) return;
@@ -309,6 +330,86 @@ MC.ready.then(function () {
       window.MCUI && MCUI.toast("Proposal deleted");
     }
   });
+
+  /* ---------- deal timeline drawer ---------- */
+  function fmtDT(ts) {
+    if (!ts) return "";
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return String(ts);
+    // date-only backfills (YYYY-MM-DD) render as just the date
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(ts))) return MC.fmtDate(ts);
+    return d.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+  var CHRONO = [
+    ["created", "Created"],
+    ["sent_at", "Sent"],
+    ["first_viewed_at", "Opened proposal"],
+    ["agreement_first_viewed_at", "Agreement opened"],
+    ["agreement_signed_at", "Agreement signed"],
+    ["accepted_at", "Accepted"],
+    ["deposit_invoiced_at", "Deposit invoiced"],
+    ["deposit_paid_at", "Deposit paid"],
+    ["job_completed_at", "Job complete"],
+    ["final_invoiced_at", "Balance invoiced"],
+    ["final_paid_at", "Balance paid"]
+  ];
+  function openTimeline(p) {
+    if (!p || !window.MCUI) return;
+    var m = MC.dealMilestone(p);
+    var lead = null;
+    MC.list("leads").forEach(function (l) { if (MC.proposalLinkedToLead(p, l)) lead = lead || l; });
+    var pairs = [
+      ["Customer", MC.customerName(p.customerId)],
+      ["Amount", MC.money(p.amount)],
+      ["Stage", m.label],
+      ["Linked lead", lead ? MCUI.esc(lead.name) : "<span style='color:#c0392b'>Not linked</span>", "raw"]
+    ];
+    if (p.project_start_at || p.project_end_at) pairs.push(["Project", (p.project_start_at ? MC.fmtDate(p.project_start_at) : "?") + " → " + (p.project_end_at ? MC.fmtDate(p.project_end_at) : "?")]);
+    if (p.second_payment_due_at) pairs.push(["2nd payment due", MC.fmtDate(p.second_payment_due_at) + (p.auto_final_enabled ? " · auto-invoice ON" : "")]);
+
+    var steps = CHRONO.filter(function (s) { return p[s[0]]; }).map(function (s) {
+      var extra = "";
+      if (s[0] === "first_viewed_at" && p.view_count) extra = " <span class='t-sub'>· " + p.view_count + "× · may include email scan</span>";
+      if (s[0] === "agreement_signed_at" && p.agreement_signer) extra = " <span class='t-sub'>· " + MCUI.esc(p.agreement_signer) + "</span>";
+      return "<div style='display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid rgba(28,36,29,.08)'>" +
+        "<span class='t-strong'>✓ " + s[1] + extra + "</span><span class='t-sub' style='white-space:nowrap'>" + fmtDT(p[s[0]]) + "</span></div>";
+    }).join("");
+    ["declined_at", "voided_at", "refunded_at"].forEach(function (f) {
+      if (p[f]) steps += "<div style='padding:.45rem 0;color:#c0392b'><strong>" + f.replace("_at", "").replace(/^./, function (c) { return c.toUpperCase(); }) + "</strong> · " + fmtDT(p[f]) + "</div>";
+    });
+
+    var body = MCUI.section("Details", MCUI.kv(pairs)) +
+      MCUI.section("Timeline", steps || "<span class='t-sub'>No events yet.</span>");
+
+    var actions = [
+      { label: "Open proposal ↗", kind: "outline", onClick: function () { window.open(shareUrl(p) + "&admin=1", "_blank"); } },
+      { label: "Agreement ↗", kind: "outline", onClick: function () { window.open(location.origin + "/contract.html?t=" + p.token + "&admin=1", "_blank"); } }
+    ];
+    if (!p.lead_id) actions.push({ label: "Link to lead →", kind: "primary", onClick: function () { openLinkLead(p); } });
+    MCUI.open({ eyebrow: "Deal timeline", title: p.title, subtitle: MC.customerName(p.customerId), bodyHTML: body, actions: actions });
+  }
+
+  /* ---------- link a proposal to a lead (for backfill NULLs) ---------- */
+  function openLinkLead(p) {
+    if (!p || !window.MCUI) return;
+    var leads = MC.list("leads").slice().sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || "")); });
+    var opts = "<option value=''>— pick a lead —</option>" + leads.map(function (l) {
+      return "<option value='" + MCUI.esc(l.id) + "'>" + MCUI.esc(l.name) + (l.city ? " · " + MCUI.esc(l.city) : "") + "</option>";
+    }).join("");
+    var body = "<div class='mcui-sec'><p class='t-sub'>Connect this proposal to the lead it belongs to, so the pipeline tracks it.</p>" +
+      "<select id='ll-sel' style='width:100%'>" + opts + "</select></div>";
+    MCUI.open({
+      eyebrow: "Link to lead", title: p.title, subtitle: MC.customerName(p.customerId), bodyHTML: body,
+      actions: [{ label: "Link", kind: "primary", onClick: function () {
+        var sel = MCUI.drawer.querySelector("#ll-sel"); var lid = sel && sel.value;
+        if (!lid) { sel && sel.focus(); return; }
+        MC.update("proposals", p.id, { lead_id: lid });
+        render();
+        MCUI.toast("Linked ✓");
+        openTimeline(MC.get("proposals", p.id));
+      } }]
+    });
+  }
 
   /* ---------- new proposal modal ---------- */
   var modal = document.getElementById("prop-modal");
@@ -500,9 +601,10 @@ MC.ready.then(function () {
       status: "draft",
       token: genToken(),
       note: note,
+      lead_id: pendingLeadId || null,
       created: created.toISOString().slice(0, 10)
     });
-    advanceLead(customerId, "proposal_created");
+    pendingLeadId = null;
 
     modal.classList.remove("open");
     render();
@@ -513,6 +615,7 @@ MC.ready.then(function () {
   (function () {
     var params = new URLSearchParams(location.search);
     var customer = params.get("customer");
+    pendingLeadId = params.get("lead") || null;
     if (!customer) return;
     openNewProposal();
     document.getElementById("np-customer").value = customer;

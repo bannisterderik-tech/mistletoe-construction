@@ -71,6 +71,15 @@ module.exports = async (req, res) => {
       stripe_invoice_url: finalized.hosted_invoice_url || null,
       stripe_invoice_pdf: finalized.invoice_pdf || null
     });
+    // Milestone timestamps (best-effort — tolerate a not-yet-migrated DB).
+    try {
+      const nowIso = new Date().toISOString();
+      await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), {
+        accepted_at: p.accepted_at || nowIso,
+        deposit_invoiced_at: p.deposit_invoiced_at || nowIso,
+        deposit_invoice_id: invoice.id
+      });
+    } catch (e) { /* columns arrive with the deal-pipeline migration */ }
 
     await notifyTeam("✍️ Proposal accepted — " + (p.title || "proposal"),
       "<h2 style='color:#1b3d26'>Proposal accepted</h2><p><strong>" + (name || email) + "</strong> accepted <strong>" +

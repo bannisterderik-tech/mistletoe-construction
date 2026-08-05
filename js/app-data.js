@@ -271,4 +271,71 @@
   }
 
   window.MC = CFG ? supabaseMode() : demoMode();
+
+  /* ============ Deal pipeline helpers (shared) ============
+     Milestones are timestamp columns on a proposal. The furthest non-null one
+     (in this fixed order) is the deal's current milestone. Lead kanban stage is
+     DERIVED from the linked proposals — never stored separately. */
+  var LEAD_ORDER = ["new", "contact_attempted", "contacted", "inspection", "proposal_created", "proposal_sent", "won", "lost"];
+  MC.LEAD_ORDER = LEAD_ORDER;
+  function leadRank(s) { var i = LEAD_ORDER.indexOf(s === "quoted" ? "proposal_created" : s); return i < 0 ? 0 : i; }
+  MC.leadRank = leadRank;
+
+  // Ordered milestones: [timestampField, label, impliedLeadStage]
+  var MILESTONES = [
+    ["final_paid_at", "Paid in full", "won"],
+    ["final_invoiced_at", "Balance invoiced", "won"],
+    ["job_completed_at", "Job complete", "won"],
+    ["deposit_paid_at", "Deposit paid", "won"],
+    ["deposit_invoiced_at", "Deposit invoiced", "won"],
+    ["accepted_at", "Accepted", "won"],
+    ["agreement_signed_at", "Agreement signed", "won"],
+    ["agreement_first_viewed_at", "Agreement opened", "proposal_sent"],
+    ["first_viewed_at", "Opened proposal", "proposal_sent"],
+    ["sent_at", "Sent", "proposal_sent"]
+  ];
+  MC.MILESTONES = MILESTONES;
+
+  // Current milestone of a proposal (furthest reached). Falls back to legacy `status`
+  // for proposals created before the milestone columns existed.
+  MC.dealMilestone = function (p) {
+    if (!p) return { key: "created", label: "Draft", at: null, stage: "proposal_created" };
+    if (p.voided_at) return { key: "voided", label: "Voided", at: p.voided_at, stage: null, dead: true };
+    if (p.declined_at) return { key: "declined", label: "Declined", at: p.declined_at, stage: null, dead: true };
+    for (var i = 0; i < MILESTONES.length; i++) {
+      var m = MILESTONES[i];
+      if (p[m[0]]) return { key: m[0], label: m[1], at: p[m[0]], stage: m[2] };
+    }
+    // legacy fallback by status
+    var st = p.status;
+    if (st === "paid") return { key: "final_paid_at", label: "Paid in full", at: p.created, stage: "won" };
+    if (st === "invoiced") return { key: "deposit_invoiced_at", label: "Invoiced", at: p.created, stage: "won" };
+    if (st === "accepted" || st === "signed") return { key: "accepted_at", label: "Accepted", at: p.created, stage: "won" };
+    if (st === "sent") return { key: "sent_at", label: "Sent", at: p.created, stage: "proposal_sent" };
+    if (st === "declined") return { key: "declined", label: "Declined", at: p.created, stage: null, dead: true };
+    return { key: "created", label: "Draft", at: p.created, stage: "proposal_created" };
+  };
+
+  // Is this proposal linked to this lead? Real FK first, name-match fallback (pre-backfill).
+  MC.proposalLinkedToLead = function (p, lead) {
+    if (!p || !lead) return false;
+    if (p.lead_id) return String(p.lead_id) === String(lead.id);
+    var c = MC.get("customers", p.customerId);
+    if (!c || !c.name || !lead.name) return false;
+    return c.name.trim().toLowerCase() === lead.name.trim().toLowerCase();
+  };
+
+  // Derived kanban stage for a lead: max-rank of its manual stage and the furthest
+  // milestone across its (non-dead) linked proposals. Manual only ever wins upward.
+  MC.leadStageFor = function (lead) {
+    var manual = lead.stage === "quoted" ? "proposal_created" : (lead.stage || "new");
+    var best = manual;
+    MC.list("proposals").forEach(function (p) {
+      if (!MC.proposalLinkedToLead(p, lead)) return;
+      var m = MC.dealMilestone(p);
+      if (!m.stage) return; // dead/void proposal doesn't advance the lead
+      if (leadRank(m.stage) > leadRank(best)) best = m.stage;
+    });
+    return best;
+  };
 })();

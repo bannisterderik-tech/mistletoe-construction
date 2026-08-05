@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
     });
     if (!r.ok) { const t = await r.text(); res.status(502).json({ error: "Email service rejected the send", detail: t.slice(0, 300) }); return; }
 
-    try { await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), { status: "sent" }); } catch (e) { /* email already sent; status is best-effort */ }
+    try { await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), { status: "sent", sent_at: (p.sent_at || new Date().toISOString()) }); } catch (e) { /* email already sent; status is best-effort */ }
     notifyTeam("Proposal sent — " + (p.title || "proposal"),
       "<h2 style='color:#15321f'>Proposal emailed</h2><p><strong>" + title + "</strong> (" + money(p.amount) + ") was emailed to " + esc(name) + " &lt;" + esc(email) + "&gt;.</p>");
     res.status(200).json({ ok: true, email: email });
