@@ -701,9 +701,11 @@ MC.ready.then(function () {
     showShare(prop);
   });
 
-  /* ---------- deep link: proposals.html?customer=<id>&new=1 ---------- */
+  /* ---------- deep links: ?edit=<proposalId> (open editor) or ?customer=<id>&new=1 ---------- */
   (function () {
     var params = new URLSearchParams(location.search);
+    var editId = params.get("edit");
+    if (editId && MC.get("proposals", editId)) { openEditProposal(editId); return; }
     var customer = params.get("customer");
     pendingLeadId = params.get("lead") || null;
     if (!customer) return;

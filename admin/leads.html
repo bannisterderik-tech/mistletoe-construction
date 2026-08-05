@@ -235,9 +235,12 @@ MC.ready.then(function () {
     var linked = (MC.list("proposals") || []).filter(function (p) { return MC.proposalLinkedToLead && MC.proposalLinkedToLead(p, lead); });
     var propHTML = linked.length ? linked.map(function (p) {
       var m = MC.dealMilestone ? MC.dealMilestone(p) : { label: p.status || "—" };
-      return "<div style='display:flex;justify-content:space-between;gap:.6rem;padding:.4rem 0;border-bottom:1px solid rgba(28,36,29,.08)'>" +
+      return "<div style='display:flex;justify-content:space-between;gap:.6rem;align-items:center;padding:.4rem 0;border-bottom:1px solid rgba(28,36,29,.08)'>" +
         "<a href='" + location.origin + "/proposal.html?t=" + p.token + "&admin=1' target='_blank' rel='noopener' class='t-strong'>" + MCUI.esc(p.title || "Proposal") + " ↗</a>" +
-        "<span class='t-sub' style='white-space:nowrap'>" + MC.money(p.amount) + " · " + MCUI.esc(m.label) + "</span></div>";
+        "<span style='display:flex;gap:.7rem;align-items:center;white-space:nowrap'>" +
+          "<span class='t-sub'>" + MC.money(p.amount) + " · " + MCUI.esc(m.label) + "</span>" +
+          "<a class='btn-icon' href='proposals.html?edit=" + encodeURIComponent(p.id) + "'>Edit</a>" +
+        "</span></div>";
     }).join("") : "<span class='t-sub'>No proposal linked yet. Use “Create proposal →” below, or open a proposal and “Link lead”.</span>";
     var derived = MC.leadStageFor ? MC.leadStageFor(lead) : normStage(lead.stage);
 
