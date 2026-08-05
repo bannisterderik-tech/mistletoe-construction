@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoices | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="proposals.html">Proposals</a>
+      <a href="invoices.html" aria-current="page">Invoices</a>
+      <a href="money.html">Money</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="partners.html">Partners</a>
+      <a href="social.html">Social</a>
+      <a href="team.html">Team</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Invoices</h1>
+        <p class="sub">Everything you've billed — outstanding, and collected. Invoices come from accepted proposals (Stripe) plus any you add here.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="add-invoice">+ New Invoice</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Outstanding</div><div class="stat-num" id="st-outstanding">0</div><div class="stat-sub">Invoices awaiting payment</div></div>
+      <div class="stat"><div class="stat-label">Owed</div><div class="stat-num" id="st-owed">$0</div><div class="stat-sub">Total still due</div></div>
+      <div class="stat"><div class="stat-label">Collected this month</div><div class="stat-num" id="st-month">$0</div><div class="stat-sub">Paid this month</div></div>
+      <div class="stat"><div class="stat-label">Total collected</div><div class="stat-num" id="st-total">$0</div><div class="stat-sub">All-time paid</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Invoices</h2>
+        <div class="login-tabs" id="filters" style="margin-bottom:0">
+          <button type="button" class="active" data-filter="all">All</button>
+          <button type="button" data-filter="unpaid">Unpaid</button>
+          <button type="button" data-filter="paid">Paid</button>
+        </div>
+      </div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Invoice</th><th>Amount</th><th>Status</th><th>Created</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="mc-pager" id="pager" hidden></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-back" id="inv-modal">
+  <div class="modal">
+    <h3>New Invoice</h3>
+    <div style="margin-bottom:0.9rem"><label for="ni-customer">Customer *</label><select id="ni-customer"></select></div>
+    <div class="form-row">
+      <div><label for="ni-desc">Description *</label><input id="ni-desc" placeholder="e.g. Metal roof — final payment"></div>
+      <div><label for="ni-amount">Amount ($) *</label><input id="ni-amount" type="number" min="0" step="1" placeholder="0"></div>
+    </div>
+    <p class="t-sub" style="margin:.2rem 0 0">Records a bill for tracking. For online card payment + auto-reminders, send it from <a href="proposals.html">Proposals</a>.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="ni-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="ni-save" type="button">Add Invoice</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/app-data.js"></script>
+<script src="../js/app-ui.js"></script>
+<script src="../js/app-paginate.js"></script>
+<script>
+MC.ready.then(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals","invoices"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var rows = document.getElementById("rows");
+  var filter = "all";
+  var STATUS_BADGE = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red", declined: "red" };
+
+  /* A proposal that's been invoiced/paid IS an invoice — map it into the money-doc shape. */
+  function propToDoc(p) {
+    var st = p.status, status;
+    if (st === "paid") status = "paid"; else status = "sent"; // invoiced -> awaiting payment
+    return {
+      id: p.id, _src: "proposal", customerId: p.customerId,
+      kind: "invoice", label: p.title || "Invoice", amount: Number(p.amount || 0),
+      status: status, date: (p.created || "").slice(0, 10),
+      hosted_invoice_url: p.stripe_invoice_url || null,
+      stripe_invoice_pdf: p.stripe_invoice_pdf || null, token: p.token
+    };
+  }
+  function allInvoices() {
+    var fromProps = MC.list("proposals")
+      .filter(function (p) { return p.status === "invoiced" || p.status === "paid"; })
+      .map(propToDoc);
+    var manual = MC.list("invoices")
+      .filter(function (d) { return d.kind === "invoice"; })
+      .map(function (d) { return Object.assign({ _src: "invoice" }, d); });
+    return fromProps.concat(manual);
+  }
+
+  function renderStats() {
+    var docs = allInvoices();
+    var thisMonth = new Date().toISOString().slice(0, 7);
+    var outstanding = 0, owed = 0, month = 0, total = 0;
+    docs.forEach(function (d) {
+      if (d.status === "paid") {
+        total += d.amount;
+        if ((d.date || "").slice(0, 7) === thisMonth) month += d.amount;
+      } else {
+        outstanding++; owed += d.amount;
+      }
+    });
+    document.getElementById("st-outstanding").textContent = outstanding;
+    document.getElementById("st-owed").textContent = MC.money(owed);
+    document.getElementById("st-month").textContent = MC.money(month);
+    document.getElementById("st-total").textContent = MC.money(total);
+  }
+
+  function docRow(d) {
+    var statusBadge = "<span class='badge " + (STATUS_BADGE[d.status] || "gray") + "'>" + d.status + "</span>";
+    var srcTag = d._src === "proposal" ? "<span class='t-sub'> · from proposal</span>" : "";
+    var act = (d._src === "invoice" && d.status !== "paid")
+      ? "<button class='btn-icon' data-id='" + d.id + "' data-act='paid'>Mark Paid</button>"
+      : (d.hosted_invoice_url ? "<a class='btn-icon' href='" + MCUI.esc(d.hosted_invoice_url) + "' target='_blank' rel='noopener'>Open ↗</a>" : "");
+    return "<tr data-id='" + d.id + "' style='cursor:pointer'>" +
+      "<td><span class='t-strong'>" + MCUI.esc(d.label) + "</span><span class='t-sub'>" + MCUI.esc(MC.customerName(d.customerId)) + srcTag + "</span></td>" +
+      "<td>" + MC.money(d.amount) + "</td>" +
+      "<td>" + statusBadge + "</td>" +
+      "<td>" + MC.fmtDate(d.date) + "</td>" +
+      "<td>" + act + "</td>" +
+      "</tr>";
+  }
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(docRow).join("") : "<tr><td colspan='5'><span class='t-sub'>No invoices yet.</span></td></tr>";
+  } });
+  function renderTable() {
+    var docs = allInvoices().filter(function (d) {
+      if (filter === "unpaid") return d.status !== "paid";
+      if (filter === "paid") return d.status === "paid";
+      return true;
+    });
+    docs.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    pager.set(docs);
+  }
+  function render() { renderStats(); renderTable(); }
+  render();
+
+  /* ---------- detail ---------- */
+  function statusLabel(s) { s = String(s || ""); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
+  function openDoc(d) {
+    if (!d) return;
+    var isPaid = String(d.status) === "paid";
+    var pairs = [
+      ["Customer", MC.customerName(d.customerId)],
+      ["Amount", MC.money(d.amount)],
+      ["Status", statusLabel(d.status) + (isPaid ? " <span class='badge green'>Paid</span>" : ""), "raw"],
+      ["Date", d.date ? MC.fmtDate(d.date) : ""]
+    ];
+    if (d._src === "proposal") pairs.push(["Source", "Proposal"]);
+    if (d.hosted_invoice_url) pairs.push(["Payment link", "<a href='" + MCUI.esc(d.hosted_invoice_url) + "' target='_blank' rel='noopener'>Open Stripe invoice &#8599;</a>", "raw"]);
+    if (d.stripe_invoice_pdf) pairs.push(["Invoice PDF", "<a href='" + MCUI.esc(d.stripe_invoice_pdf) + "' target='_blank' rel='noopener'>Download PDF &#8599;</a>", "raw"]);
+
+    var actions = [];
+    if (d._src === "proposal") {
+      if (d.hosted_invoice_url) actions.push({ label: "Open Stripe invoice ↗", kind: "primary", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
+      actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html"; } });
+    } else {
+      if (!isPaid) actions.push({ label: "Mark paid", kind: "primary", onClick: function () {
+        MC.update("invoices", d.id, { status: "paid" }); render(); MCUI.toast("Marked paid ✓");
+        openDoc(MC.get("invoices", d.id));
+      } });
+      if (((MC.auth.session() || {}).role) === "admin") actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
+        if (!window.confirm("Delete this invoice? This can't be undone.")) return;
+        MC.remove("invoices", d.id); (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+        render(); window.MCUI && MCUI.toast("Invoice deleted");
+      } });
+    }
+    actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+
+    MCUI.open({
+      eyebrow: "Invoice" + (d._src === "proposal" ? " · from Proposal" : ""),
+      title: d.label, subtitle: MC.customerName(d.customerId),
+      bodyHTML: MCUI.section("Details", MCUI.kv(pairs)), actions: actions
+    });
+  }
+
+  rows.addEventListener("click", function (e) {
+    if (e.target.closest("button") || e.target.closest("a")) return;
+    var tr = e.target.closest("tr[data-id]"); if (!tr) return;
+    var id = tr.dataset.id;
+    openDoc(allInvoices().filter(function (x) { return x.id === id; })[0]);
+  });
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]"); if (!btn) return;
+    if (btn.dataset.act === "paid") { MC.update("invoices", btn.dataset.id, { status: "paid" }); render(); }
+  });
+
+  document.getElementById("filters").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-filter]"); if (!btn) return;
+    filter = btn.dataset.filter;
+    this.querySelectorAll("button").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    pager.first(); renderTable();
+  });
+
+  /* New invoice modal */
+  var modal = document.getElementById("inv-modal");
+  document.getElementById("add-invoice").addEventListener("click", function () {
+    document.getElementById("ni-customer").innerHTML = MC.list("customers").map(function (c) {
+      return "<option value='" + c.id + "'>" + MCUI.esc(c.name) + "</option>";
+    }).join("");
+    modal.classList.add("open");
+  });
+  document.getElementById("ni-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("ni-save").addEventListener("click", function () {
+    var desc = document.getElementById("ni-desc").value.trim();
+    if (!desc) { document.getElementById("ni-desc").focus(); return; }
+    var num = 2000 + Math.floor(Math.random() * 8000);
+    MC.add("invoices", {
+      customerId: document.getElementById("ni-customer").value,
+      kind: "invoice",
+      label: "INV-" + num + " · " + desc,
+      amount: Number(document.getElementById("ni-amount").value) || 0,
+      status: "sent",
+      date: new Date().toISOString().slice(0, 10)
+    });
+    modal.classList.remove("open");
+    document.getElementById("ni-desc").value = "";
+    document.getElementById("ni-amount").value = "";
+    render();
+  });
+});
+</script>
+</body>
+</html>

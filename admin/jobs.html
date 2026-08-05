@@ -25,12 +25,13 @@
       <a href="index.html">Dashboard</a>
       <a href="leads.html">Leads</a>
       <a href="customers.html">Customers</a>
+      <a href="proposals.html">Proposals</a>
+      <a href="invoices.html">Invoices</a>
+      <a href="money.html">Money</a>
       <a href="jobs.html" aria-current="page">Jobs</a>
       <a href="schedule.html">Schedule</a>
       <a href="members.html">Members</a>
-      <a href="money.html">Money</a>
       <a href="partners.html">Partners</a>
-      <a href="proposals.html">Proposals</a>
       <a href="social.html">Social</a>
       <a href="team.html">Team</a>
       <a href="pricing.html">Pricing</a>
@@ -118,13 +119,13 @@ MC.ready.then(function () {
   (function(){
     var role = (MC.auth.session()||{}).role || "admin";
     var allow = {
-      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"],
-      sales: ["index","leads","customers","jobs","schedule","proposals"],
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals","invoices"],
       field: ["index","jobs","schedule"]
     }[role] || [];
     document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
       var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
-      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
     });
   })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
