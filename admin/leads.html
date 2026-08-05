@@ -183,6 +183,8 @@ MC.ready.then(function () {
   render();
   searchEl.addEventListener("input", render);
   [sortEl, ownerEl, serviceEl].forEach(function (el) { el.addEventListener("change", render); });
+  /* Deep-link: leads.html?lead=<id> opens that lead's panel (used by the proposal Timeline). */
+  (function () { var lid = new URLSearchParams(location.search).get("lead"); if (lid && MC.get("leads", lid)) openLeadPanel(lid); })();
 
   /* Drag & drop */
   var draggedId = null;
@@ -240,6 +242,7 @@ MC.ready.then(function () {
         "<a href='" + location.origin + "/proposal.html?t=" + p.token + "&admin=1' target='_blank' rel='noopener' class='t-strong'>" + MCUI.esc(p.title || "Proposal") + " ↗</a>" +
         "<span style='display:flex;gap:.7rem;align-items:center;white-space:nowrap'>" +
           "<span class='t-sub'>" + MC.money(p.amount) + " · " + MCUI.esc(m.label) + "</span>" +
+          "<a class='btn-icon' href='proposals.html?timeline=" + encodeURIComponent(p.id) + "'>Timeline</a>" +
           "<a class='btn-icon' href='proposals.html?edit=" + encodeURIComponent(p.id) + "'>Edit</a>" +
         "</span></div>";
     }).join("") : "<span class='t-sub'>No proposal linked yet. Use “Create proposal →” below, or open a proposal and “Link lead”.</span>";
@@ -282,8 +285,24 @@ MC.ready.then(function () {
         } else { goTo(c.id); }
       }
     }];
+    var draftProp = linked.filter(function (p) { return p.status === "draft"; })[0];
+    if (draftProp) {
+      actions.push({ label: "Send proposal", kind: "primary", onClick: function () {
+        var cust = MC.get("customers", draftProp.customerId);
+        if (!cust || !String(cust.email || "").trim()) { alert("The customer needs an email first — open Customers → Edit details, add it, then send."); return; }
+        fetch("/api/send-proposal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: draftProp.token }) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) { if (!res.ok) throw new Error((res.d && res.d.error) || "Failed"); MC.update("proposals", draftProp.id, { status: "sent" }); render(); MCUI.toast("Proposal emailed to " + (res.d.email || "the customer") + " ✓"); openLeadPanel(lead.id); })
+          .catch(function (e) { alert("Couldn't send the proposal: " + e.message); });
+      } });
+    }
+    actions.push({ label: "Edit lead", kind: "outline", onClick: function () { editLead(lead); } });
     if (lead.phone) {
       actions.push({ label: "Call", kind: "outline", onClick: function () { location.href = "tel:" + lead.phone; } });
+      actions.push({ label: "Text", kind: "outline", onClick: function () { location.href = "sms:" + lead.phone; } });
+    }
+    if (lead.email) {
+      actions.push({ label: "Email", kind: "outline", onClick: function () { location.href = "mailto:" + lead.email; } });
     }
     if (((MC.auth.session() || {}).role) === "admin") {
       actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
@@ -332,28 +351,55 @@ MC.ready.then(function () {
 
   /* New lead modal */
   var modal = document.getElementById("lead-modal");
+  var editingLeadId = null;
+  function resetLeadModal() {
+    editingLeadId = null;
+    document.querySelector("#lead-modal h3").textContent = "New Lead";
+    document.getElementById("nl-save").textContent = "Add Lead";
+    ["nl-name", "nl-phone", "nl-email", "nl-note"].forEach(function (id) { document.getElementById(id).value = ""; });
+  }
+  function editLead(lead) {
+    editingLeadId = lead.id;
+    document.getElementById("nl-name").value = lead.name || "";
+    document.getElementById("nl-phone").value = lead.phone || "";
+    document.getElementById("nl-email").value = lead.email || "";
+    if (lead.city) document.getElementById("nl-city").value = lead.city;
+    if (lead.service) document.getElementById("nl-service").value = lead.service;
+    document.getElementById("nl-note").value = lead.note || "";
+    document.getElementById("nl-assign").innerHTML = teamOptions(lead.assigned_to || "");
+    document.querySelector("#lead-modal h3").textContent = "Edit Lead";
+    document.getElementById("nl-save").textContent = "Save Lead";
+    (window.MCUI && MCUI.close());
+    modal.classList.add("open");
+  }
   document.getElementById("add-lead").addEventListener("click", function () {
+    resetLeadModal();
     document.getElementById("nl-assign").innerHTML = teamOptions("");
     modal.classList.add("open");
   });
-  document.getElementById("nl-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
+  document.getElementById("nl-cancel").addEventListener("click", function () { modal.classList.remove("open"); resetLeadModal(); });
   document.getElementById("nl-save").addEventListener("click", function () {
     var name = document.getElementById("nl-name").value.trim();
     if (!name) { document.getElementById("nl-name").focus(); return; }
-    MC.add("leads", {
+    var fields = {
       name: name,
       phone: document.getElementById("nl-phone").value.trim(),
       email: document.getElementById("nl-email").value.trim(),
       city: document.getElementById("nl-city").value,
       service: document.getElementById("nl-service").value,
       note: document.getElementById("nl-note").value.trim(),
-      assigned_to: document.getElementById("nl-assign").value || "",
-      stage: "new",
-      created: new Date().toISOString().slice(0, 10)
-    });
-    modal.classList.remove("open");
-    ["nl-name", "nl-phone", "nl-email", "nl-note"].forEach(function (id) { document.getElementById(id).value = ""; });
-    render();
+      assigned_to: document.getElementById("nl-assign").value || ""
+    };
+    if (editingLeadId) {
+      MC.update("leads", editingLeadId, fields);
+      modal.classList.remove("open"); resetLeadModal(); render();
+      window.MCUI && MCUI.toast("Lead saved ✓");
+      return;
+    }
+    fields.stage = "new";
+    fields.created = new Date().toISOString().slice(0, 10);
+    MC.add("leads", fields);
+    modal.classList.remove("open"); resetLeadModal(); render();
   });
 });
 </script>

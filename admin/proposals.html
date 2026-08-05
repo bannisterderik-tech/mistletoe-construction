@@ -380,7 +380,7 @@ MC.ready.then(function () {
       ["Customer", MC.customerName(p.customerId)],
       ["Amount", MC.money(p.amount)],
       ["Stage", m.label],
-      ["Linked lead", lead ? MCUI.esc(lead.name) : "<span style='color:#c0392b'>Not linked</span>", "raw"]
+      ["Linked lead", lead ? "<a href='leads.html?lead=" + encodeURIComponent(lead.id) + "'>" + MCUI.esc(lead.name) + " →</a>" : "<span style='color:#c0392b'>Not linked</span>", "raw"]
     ];
     if (p.project_start_at || p.project_end_at) pairs.push(["Project", (p.project_start_at ? MC.fmtDate(p.project_start_at) : "?") + " → " + (p.project_end_at ? MC.fmtDate(p.project_end_at) : "?")]);
     if (p.second_payment_due_at) pairs.push(["2nd payment due", MC.fmtDate(p.second_payment_due_at) + (p.auto_final_enabled ? " · auto-invoice ON" : "")]);
