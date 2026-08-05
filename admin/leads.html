@@ -59,6 +59,7 @@
       <div><label for="nl-name">Name *</label><input id="nl-name" required></div>
       <div><label for="nl-phone">Phone</label><input id="nl-phone" type="tel"></div>
     </div>
+    <div style="margin-bottom:0.4rem"><label for="nl-email">Email</label><input id="nl-email" type="email" placeholder="name@email.com"></div>
     <div class="form-row">
       <div><label for="nl-city">Town</label>
         <select id="nl-city"><option>Roseburg</option><option>Riddle</option><option>Myrtle Creek</option><option>Winston</option><option>Sutherlin</option><option>Canyonville</option><option>Green</option><option>Oakland</option><option>Glide</option><option>Camas Valley</option><option>Other</option></select>
@@ -160,7 +161,7 @@ MC.ready.then(function () {
     if (stage === "won") {
       var l = MC.get("leads", draggedId);
       var exists = MC.list("customers").some(function (c) { return c.name === l.name; });
-      if (!exists) MC.add("customers", { name: l.name, phone: l.phone || "", email: "", address: "", city: l.city, member: false, notes: "Won lead — " + l.service + ". " + (l.note || "") });
+      if (!exists) MC.add("customers", { name: l.name, phone: l.phone || "", email: l.email || "", address: "", city: l.city, member: false, notes: "Won lead — " + l.service + ". " + (l.note || "") });
     }
     draggedId = null; render();
   });
@@ -185,6 +186,7 @@ MC.ready.then(function () {
     var bodyHTML =
       MCUI.section("Details", MCUI.kv([
         ["Phone", lead.phone ? "<a href='tel:" + MCUI.esc(lead.phone) + "'>" + MCUI.esc(lead.phone) + "</a>" : "", "raw"],
+        ["Email", lead.email ? "<a href='mailto:" + MCUI.esc(lead.email) + "'>" + MCUI.esc(lead.email) + "</a>" : "", "raw"],
         ["City", lead.city],
         ["Service", lead.service],
         ["Stage", stageLabel(lead.stage)],
@@ -198,11 +200,11 @@ MC.ready.then(function () {
     var actions = [{
       label: "Create proposal →", kind: "primary", onClick: function () {
         var c = MC.add("customers", {
-          name: lead.name, phone: lead.phone || "", city: lead.city || "", email: "", address: "",
+          name: lead.name, phone: lead.phone || "", city: lead.city || "", email: lead.email || "", address: "",
           assigned_to: lead.assigned_to || "",
           notes: "Converted from lead" + (lead.note ? ": " + lead.note : "")
         });
-        MC.update("leads", lead.id, { stage: "won" });
+        MC.update("leads", lead.id, { stage: "quoted" });
         location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
       }
     }];
@@ -262,6 +264,7 @@ MC.ready.then(function () {
     MC.add("leads", {
       name: name,
       phone: document.getElementById("nl-phone").value.trim(),
+      email: document.getElementById("nl-email").value.trim(),
       city: document.getElementById("nl-city").value,
       service: document.getElementById("nl-service").value,
       note: document.getElementById("nl-note").value.trim(),
@@ -270,7 +273,7 @@ MC.ready.then(function () {
       created: new Date().toISOString().slice(0, 10)
     });
     modal.classList.remove("open");
-    ["nl-name", "nl-phone", "nl-note"].forEach(function (id) { document.getElementById(id).value = ""; });
+    ["nl-name", "nl-phone", "nl-email", "nl-note"].forEach(function (id) { document.getElementById(id).value = ""; });
     render();
   });
 });

@@ -244,6 +244,11 @@ MC.ready.then(function () {
     var id = btn.dataset.id, act = btn.dataset.act;
     var p = MC.get("proposals", id); if (!p) return;
     if (act === "send") {
+      var cust = MC.get("customers", p.customerId);
+      if (!cust || !String(cust.email || "").trim()) {
+        alert("This customer has no email on file.\n\nA quote is delivered by email, so it can't be marked sent yet. Open the customer under Customers → Edit details, add their email, then send.");
+        return;
+      }
       MC.update("proposals", id, { status: "sent" });
       render();
       showShare(p);

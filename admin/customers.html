@@ -262,6 +262,7 @@ MC.ready.then(function () {
       { label: "New proposal →", kind: "primary", onClick: function () {
           location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
       } },
+      { label: "Edit details", kind: "outline", onClick: function () { openRecordForm(c, "customers", c); } },
       { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } }
     ];
     if (((MC.auth.session() || {}).role) === "admin") {
@@ -319,9 +320,17 @@ MC.ready.then(function () {
       { key: "title", label: "Proposal title" },
       { key: "status", label: "Status", type: "select", options: ["draft", "sent", "signed", "invoiced", "paid"] },
       { key: "note", label: "Note", type: "textarea" }
+    ],
+    customers: [
+      { key: "name", label: "Name" },
+      { key: "phone", label: "Phone", type: "tel" },
+      { key: "email", label: "Email", type: "email" },
+      { key: "address", label: "Address" },
+      { key: "city", label: "City" },
+      { key: "notes", label: "Notes", type: "textarea" }
     ]
   };
-  var ENTITY_LABEL = { jobs: "Job", visits: "Visit", invoices: "Invoice", proposals: "Proposal" };
+  var ENTITY_LABEL = { jobs: "Job", visits: "Visit", invoices: "Invoice", proposals: "Proposal", customers: "Customer" };
 
   function openRecordForm(c, entity, rec) {
     if (!rec) return;
@@ -345,7 +354,7 @@ MC.ready.then(function () {
         "</div><p class='t-sub'>Edit line items on the Proposals page.</p>";
     }
 
-    var canDelete = ((MC.auth.session() || {}).role) === "admin";
+    var canDelete = ((MC.auth.session() || {}).role) === "admin" && entity !== "customers";
     var html = "<div class='mcui-sec'><h4 style='margin-top:0'>Edit " + ENTITY_LABEL[entity] + "</h4></div>" + fields + links +
       "<div style='display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem'>" +
         "<button type='button' class='btn btn-primary btn-sm' id='ed-save'>Save</button>" +
@@ -355,7 +364,7 @@ MC.ready.then(function () {
 
     MCUI.setBody(html);
     var d = MCUI.drawer;
-    d.querySelector("#ed-back").addEventListener("click", function () { openProfile(c); });
+    d.querySelector("#ed-back").addEventListener("click", function () { openProfile(MC.get("customers", c.id) || c); });
     if (canDelete) d.querySelector("#ed-del").addEventListener("click", function () {
       if (!window.confirm("Delete this " + ENTITY_LABEL[entity].toLowerCase() + "?")) return;
       MC.remove(entity, rec.id); MCUI.toast(ENTITY_LABEL[entity] + " deleted"); openProfile(c); render();
@@ -370,7 +379,7 @@ MC.ready.then(function () {
       var btn = d.querySelector("#ed-save"); btn.disabled = true; btn.textContent = "Saving…";
       var res = MC.update(entity, rec.id, patch);
       var done = (res && res._saved) ? res._saved : Promise.resolve(res);
-      done.then(function () { MCUI.toast(ENTITY_LABEL[entity] + " saved ✓"); openProfile(c); render(); })
+      done.then(function () { MCUI.toast(ENTITY_LABEL[entity] + " saved ✓"); openProfile(MC.get("customers", c.id) || c); render(); })
         .catch(function () { btn.disabled = false; btn.textContent = "Save"; });
     });
   }

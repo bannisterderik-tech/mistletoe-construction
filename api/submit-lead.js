@@ -25,11 +25,10 @@ module.exports = async (req, res) => {
   const service = String(b.service || "Something else").trim();
   const city = String(b.city || "").trim();
   const message = String(b.message || b.note || "").trim();
-  const note = message + (email ? "  [email: " + email + "]" : "");
   const lead = {
     id: genId("l"),
-    name: name, phone: phone, city: city, service: service,
-    note: note, stage: "new", created: new Date().toISOString().slice(0, 10)
+    name: name, phone: phone, email: email, city: city, service: service,
+    note: message, stage: "new", created: new Date().toISOString().slice(0, 10)
   };
 
   // 1) write the lead (service role bypasses RLS)
