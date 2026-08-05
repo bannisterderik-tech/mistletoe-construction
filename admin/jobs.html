@@ -74,6 +74,7 @@
       <button class="btn btn-outline btn-sm" data-filter="done" type="button">Done</button>
     </div>
 
+    <div id="job-bar"></div>
     <div class="panel">
       <div class="panel-body flush tbl-scroll">
         <table class="tbl">
@@ -166,10 +167,29 @@ MC.ready.then(function () {
     rows.innerHTML = slice.length ? slice.map(jobRow).join("")
       : "<tr><td colspan='6' style='color:var(--ink-soft)'>No jobs in this view.</td></tr>";
   } });
+  var jobBar = MCUI.listBar(document.getElementById("job-bar"), {
+    placeholder: "Search job title or customer…",
+    sorts: [
+      { value: "soonest", label: "Start: soonest" },
+      { value: "latest", label: "Start: latest" },
+      { value: "value-high", label: "Value: high → low" },
+      { value: "value-low", label: "Value: low → high" },
+      { value: "title", label: "Title A–Z" }
+    ],
+    onChange: function () { pager.first(); render(); }
+  });
   function render() {
     renderStats();
-    var jobs = MC.list("jobs").filter(function (j) { return filter === "all" || j.status === filter; });
-    jobs.sort(function (a, b) { return (a.start || "").localeCompare(b.start || ""); });
+    var jobs = MC.list("jobs").filter(function (j) { return filter === "all" || j.status === filter; })
+      .map(function (j) { var o = Object.assign({}, j); o._cust = MC.customerName(j.customerId); return o; });
+    jobs = MCUI.filterSort(jobs, jobBar, {
+      keys: ["title", "_cust", "note"],
+      sorts: {
+        soonest: MCUI.cmp.dateAsc("start"), latest: MCUI.cmp.dateDesc("start"),
+        "value-high": MCUI.cmp.numDesc("value"), "value-low": MCUI.cmp.numAsc("value"),
+        title: MCUI.cmp.textAsc("title")
+      }
+    });
     pager.set(jobs);
   }
   render();

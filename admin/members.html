@@ -66,6 +66,7 @@
       </div>
     </div>
 
+    <div id="mem-bar"></div>
     <div class="panel">
       <div class="panel-body flush tbl-scroll">
         <table class="tbl">
@@ -145,6 +146,15 @@ MC.ready.then(function () {
     rows.innerHTML = slice.length ? slice.map(memberRow).join("")
       : "<tr><td colspan='5' style='color:var(--ink-soft)'>No members yet.</td></tr>";
   } });
+  var memBar = MCUI.listBar(document.getElementById("mem-bar"), {
+    placeholder: "Search member name, city…",
+    sorts: [
+      { value: "name", label: "Name A–Z" },
+      { value: "name-desc", label: "Name Z–A" },
+      { value: "city", label: "City A–Z" }
+    ],
+    onChange: function () { pager.first(); render(); }
+  });
   function render() {
     var today = todayISO();
     var members = MC.list("customers").filter(function (c) { return c.member; });
@@ -159,6 +169,10 @@ MC.ready.then(function () {
 
     /* Roster (paginated) */
     _visits = visits; _today = today;
+    members = MCUI.filterSort(members, memBar, {
+      keys: ["name", "city", "address", "phone", "email"],
+      sorts: { name: MCUI.cmp.textAsc("name"), "name-desc": MCUI.cmp.textDesc("name"), city: MCUI.cmp.textAsc("city") }
+    });
     pager.set(members);
 
     /* Upcoming visits panel */

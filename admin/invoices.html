@@ -56,6 +56,7 @@
       <div class="stat"><div class="stat-label">Total collected</div><div class="stat-num" id="st-total">$0</div><div class="stat-sub">All-time paid</div></div>
     </div>
 
+    <div id="inv-bar"></div>
     <div class="panel">
       <div class="panel-head">
         <h2>Invoices</h2>
@@ -174,13 +175,29 @@ MC.ready.then(function () {
   var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
     rows.innerHTML = slice.length ? slice.map(docRow).join("") : "<tr><td colspan='5'><span class='t-sub'>No invoices yet.</span></td></tr>";
   } });
+  var invBar = MCUI.listBar(document.getElementById("inv-bar"), {
+    placeholder: "Search invoice or customer…",
+    sorts: [
+      { value: "newest", label: "Newest first" },
+      { value: "oldest", label: "Oldest first" },
+      { value: "amount-high", label: "Amount: high → low" },
+      { value: "amount-low", label: "Amount: low → high" }
+    ],
+    onChange: function () { pager.first(); renderTable(); }
+  });
   function renderTable() {
     var docs = allInvoices().filter(function (d) {
       if (filter === "unpaid") return d.status !== "paid";
       if (filter === "paid") return d.status === "paid";
       return true;
+    }).map(function (d) { var o = Object.assign({}, d); o._cust = MC.customerName(d.customerId); return o; });
+    docs = MCUI.filterSort(docs, invBar, {
+      keys: ["label", "_cust"],
+      sorts: {
+        newest: MCUI.cmp.dateDesc("date"), oldest: MCUI.cmp.dateAsc("date"),
+        "amount-high": MCUI.cmp.numDesc("amount"), "amount-low": MCUI.cmp.numAsc("amount")
+      }
     });
-    docs.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
     pager.set(docs);
   }
   function render() { renderStats(); renderTable(); }

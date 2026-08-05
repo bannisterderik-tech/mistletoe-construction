@@ -56,6 +56,7 @@
       <div class="stat"><div class="stat-label">Drafts</div><div class="stat-num" id="st-drafts">0</div><div class="stat-sub">Not yet sent</div></div>
     </div>
 
+    <div id="money-bar"></div>
     <div class="panel">
       <div class="panel-head">
         <h2>Documents</h2>
@@ -184,14 +185,30 @@ MC.ready.then(function () {
   var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
     rows.innerHTML = slice.length ? slice.map(docRow).join("") : "<tr><td colspan='6'><span class='t-sub'>Nothing here yet.</span></td></tr>";
   } });
+  var moneyBar = MCUI.listBar(document.getElementById("money-bar"), {
+    placeholder: "Search document or customer…",
+    sorts: [
+      { value: "newest", label: "Newest first" },
+      { value: "oldest", label: "Oldest first" },
+      { value: "amount-high", label: "Amount: high → low" },
+      { value: "amount-low", label: "Amount: low → high" }
+    ],
+    onChange: function () { pager.first(); renderTable(); }
+  });
   function renderTable() {
     var docs = allDocs().filter(function (d) {
       if (filter === "estimates") return d.kind === "estimate";
       if (filter === "invoices") return d.kind === "invoice";
       if (filter === "unpaid") return d.kind === "invoice" && d.status !== "paid";
       return true;
+    }).map(function (d) { var o = Object.assign({}, d); o._cust = MC.customerName(d.customerId); return o; });
+    docs = MCUI.filterSort(docs, moneyBar, {
+      keys: ["label", "_cust"],
+      sorts: {
+        newest: MCUI.cmp.dateDesc("date"), oldest: MCUI.cmp.dateAsc("date"),
+        "amount-high": MCUI.cmp.numDesc("amount"), "amount-low": MCUI.cmp.numAsc("amount")
+      }
     });
-    docs.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
     pager.set(docs);
   }
 

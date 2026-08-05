@@ -66,6 +66,7 @@
       <button class="btn-icon" id="share-dismiss" type="button" aria-label="Dismiss">×</button>
     </div>
 
+    <div id="prop-bar"></div>
     <div class="panel">
       <div class="panel-head">
         <h2>Proposals</h2>
@@ -287,9 +288,26 @@ MC.ready.then(function () {
     rows.innerHTML = slice.length ? slice.map(propRow).join("")
       : "<tr><td colspan='5'><span class='t-sub'>No proposals yet. Build one with “+ New Proposal”.</span></td></tr>";
   } });
+  var propBar = MCUI.listBar(document.getElementById("prop-bar"), {
+    placeholder: "Search title or customer…",
+    sorts: [
+      { value: "newest", label: "Newest first" },
+      { value: "oldest", label: "Oldest first" },
+      { value: "amount-high", label: "Amount: high → low" },
+      { value: "amount-low", label: "Amount: low → high" },
+      { value: "title", label: "Title A–Z" }
+    ],
+    onChange: function () { pager.first(); renderTable(); }
+  });
   function renderTable() {
-    var props = MC.list("proposals").sort(function (a, b) {
-      return String(a.id) < String(b.id) ? 1 : String(a.id) > String(b.id) ? -1 : 0;
+    var props = MC.list("proposals").map(function (p) { var o = Object.assign({}, p); o._cust = MC.customerName(p.customerId); return o; });
+    props = MCUI.filterSort(props, propBar, {
+      keys: ["title", "_cust"],
+      sorts: {
+        newest: MCUI.cmp.dateDesc("created"), oldest: MCUI.cmp.dateAsc("created"),
+        "amount-high": MCUI.cmp.numDesc("amount"), "amount-low": MCUI.cmp.numAsc("amount"),
+        title: MCUI.cmp.textAsc("title")
+      }
     });
     pager.set(props);
   }

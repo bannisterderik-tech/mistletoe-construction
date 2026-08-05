@@ -49,8 +49,15 @@
       <button class="btn btn-primary btn-sm" id="add-customer">+ New Customer</button>
     </div>
 
-    <div style="margin-bottom:1rem; max-width:24rem">
-      <input id="search" type="search" placeholder="Search name, city, or address…" aria-label="Search customers">
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
+      <input id="search" type="search" placeholder="Search name, city, address, phone, email…" aria-label="Search customers" style="flex:1;min-width:220px">
+      <label class="t-sub" style="opacity:.7" for="cust-sort">Sort</label>
+      <select id="cust-sort">
+        <option value="name">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="city">City A–Z</option>
+        <option value="member">Members first</option>
+      </select>
     </div>
 
     <div class="panel">
@@ -169,16 +176,25 @@ MC.ready.then(function () {
     rows.innerHTML = slice.length ? slice.map(function (c) { return custRow(c, jobs); }).join("")
       : "<tr><td colspan='6' style='color:var(--ink-soft)'>No customers match.</td></tr>";
   } });
+  var custSort = document.getElementById("cust-sort");
   function render() {
     var q = search.value.trim().toLowerCase();
+    var mode = custSort.value;
     var customers = MC.list("customers").filter(function (c) {
       if (!q) return true;
-      return (c.name + " " + c.city + " " + c.address).toLowerCase().indexOf(q) !== -1;
+      return ((c.name || "") + " " + (c.city || "") + " " + (c.address || "") + " " + (c.phone || "") + " " + (c.email || "")).toLowerCase().indexOf(q) !== -1;
+    });
+    customers.sort(function (a, b) {
+      if (mode === "name-desc") return String(b.name || "").localeCompare(String(a.name || ""));
+      if (mode === "city") return String(a.city || "").localeCompare(String(b.city || ""));
+      if (mode === "member") return (b.member ? 1 : 0) - (a.member ? 1 : 0) || String(a.name || "").localeCompare(String(b.name || ""));
+      return String(a.name || "").localeCompare(String(b.name || ""));
     });
     pager.set(customers);
   }
   render();
   search.addEventListener("input", function () { pager.first(); render(); });
+  custSort.addEventListener("change", function () { pager.first(); render(); });
 
   /* ---------- Click-through profile panel (MCUI) ---------- */
   var payLink = function (rec) {

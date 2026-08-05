@@ -59,6 +59,7 @@
     <div class="panel">
       <div class="panel-head" style="gap:0.8rem">
         <input id="q" placeholder="Search name, brokerage, city…" style="max-width:22rem">
+        <select id="p-sort"><option value="name">Name A–Z</option><option value="name-desc">Name Z–A</option><option value="brokerage">Brokerage A–Z</option><option value="city">City A–Z</option></select>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
           <button class="btn-icon f-btn" data-f="all">All</button>
           <button class="btn-icon f-btn" data-f="email">Has Email</button>
@@ -169,8 +170,16 @@ MC.ready.then(function () {
       if (q && (p.name + " " + p.brokerage + " " + p.city).toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
+    var mode = (document.getElementById("p-sort") || {}).value || "name";
+    filtered.sort(function (a, b) {
+      if (mode === "name-desc") return String(b.name || "").localeCompare(String(a.name || ""));
+      if (mode === "brokerage") return String(a.brokerage || "").localeCompare(String(b.brokerage || ""));
+      if (mode === "city") return String(a.city || "").localeCompare(String(b.city || ""));
+      return String(a.name || "").localeCompare(String(b.name || ""));
+    });
     pager.set(filtered);
   }
+  document.getElementById("p-sort").addEventListener("change", function () { pager.first(); render(); });
   tb.addEventListener("change", function (e) {
     var n = e.target.getAttribute("data-name");
     if (!n) return;
