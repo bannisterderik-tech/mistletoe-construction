@@ -49,6 +49,17 @@
       <button class="btn btn-primary btn-sm" id="add-lead">+ New Lead</button>
     </div>
 
+    <div class="lead-controls" style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
+      <input id="lead-search" type="search" placeholder="Search name, city, phone, email…" aria-label="Search leads" style="flex:1;min-width:200px">
+      <label class="t-sub" for="lead-sort">Sort</label>
+      <select id="lead-sort">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="name">Name A–Z</option>
+      </select>
+      <select id="lead-owner"><option value="">All owners</option></select>
+      <select id="lead-service"><option value="">All services</option></select>
+    </div>
     <div class="kanban" id="board"></div>
   </main>
 </div>
@@ -114,14 +125,45 @@ MC.ready.then(function () {
     }).join("");
   }
 
+  var searchEl = document.getElementById("lead-search");
+  var sortEl = document.getElementById("lead-sort");
+  var ownerEl = document.getElementById("lead-owner");
+  var serviceEl = document.getElementById("lead-service");
+  function fillControls() {
+    ownerEl.innerHTML = "<option value=''>All owners</option>" + MC.teamMembers().map(function (m) {
+      return "<option value='" + m.id + "'" + (ownerEl.value === String(m.id) ? " selected" : "") + ">" + m.name + "</option>";
+    }).join("");
+    var svcs = {}; MC.list("leads").forEach(function (l) { if (l.service) svcs[l.service] = 1; });
+    var cur = serviceEl.value;
+    serviceEl.innerHTML = "<option value=''>All services</option>" + Object.keys(svcs).sort().map(function (s) {
+      return "<option value='" + s + "'" + (cur === s ? " selected" : "") + ">" + s + "</option>";
+    }).join("");
+  }
+  function leadMatches(l) {
+    var q = (searchEl.value || "").trim().toLowerCase();
+    if (q) { var hay = [l.name, l.city, l.phone, l.email, l.service, l.note].join(" ").toLowerCase(); if (hay.indexOf(q) === -1) return false; }
+    if (ownerEl.value && String(l.assigned_to || "") !== ownerEl.value) return false;
+    if (serviceEl.value && l.service !== serviceEl.value) return false;
+    return true;
+  }
+  function sortLeads(items) {
+    var mode = sortEl.value;
+    return items.sort(function (a, b) {
+      if (mode === "name") return String(a.name || "").localeCompare(String(b.name || ""));
+      var da = String(a.created || ""), db = String(b.created || "");
+      return mode === "oldest" ? (da < db ? -1 : da > db ? 1 : 0) : (da < db ? 1 : da > db ? -1 : 0);
+    });
+  }
+
   function render() {
     board.innerHTML = "";
-    var leads = MC.list("leads");
+    fillControls();
+    var leads = MC.list("leads").filter(leadMatches);
     STAGES.forEach(function (s) {
       var stage = s[0], label = s[1];
       var col = document.createElement("div");
       col.className = "kcol"; col.dataset.stage = stage;
-      var items = leads.filter(function (l) { return (MC.leadStageFor ? MC.leadStageFor(l) : normStage(l.stage)) === stage; });
+      var items = sortLeads(leads.filter(function (l) { return (MC.leadStageFor ? MC.leadStageFor(l) : normStage(l.stage)) === stage; }));
       col.innerHTML = "<div class='kcol-head'><span>" + label + "</span><span class='count'>" + items.length + "</span></div>";
       items.forEach(function (l) {
         var card = document.createElement("div");
@@ -139,6 +181,8 @@ MC.ready.then(function () {
     });
   }
   render();
+  searchEl.addEventListener("input", render);
+  [sortEl, ownerEl, serviceEl].forEach(function (el) { el.addEventListener("change", render); });
 
   /* Drag & drop */
   var draggedId = null;
@@ -188,17 +232,27 @@ MC.ready.then(function () {
 
     var assignSel = "<select id='lead-assign' class='assign-select'>" + teamOptions(lead.assigned_to) + "</select>";
 
+    var linked = (MC.list("proposals") || []).filter(function (p) { return MC.proposalLinkedToLead && MC.proposalLinkedToLead(p, lead); });
+    var propHTML = linked.length ? linked.map(function (p) {
+      var m = MC.dealMilestone ? MC.dealMilestone(p) : { label: p.status || "—" };
+      return "<div style='display:flex;justify-content:space-between;gap:.6rem;padding:.4rem 0;border-bottom:1px solid rgba(28,36,29,.08)'>" +
+        "<a href='" + location.origin + "/proposal.html?t=" + p.token + "&admin=1' target='_blank' rel='noopener' class='t-strong'>" + MCUI.esc(p.title || "Proposal") + " ↗</a>" +
+        "<span class='t-sub' style='white-space:nowrap'>" + MC.money(p.amount) + " · " + MCUI.esc(m.label) + "</span></div>";
+    }).join("") : "<span class='t-sub'>No proposal linked yet. Use “Create proposal →” below, or open a proposal and “Link lead”.</span>";
+    var derived = MC.leadStageFor ? MC.leadStageFor(lead) : normStage(lead.stage);
+
     var bodyHTML =
       MCUI.section("Details", MCUI.kv([
         ["Phone", lead.phone ? "<a href='tel:" + MCUI.esc(lead.phone) + "'>" + MCUI.esc(lead.phone) + "</a>" : "", "raw"],
         ["Email", lead.email ? "<a href='mailto:" + MCUI.esc(lead.email) + "'>" + MCUI.esc(lead.email) + "</a>" : "", "raw"],
         ["City", lead.city],
         ["Service", lead.service],
-        ["Stage", stageLabel(lead.stage)],
+        ["Stage", stageLabel(derived) + (derived !== normStage(lead.stage) ? " <span class='t-sub'>(from proposal)</span>" : ""), "raw"],
         ["Assigned to", MC.memberName(lead.assigned_to)],
         ["Created", MC.fmtDate(lead.created)],
         ["Note", lead.note]
       ])) +
+      MCUI.section("Proposals", propHTML) +
       MCUI.section("Move stage", "<div>" + stageBtns + "</div>") +
       MCUI.section("Assigned to", assignSel);
 

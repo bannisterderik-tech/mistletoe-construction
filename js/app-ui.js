@@ -111,6 +111,47 @@
     toastEl._t = setTimeout(function () { toastEl.classList.remove("show"); }, 2600);
   }
 
-  var api = { open: open, close: close, setBody: setBody, kv: kv, section: section, list: list, toast: toast, esc: esc, drawer: drawer };
+  /* ---------- reusable list toolbar (search + sort) ---------- */
+  function listBar(mountEl, opts) {
+    opts = opts || {};
+    var sorts = opts.sorts || [];
+    mountEl.style.display = "flex"; mountEl.style.gap = ".6rem"; mountEl.style.flexWrap = "wrap";
+    mountEl.style.alignItems = "center"; mountEl.style.marginBottom = "1rem";
+    mountEl.innerHTML =
+      "<input type='search' class='mcbar-q' placeholder='" + esc(opts.placeholder || "Search…") + "' aria-label='Search' style='flex:1;min-width:180px'>" +
+      (sorts.length ? "<label class='t-sub' style='opacity:.7'>Sort</label><select class='mcbar-sort'>" +
+        sorts.map(function (s) { return "<option value='" + esc(s.value) + "'>" + esc(s.label) + "</option>"; }).join("") + "</select>" : "") +
+      (opts.extraHTML || "");
+    var q = mountEl.querySelector(".mcbar-q"), sortSel = mountEl.querySelector(".mcbar-sort");
+    var state = { q: "", sort: sorts[0] && sorts[0].value };
+    function emit() { state.q = q.value.trim(); if (sortSel) state.sort = sortSel.value; opts.onChange && opts.onChange(state); }
+    q.addEventListener("input", emit);
+    if (sortSel) sortSel.addEventListener("change", emit);
+    state.mount = mountEl;
+    return state;
+  }
+  // Apply a listBar state to an array. cfg = { keys:[...], sorts:{ value: comparatorFn } }
+  function filterSort(arr, state, cfg) {
+    cfg = cfg || {};
+    var out = arr;
+    if (state && state.q && cfg.keys) {
+      var ql = state.q.toLowerCase();
+      out = out.filter(function (x) { return cfg.keys.map(function (k) { return x[k] == null ? "" : x[k]; }).join(" ").toLowerCase().indexOf(ql) > -1; });
+    }
+    var cmp = cfg.sorts && state && cfg.sorts[state.sort];
+    if (cmp) out = out.slice().sort(cmp);
+    return out;
+  }
+  // Common comparators
+  var cmp = {
+    textAsc: function (k) { return function (a, b) { return String(a[k] || "").localeCompare(String(b[k] || "")); }; },
+    textDesc: function (k) { return function (a, b) { return String(b[k] || "").localeCompare(String(a[k] || "")); }; },
+    numAsc: function (k) { return function (a, b) { return (Number(a[k]) || 0) - (Number(b[k]) || 0); }; },
+    numDesc: function (k) { return function (a, b) { return (Number(b[k]) || 0) - (Number(a[k]) || 0); }; },
+    dateDesc: function (k) { return function (a, b) { var x = String(a[k] || ""), y = String(b[k] || ""); return x < y ? 1 : x > y ? -1 : 0; }; },
+    dateAsc: function (k) { return function (a, b) { var x = String(a[k] || ""), y = String(b[k] || ""); return x < y ? -1 : x > y ? 1 : 0; }; }
+  };
+
+  var api = { open: open, close: close, setBody: setBody, kv: kv, section: section, list: list, toast: toast, esc: esc, drawer: drawer, listBar: listBar, filterSort: filterSort, cmp: cmp };
   window.MCUI = api;
 })();

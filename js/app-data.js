@@ -328,14 +328,21 @@
   // Derived kanban stage for a lead: max-rank of its manual stage and the furthest
   // milestone across its (non-dead) linked proposals. Manual only ever wins upward.
   MC.leadStageFor = function (lead) {
-    var manual = lead.stage === "quoted" ? "proposal_created" : (lead.stage || "new");
-    var best = manual;
+    var raw = lead.stage === "quoted" ? "proposal_created" : (lead.stage || "new");
+    // Furthest milestone across this lead's actual linked proposals (null if none).
+    var proposalStage = null;
     MC.list("proposals").forEach(function (p) {
       if (!MC.proposalLinkedToLead(p, lead)) return;
       var m = MC.dealMilestone(p);
       if (!m.stage) return; // dead/void proposal doesn't advance the lead
-      if (leadRank(m.stage) > leadRank(best)) best = m.stage;
+      if (!proposalStage || leadRank(m.stage) > leadRank(proposalStage)) proposalStage = m.stage;
     });
+    // A manual "proposal_*" stage with NO backing proposal is stale (from the old
+    // auto-advance) — demote it so a lead never sits in a proposal column empty-handed.
+    var manual = raw;
+    if ((manual === "proposal_created" || manual === "proposal_sent") && !proposalStage) manual = "contacted";
+    var best = manual;
+    if (proposalStage && leadRank(proposalStage) > leadRank(best)) best = proposalStage;
     return best;
   };
 })();
