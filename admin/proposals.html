@@ -378,15 +378,68 @@ MC.ready.then(function () {
       if (p[f]) steps += "<div style='padding:.45rem 0;color:#c0392b'><strong>" + f.replace("_at", "").replace(/^./, function (c) { return c.toUpperCase(); }) + "</strong> · " + fmtDT(p[f]) + "</div>";
     });
 
+    var dOnly = function (v) { return v ? String(v).slice(0, 10) : ""; };
+    var fld = function (lab, id, type, val) {
+      return "<div><label for='" + id + "' style='display:block;font-size:.82rem;font-weight:700;margin-bottom:.15rem'>" + lab + "</label>" +
+        "<input id='" + id + "' type='" + type + "'" + (type === "number" ? " min='1' max='100' step='1'" : "") + " value='" + MCUI.esc(val == null ? "" : val) + "' style='width:100%'></div>";
+    };
+    var sched = "<div style='display:grid;grid-template-columns:1fr 1fr;gap:.5rem'>" +
+      fld("Deposit %", "tl-deppct", "number", (p.deposit_pct == null ? 100 : p.deposit_pct)) +
+      fld("2nd payment due", "tl-due", "date", dOnly(p.second_payment_due_at)) +
+      fld("Project start", "tl-pstart", "date", dOnly(p.project_start_at)) +
+      fld("Project end", "tl-pend", "date", dOnly(p.project_end_at)) +
+      "</div>" +
+      "<label style='display:flex;gap:.5rem;align-items:center;margin-top:.55rem;font-weight:700'><input type='checkbox' id='tl-auto' style='width:auto'" + (p.auto_final_enabled ? " checked" : "") + "> Auto-create &amp; send the balance invoice on the due date</label>" +
+      "<label style='display:flex;gap:.5rem;align-items:center;margin-top:.3rem'><input type='checkbox' id='tl-hold' style='width:auto'" + (p.final_hold ? " checked" : "") + "> Hold — pause auto-send</label>" +
+      "<p class='t-sub' style='margin:.4rem 0 0'>Deposit % under 100 splits billing: the deposit is invoiced on acceptance, the balance on the due date (you're emailed a few days before it fires).</p>" +
+      "<button class='btn btn-primary btn-sm' id='tl-save' style='margin-top:.6rem'>Save billing &amp; schedule</button>";
+
     var body = MCUI.section("Details", MCUI.kv(pairs)) +
-      MCUI.section("Timeline", steps || "<span class='t-sub'>No events yet.</span>");
+      MCUI.section("Timeline", steps || "<span class='t-sub'>No events yet.</span>") +
+      MCUI.section("Billing &amp; schedule", sched);
 
     var actions = [
       { label: "Open proposal ↗", kind: "outline", onClick: function () { window.open(shareUrl(p) + "&admin=1", "_blank"); } },
       { label: "Agreement ↗", kind: "outline", onClick: function () { window.open(location.origin + "/contract.html?t=" + p.token + "&admin=1", "_blank"); } }
     ];
-    if (!p.lead_id) actions.push({ label: "Link to lead →", kind: "primary", onClick: function () { openLinkLead(p); } });
-    MCUI.open({ eyebrow: "Deal timeline", title: p.title, subtitle: MC.customerName(p.customerId), bodyHTML: body, actions: actions });
+    if (!p.job_completed_at && (p.deposit_paid_at || p.status === "invoiced" || p.status === "paid")) {
+      actions.push({ label: "Mark job complete", kind: "outline", onClick: function () {
+        MC.update("proposals", p.id, { job_completed_at: new Date().toISOString() }); render(); MCUI.toast("Marked job complete ✓"); openTimeline(MC.get("proposals", p.id));
+      } });
+    }
+    if (p.deposit_paid_at && !p.final_invoiced_at) {
+      actions.push({ label: "Send balance invoice now", kind: "primary", onClick: function (api) {
+        if (!confirm("Create and email the balance invoice to this customer now?")) return;
+        fetch("/api/create-final-invoice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: p.token }) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (!res.ok) throw new Error((res.d && res.d.error) || "Failed");
+            MC.update("proposals", p.id, { final_invoiced_at: new Date().toISOString() });
+            render(); MCUI.toast("Balance invoice sent ✓"); openTimeline(MC.get("proposals", p.id));
+          }).catch(function (e) { alert("Couldn't send the balance invoice:\n" + e.message); });
+      } });
+    }
+    if (!p.lead_id) actions.push({ label: "Link to lead →", kind: "outline", onClick: function () { openLinkLead(p); } });
+
+    MCUI.open({
+      eyebrow: "Deal timeline", title: p.title, subtitle: MC.customerName(p.customerId), bodyHTML: body, actions: actions,
+      onBody: function (el) {
+        var sv = el.querySelector("#tl-save");
+        if (sv) sv.addEventListener("click", function () {
+          var g = function (id) { var e = el.querySelector("#" + id); return e ? e.value : ""; };
+          var dp = Math.min(100, Math.max(1, Number(g("tl-deppct")) || 100));
+          MC.update("proposals", p.id, {
+            deposit_pct: dp,
+            second_payment_due_at: g("tl-due") || null,
+            project_start_at: g("tl-pstart") || null,
+            project_end_at: g("tl-pend") || null,
+            auto_final_enabled: !!el.querySelector("#tl-auto").checked,
+            final_hold: !!el.querySelector("#tl-hold").checked
+          });
+          render(); MCUI.toast("Saved ✓"); openTimeline(MC.get("proposals", p.id));
+        });
+      }
+    });
   }
 
   /* ---------- link a proposal to a lead (for backfill NULLs) ---------- */

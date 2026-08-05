@@ -39,8 +39,18 @@ module.exports = async (req, res) => {
     if (event.type === "invoice.paid") {
       // A Stripe invoice got paid → flip the matching proposal AND/OR CRM invoice to paid.
       const inv = event.data.object;
-      const proposalId = inv.metadata && inv.metadata.proposalId;
-      if (proposalId) await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), { status: "paid" });
+      const md = inv.metadata || {};
+      const proposalId = md.proposalId;
+      const nowIso = new Date().toISOString();
+      if (proposalId) {
+        // Split-aware: deposit payment doesn't mark the whole deal paid; final/full does.
+        let patch;
+        if (md.kind === "deposit") patch = { deposit_paid_at: nowIso };
+        else if (md.kind === "final") patch = { final_paid_at: nowIso, status: "paid" };
+        else patch = { deposit_paid_at: nowIso, final_paid_at: nowIso, status: "paid" }; // 'full' / legacy
+        try { await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), patch); }
+        catch (e) { await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), { status: (md.kind === "deposit" ? "invoiced" : "paid") }); }
+      }
       // Admin/sales invoices are recorded in the CRM with stripe_invoice_id.
       if (inv.id) await sbPatch("invoices", "stripe_invoice_id=eq." + encodeURIComponent(inv.id), { status: "paid" });
       await notifyTeam("💰 Invoice paid — " + money(inv.amount_paid),

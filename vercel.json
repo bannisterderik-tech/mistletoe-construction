@@ -9,6 +9,7 @@
     { "source": "/images/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=86400" }] }
   ],
   "crons": [
-    { "path": "/api/campaign-tick?token=mc-cron-9f27a1b4", "schedule": "0 16 * * *" }
+    { "path": "/api/campaign-tick?token=mc-cron-9f27a1b4", "schedule": "0 16 * * *" },
+    { "path": "/api/final-invoice-cron?token=mc-cron-9f27a1b4", "schedule": "0 17 * * *" }
   ]
 }

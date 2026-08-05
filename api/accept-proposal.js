@@ -38,17 +38,39 @@ module.exports = async (req, res) => {
     const customer = found.data[0] || await stripe.customers.create({ email: email, name: name });
 
     // Ad-hoc invoice items (amount + description) — no throwaway Products/Prices.
+    // If deposit_pct < 100 this invoice is only the DEPOSIT; the balance is invoiced
+    // later (admin button or scheduled cron). deposit_pct = 100 = full invoice (default).
     const items = Array.isArray(p.items) ? p.items : [];
-    let any = false, n = 0;
-    for (const it of items) {
-      const qty = Math.max(1, parseInt(it.qty || 1, 10));
-      const unitCents = Math.round(Number(it.unit || 0) * 100);
-      if (!(unitCents > 0)) continue;
-      await stripe.invoiceItems.create({
-        customer: customer.id, currency: "usd", amount: unitCents * qty,
-        description: (qty > 1 ? qty + " × " : "") + String(it.desc || "Roofing / construction service").slice(0, 250)
-      }, { idempotencyKey: "prop-" + p.id + "-li-" + (n++) });
-      any = true;
+    const totalCents = items.reduce(function (s, it) {
+      const u = Math.round(Number(it.unit || 0) * 100), q = Math.max(1, parseInt(it.qty || 1, 10));
+      return s + (u > 0 ? u * q : 0);
+    }, 0);
+    const depositPct = Math.min(100, Math.max(1, Number(p.deposit_pct) || 100));
+    const isSplit = depositPct < 100;
+    const invKind = isSplit ? "deposit" : "full";
+
+    let any = false;
+    if (isSplit) {
+      const depCents = Math.round(totalCents * depositPct / 100);
+      if (depCents > 0) {
+        await stripe.invoiceItems.create({
+          customer: customer.id, currency: "usd", amount: depCents,
+          description: depositPct + "% deposit — " + String(p.title || "project").slice(0, 240)
+        }, { idempotencyKey: "prop-" + p.id + "-dep-" + depCents });
+        any = true;
+      }
+    } else {
+      let n = 0;
+      for (const it of items) {
+        const qty = Math.max(1, parseInt(it.qty || 1, 10));
+        const unitCents = Math.round(Number(it.unit || 0) * 100);
+        if (!(unitCents > 0)) continue;
+        await stripe.invoiceItems.create({
+          customer: customer.id, currency: "usd", amount: unitCents * qty,
+          description: (qty > 1 ? qty + " × " : "") + String(it.desc || "Roofing / construction service").slice(0, 250)
+        }, { idempotencyKey: "prop-" + p.id + "-li-" + (n++) });
+        any = true;
+      }
     }
     if (!any) { res.status(400).json({ error: "Proposal has no billable items." }); return; }
 
@@ -59,9 +81,9 @@ module.exports = async (req, res) => {
       days_until_due: 14,
       auto_advance: true,
       pending_invoice_items_behavior: "include",
-      description: p.title,
-      metadata: { proposalId: p.id }
-    }, { idempotencyKey: "prop-" + p.id + "-inv" });
+      description: (isSplit ? "Deposit — " : "") + p.title,
+      metadata: { proposalId: p.id, kind: invKind }
+    }, { idempotencyKey: "prop-" + p.id + "-inv-" + invKind });
     const finalized = await stripe.invoices.finalizeInvoice(invoice.id);
     await stripe.invoices.sendInvoice(invoice.id);
 
