@@ -36,22 +36,24 @@ module.exports = async (req, res) => {
       const ex = await sbGet("customers?email=eq." + encodeURIComponent(email) + "&select=id&limit=1");
       if (ex && ex[0]) customerId = ex[0].id;
     }
+    const chk = async (label, r) => { if (r && r.ok === false) { const t = await r.text(); throw new Error(label + ": " + t.slice(0, 300)); } };
+
     if (!customerId) {
       customerId = genId("c");
-      await sbInsert("customers", { id: customerId, name: name, phone: phone, email: email,
-        city: String(est.city || "").trim(), address: address, member: false, notes: "From the instant roof estimate." });
+      await chk("customer", await sbInsert("customers", { id: customerId, name: name, phone: phone, email: email,
+        city: String(est.city || "").trim(), address: address, member: false, notes: "From the instant roof estimate." }));
     }
 
     // 1b) drop a lead into the pipeline in the NEW stage
     const leadId = genId("l");
-    await sbInsert("leads", {
+    await chk("lead", await sbInsert("leads", {
       id: leadId,
       name: name, phone: phone, email: email, city: String(est.city || "").trim(),
       service: "Roof Replacement — instant estimate", stage: "new",
       note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
         (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : ""),
       created: today
-    });
+    }));
 
     // 2) draft proposal pre-filled from the estimate
     const mid = (est.costLow != null && est.costHigh != null) ? Math.round((est.costLow + est.costHigh) / 2) : 0;
@@ -66,11 +68,11 @@ module.exports = async (req, res) => {
       (est.custom ? " Steep pitch (9+/12) — needs a manual quote." : "") +
       (address ? " Property: " + address + "." : "") +
       " Review and adjust the line items before sending.";
-    await sbInsert("proposals", {
+    await chk("proposal", await sbInsert("proposals", {
       id: genId("p"), customerId: customerId, lead_id: leadId, title: "Roof replacement — instant estimate",
       items: [{ desc: desc, qty: 1, unit: mid }], amount: mid, status: "draft",
       token: token, note: note, created: today
-    });
+    }));
 
     // 3) notify the team
     await notifyTeam("🏠 Instant estimate → draft proposal ready",
