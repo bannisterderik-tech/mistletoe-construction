@@ -46,7 +46,10 @@
         <h1>Proposals</h1>
         <p class="sub">Build a quote → send it → the customer accepts online → it becomes a Stripe invoice that emails reminders until paid.</p>
       </div>
-      <button class="btn btn-primary btn-sm" id="add-proposal">+ New Proposal</button>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" id="resend-all">Resend all sent</button>
+        <button class="btn btn-primary btn-sm" id="add-proposal">+ New Proposal</button>
+      </div>
     </div>
 
     <div class="stat-row">
@@ -163,6 +166,28 @@ MC.ready.then(function () {
     if (STAGE_ORDER.indexOf(cur) < STAGE_ORDER.indexOf(target)) MC.update("leads", lead.id, { stage: target });
   }
 
+  /* Actually EMAIL the proposal to the customer (via /api/send-proposal), then mark it sent. */
+  function sendProposal(p, btn) {
+    var orig = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+    return fetch("/api/send-proposal", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: p.token })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error((res.d && res.d.error) || "Send failed");
+        MC.update("proposals", p.id, { status: "sent" });
+        advanceLead(p.customerId, "proposal_sent");
+        render();
+        window.MCUI && MCUI.toast("Proposal emailed to " + (res.d.email || "the customer") + " ✓");
+        return true;
+      }).catch(function (err) {
+        if (btn) { btn.disabled = false; btn.textContent = orig; }
+        alert("Couldn't send the proposal:\n" + err.message + "\n\nYou can still copy the link and send it manually.");
+        return false;
+      });
+  }
+
   var rows = document.getElementById("rows");
   var STATUS_BADGE = { draft: "gray", sent: "blue", accepted: "amber", invoiced: "blue", paid: "green", declined: "red" };
   var editingId = null;
@@ -214,6 +239,9 @@ MC.ready.then(function () {
       var actions = "";
       if (p.status === "draft") {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='send'>Send</button>";
+      } else if (p.status === "sent") {
+        actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='send'>Resend</button>";
+        actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='copy'>Copy Link</button>";
       } else {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='copy'>Copy Link</button>";
       }
@@ -260,13 +288,11 @@ MC.ready.then(function () {
     if (act === "send") {
       var cust = MC.get("customers", p.customerId);
       if (!cust || !String(cust.email || "").trim()) {
-        alert("This customer has no email on file.\n\nA quote is delivered by email, so it can't be marked sent yet. Open the customer under Customers → Edit details, add their email, then send.");
+        alert("This customer has no email on file.\n\nA proposal is delivered by email — open the customer under Customers → Edit details, add their email, then send.");
         return;
       }
-      MC.update("proposals", id, { status: "sent" });
-      advanceLead(p.customerId, "proposal_sent");
-      render();
-      showShare(p);
+      sendProposal(p, btn);
+      return;
     } else if (act === "copy") {
       navigator.clipboard.writeText(shareUrl(p)).then(function () {
         var orig = btn.textContent;
@@ -379,6 +405,29 @@ MC.ready.then(function () {
   }
 
   document.getElementById("add-proposal").addEventListener("click", openNewProposal);
+
+  /* Re-email every proposal currently marked "sent" (one at a time, gently). */
+  var resendAllBtn = document.getElementById("resend-all");
+  resendAllBtn.addEventListener("click", function () {
+    var sent = MC.list("proposals").filter(function (p) { return p.status === "sent"; });
+    if (!sent.length) { alert("No sent proposals to resend."); return; }
+    if (!confirm("Re-email the proposal link to all " + sent.length + " customer(s) with a sent proposal?")) return;
+    var i = 0, okc = 0, failc = 0, orig = resendAllBtn.textContent;
+    resendAllBtn.disabled = true;
+    (function next() {
+      if (i >= sent.length) {
+        resendAllBtn.disabled = false; resendAllBtn.textContent = orig;
+        alert("Done — emailed " + okc + " of " + sent.length + (failc ? " (" + failc + " failed)" : "") + ".");
+        render(); return;
+      }
+      var p = sent[i++];
+      resendAllBtn.textContent = "Sending " + i + "/" + sent.length + "…";
+      fetch("/api/send-proposal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: p.token }) })
+        .then(function (r) { if (r.ok) okc++; else failc++; })
+        .catch(function () { failc++; })
+        .then(function () { setTimeout(next, 400); });
+    })();
+  });
 
   document.getElementById("np-cancel").addEventListener("click", function () { editingId = null; modal.classList.remove("open"); });
 
