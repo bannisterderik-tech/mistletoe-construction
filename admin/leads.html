@@ -174,7 +174,7 @@ MC.ready.then(function () {
           "<div class='k-meta'>" + (l.phone || "") + (l.phone ? " · " : "") + l.city + "</div>" +
           (l.note ? "<div class='k-meta'>" + l.note + "</div>" : "") +
           (l.assigned_to ? "<div class='k-meta'>→ " + MC.memberName(l.assigned_to) + "</div>" : "") +
-          "<div class='k-tags'><span class='badge pine'>" + l.service + "</span><span class='badge gray'>" + MC.fmtDate(l.created) + "</span></div>";
+          "<div class='k-tags'><span class='badge pine' style='white-space:normal;max-width:100%;overflow-wrap:anywhere;text-align:left'>" + l.service + "</span><span class='badge gray'>" + MC.fmtDate(l.created) + "</span></div>";
         col.appendChild(card);
       });
       board.appendChild(col);
@@ -280,10 +280,15 @@ MC.ready.then(function () {
     if (((MC.auth.session() || {}).role) === "admin") {
       actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
         if (!window.confirm("Delete this lead? This can't be undone.")) return;
-        MC.remove("leads", lead.id);
-        (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
-        render();
-        window.MCUI && MCUI.toast("lead deleted");
+        // Unlink any proposals first so the DB foreign key can't block the delete.
+        var linked = MC.list("proposals").filter(function (p) { return String(p.lead_id) === String(lead.id); });
+        var waits = linked.map(function (p) { var o = MC.update("proposals", p.id, { lead_id: null }); return (o && o._saved) ? o._saved : Promise.resolve(); });
+        Promise.all(waits).then(function () {
+          MC.remove("leads", lead.id);
+          (api && api.close) ? api.close() : (window.MCUI && MCUI.close());
+          render();
+          window.MCUI && MCUI.toast("Lead deleted");
+        });
       } });
     }
 
