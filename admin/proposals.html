@@ -407,9 +407,14 @@ MC.ready.then(function () {
       fld("Project start", "tl-pstart", "date", dOnly(p.project_start_at)) +
       fld("Project end", "tl-pend", "date", dOnly(p.project_end_at)) +
       "</div>" +
-      "<label style='display:flex;gap:.5rem;align-items:center;margin-top:.55rem;font-weight:700'><input type='checkbox' id='tl-auto' style='width:auto'" + (p.auto_final_enabled ? " checked" : "") + "> Auto-create &amp; send the balance invoice on the due date</label>" +
+      "<label style='display:block;font-size:.82rem;font-weight:700;margin:.55rem 0 .15rem'>Balance invoice fires…</label>" +
+      "<select id='tl-trigger' style='width:100%'>" +
+        "<option value='date'" + (p.second_payment_due_at ? " selected" : "") + ">On the 2nd-payment due date above</option>" +
+        "<option value='complete'" + (!p.second_payment_due_at ? " selected" : "") + ">When I mark the job complete</option>" +
+      "</select>" +
+      "<label style='display:flex;gap:.5rem;align-items:center;margin-top:.55rem;font-weight:700'><input type='checkbox' id='tl-auto' style='width:auto'" + (p.auto_final_enabled ? " checked" : "") + "> Auto-create &amp; send the balance invoice (per the trigger above)</label>" +
       "<label style='display:flex;gap:.5rem;align-items:center;margin-top:.3rem'><input type='checkbox' id='tl-hold' style='width:auto'" + (p.final_hold ? " checked" : "") + "> Hold — pause auto-send</label>" +
-      "<p class='t-sub' style='margin:.4rem 0 0'>Deposit % under 100 splits billing: the deposit is invoiced on acceptance, the balance on the due date (you're emailed a few days before it fires).</p>" +
+      "<p class='t-sub' style='margin:.4rem 0 0'>Deposit % under 100 splits billing: the deposit is invoiced on acceptance; the balance fires per the trigger above. You're emailed a few days before a dated send, and reminded to mark the job complete when that's the trigger.</p>" +
       "<button class='btn btn-primary btn-sm' id='tl-save' style='margin-top:.6rem'>Save billing &amp; schedule</button>";
 
     var body = MCUI.section("Details", MCUI.kv(pairs)) +
@@ -422,7 +427,20 @@ MC.ready.then(function () {
     ];
     if (!p.job_completed_at && (p.deposit_paid_at || p.status === "invoiced" || p.status === "paid")) {
       actions.push({ label: "Mark job complete", kind: "outline", onClick: function () {
-        MC.update("proposals", p.id, { job_completed_at: new Date().toISOString() }); render(); MCUI.toast("Marked job complete ✓"); openTimeline(MC.get("proposals", p.id));
+        MC.update("proposals", p.id, { job_completed_at: new Date().toISOString() });
+        var jobTrigger = p.auto_final_enabled && !p.second_payment_due_at && p.deposit_paid_at && !p.final_invoiced_at;
+        if (jobTrigger) {
+          MCUI.toast("Job complete — sending balance…");
+          fetch("/api/create-final-invoice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: p.token }) })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+              if (res.ok) { MC.update("proposals", p.id, { final_invoiced_at: new Date().toISOString() }); MCUI.toast("Balance invoice sent ✓"); }
+              else { alert("Marked complete, but the balance invoice didn't send:\n" + ((res.d && res.d.error) || "unknown")); }
+              render(); openTimeline(MC.get("proposals", p.id));
+            }).catch(function () { render(); openTimeline(MC.get("proposals", p.id)); });
+        } else {
+          render(); MCUI.toast("Marked job complete ✓"); openTimeline(MC.get("proposals", p.id));
+        }
       } });
     }
     if (p.deposit_paid_at && !p.final_invoiced_at) {
@@ -446,9 +464,10 @@ MC.ready.then(function () {
         if (sv) sv.addEventListener("click", function () {
           var g = function (id) { var e = el.querySelector("#" + id); return e ? e.value : ""; };
           var dp = Math.min(100, Math.max(1, Number(g("tl-deppct")) || 100));
+          var trig = (el.querySelector("#tl-trigger") || {}).value;
           MC.update("proposals", p.id, {
             deposit_pct: dp,
-            second_payment_due_at: g("tl-due") || null,
+            second_payment_due_at: (trig === "complete" ? null : (g("tl-due") || null)),
             project_start_at: g("tl-pstart") || null,
             project_end_at: g("tl-pend") || null,
             auto_final_enabled: !!el.querySelector("#tl-auto").checked,
