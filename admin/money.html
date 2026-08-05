@@ -249,8 +249,8 @@ MC.ready.then(function () {
       } else if (d.token) {
         actions.push({ label: "Open proposal ↗", kind: "primary", onClick: function () { window.open(location.origin + "/proposal.html?t=" + d.token, "_blank"); } });
       }
-      actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html"; } });
-      actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+      actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html?timeline=" + encodeURIComponent(d.id); } });
+      actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html?id=" + encodeURIComponent(d.customerId || ""); } });
     } else {
       if (!isPaid) {
         actions.push({ label: "Mark paid", kind: "primary", onClick: function () {
@@ -263,7 +263,7 @@ MC.ready.then(function () {
       if (d.hosted_invoice_url) {
         actions.push({ label: "Open invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
       }
-      actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+      actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html?id=" + encodeURIComponent(d.customerId || ""); } });
       if (((MC.auth.session() || {}).role) === "admin") {
         var noun = (kindLabel(d.kind) || "record").toLowerCase();
         actions.push({ label: "Delete", kind: "outline", onClick: function (api) {

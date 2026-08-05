@@ -201,7 +201,7 @@ MC.ready.then(function () {
     ]);
     var actions = [
       { label: "View customer →", kind: "outline", onClick: function () {
-          location.href = "customers.html";
+          location.href = "customers.html?id=" + encodeURIComponent(v.customerId || "");
       } }
     ];
     if (((MC.auth.session() || {}).role) === "admin") {

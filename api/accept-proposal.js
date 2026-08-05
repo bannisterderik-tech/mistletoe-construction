@@ -111,6 +111,10 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ url: finalized.hosted_invoice_url });
   } catch (e) {
+    // A customer just signed but the invoice failed — the owner MUST know.
+    try { await notifyTeam("⚠️ Signed but invoice FAILED — action needed",
+      "<h2 style='color:#b00020'>A customer signed but their invoice did not send</h2><p>Token <code>" + token +
+      "</code>. Error: " + ((e && e.message) || "unknown") + ".</p><p>Create/send their invoice manually from the CRM → Proposals → Timeline.</p>"); } catch (_) {}
     res.status(500).json({ error: (e && e.message) || "Could not create invoice" });
   }
 };

@@ -327,8 +327,15 @@
         fetch("/api/accept-proposal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: token, email: email }) })
           .then(function (r) { return r.json(); }).then(function (a) {
             if (a && a.url) { msg.textContent = "Signed — taking you to secure payment…"; setTimeout(function () { window.location.href = a.url; }, 1400); }
-            else { msg.textContent = "Signed. We'll email your invoice shortly."; }
-          }).catch(function () { msg.textContent = "Signed. We'll email your invoice shortly."; });
+            else {
+              // Signed OK, but the invoice was NOT created. Never claim it's on the way.
+              btn.disabled = false; btn.textContent = "Retry invoice";
+              msg.innerHTML = "You're signed ✓ — but we hit a snag creating your invoice. Tap <strong>Retry invoice</strong>, or call/text <a href='tel:+15416705005'>(541) 670-5005</a> and we'll send it right over.";
+            }
+          }).catch(function () {
+            btn.disabled = false; btn.textContent = "Retry invoice";
+            msg.innerHTML = "You're signed ✓ — but we couldn't reach the payment server. Tap <strong>Retry invoice</strong> or call <a href='tel:+15416705005'>(541) 670-5005</a>.";
+          });
       }).catch(function () { btn.disabled = false; btn.textContent = "Sign & Continue to Invoice"; msg.textContent = "Couldn't reach the server. Call (541) 670-5005."; });
   });
 })();

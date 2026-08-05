@@ -244,7 +244,7 @@ MC.ready.then(function () {
 
     var actions = [
       { label: "View customer →", kind: "primary", onClick: function () {
-          location.href = "customers.html";
+          location.href = "customers.html?id=" + encodeURIComponent(j.customerId || "");
       } },
       { label: "Add visit note", kind: "outline", onClick: function () { openVisitForm(j); } }
     ];

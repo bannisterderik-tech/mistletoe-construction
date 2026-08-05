@@ -261,20 +261,25 @@ MC.ready.then(function () {
 
     var actions = [{
       label: "Create proposal →", kind: "primary", onClick: function () {
+        var goTo = function (cid) { location.href = "proposals.html?customer=" + encodeURIComponent(cid) + "&new=1&lead=" + encodeURIComponent(lead.id); };
+        // Reuse an existing customer (by email, else name) — never mint a duplicate on repeat clicks.
+        var lem = String(lead.email || "").trim().toLowerCase(), lnm = String(lead.name || "").trim().toLowerCase(), existing = null;
+        MC.list("customers").forEach(function (x) {
+          if (existing) return;
+          if (lem && String(x.email || "").trim().toLowerCase() === lem) existing = x;
+          else if (!lem && lnm && String(x.name || "").trim().toLowerCase() === lnm) existing = x;
+        });
+        if (existing) { goTo(existing.id); return; }
         var c = MC.add("customers", {
           name: lead.name, phone: lead.phone || "", city: lead.city || "", email: lead.email || "", address: "",
           assigned_to: lead.assigned_to || "",
           notes: "Converted from lead" + (lead.note ? ": " + lead.note : "")
         });
-        // Stage auto-advances to "Proposal Created" when the proposal is saved,
-        // then "Proposal Sent" when it's sent (see proposals.html advanceLead).
-        // Wait for the customer to actually persist before navigating — otherwise the
-        // Proposals page reloads and can't find the just-created customer (Supabase race).
-        var go = function () { location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1&lead=" + encodeURIComponent(lead.id); };
+        // Wait for the customer to persist before navigating (Supabase race).
         if (c && c._saved && typeof c._saved.then === "function") {
           window.MCUI && MCUI.toast("Setting up proposal…");
-          c._saved.then(go).catch(function () { alert("Couldn't create the customer record — check your connection and try again."); });
-        } else { go(); }
+          c._saved.then(function () { goTo(c.id); }).catch(function () { alert("Couldn't create the customer record — check your connection and try again."); });
+        } else { goTo(c.id); }
       }
     }];
     if (lead.phone) {

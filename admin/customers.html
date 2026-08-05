@@ -195,6 +195,8 @@ MC.ready.then(function () {
   render();
   search.addEventListener("input", function () { pager.first(); render(); });
   custSort.addEventListener("change", function () { pager.first(); render(); });
+  /* Deep-link: customers.html?id=<customerId> opens that profile (used by every "View customer →"). */
+  (function () { var qid = new URLSearchParams(location.search).get("id"); if (qid) { var c = MC.get("customers", qid); if (c) openProfile(c); } })();
 
   /* ---------- Click-through profile panel (MCUI) ---------- */
   var payLink = function (rec) {

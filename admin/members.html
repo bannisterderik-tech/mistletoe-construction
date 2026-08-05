@@ -224,7 +224,7 @@ MC.ready.then(function () {
       bodyHTML: body,
       actions: [
         { label: "Open full profile →", kind: "outline", onClick: function () {
-            location.href = "customers.html";
+            location.href = "customers.html?id=" + encodeURIComponent(c.id || "");
         } }
       ]
     });

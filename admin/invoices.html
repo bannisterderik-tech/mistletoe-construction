@@ -221,7 +221,7 @@ MC.ready.then(function () {
     var actions = [];
     if (d._src === "proposal") {
       if (d.hosted_invoice_url) actions.push({ label: "Open Stripe invoice ↗", kind: "primary", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
-      actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html"; } });
+      actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html?timeline=" + encodeURIComponent(d.id); } });
     } else {
       if (!isPaid) actions.push({ label: "Mark paid", kind: "primary", onClick: function () {
         MC.update("invoices", d.id, { status: "paid" }); render(); MCUI.toast("Marked paid ✓");
@@ -233,7 +233,7 @@ MC.ready.then(function () {
         render(); window.MCUI && MCUI.toast("Invoice deleted");
       } });
     }
-    actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html"; } });
+    actions.push({ label: "View customer →", kind: "outline", onClick: function () { location.href = "customers.html?id=" + encodeURIComponent(d.customerId || ""); } });
 
     MCUI.open({
       eyebrow: "Invoice" + (d._src === "proposal" ? " · from Proposal" : ""),

@@ -704,6 +704,8 @@ MC.ready.then(function () {
   /* ---------- deep links: ?edit=<proposalId> (open editor) or ?customer=<id>&new=1 ---------- */
   (function () {
     var params = new URLSearchParams(location.search);
+    var tId = params.get("timeline");
+    if (tId && MC.get("proposals", tId)) { openTimeline(MC.get("proposals", tId)); return; }
     var editId = params.get("edit");
     if (editId && MC.get("proposals", editId)) { openEditProposal(editId); return; }
     var customer = params.get("customer");
