@@ -193,12 +193,25 @@ MC.ready.then(function () {
     pager.set(jobs);
   }
   render();
+  /* Deep-link: jobs.html?id=<jobId> opens that job (from a proposal's "View job"). */
+  (function () { var qid = new URLSearchParams(location.search).get("id"); if (qid && MC.get("jobs", qid)) openJob(MC.get("jobs", qid)); })();
+
+  // Set a job's status; when it goes to "done", stamp the linked proposal's job_completed_at
+  // so the deal advances and the balance-invoice flow can fire.
+  function setJobStatus(id, status) {
+    var j = MC.get("jobs", id);
+    MC.update("jobs", id, { status: status });
+    if (status === "done" && j && j.proposal_id) {
+      var pr = MC.get("proposals", j.proposal_id);
+      if (pr && !pr.job_completed_at) MC.update("proposals", j.proposal_id, { job_completed_at: new Date().toISOString() });
+    }
+  }
 
   /* Status advance */
   rows.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-advance]"); if (!btn) return;
     var j = MC.get("jobs", btn.dataset.advance); if (!j) return;
-    MC.update("jobs", j.id, { status: j.status === "scheduled" ? "in-progress" : "done" });
+    setJobStatus(j.id, j.status === "scheduled" ? "in-progress" : "done");
     render();
   });
 
@@ -248,6 +261,9 @@ MC.ready.then(function () {
       } },
       { label: "Add visit note", kind: "outline", onClick: function () { openVisitForm(j); } }
     ];
+    if (j.proposal_id) {
+      actions.push({ label: "View proposal / deal →", kind: "outline", onClick: function () { location.href = "proposals.html?timeline=" + encodeURIComponent(j.proposal_id); } });
+    }
     if (((MC.auth.session() || {}).role) === "admin") {
       actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
         if (!window.confirm("Delete this job? This can't be undone.")) return;
@@ -269,7 +285,7 @@ MC.ready.then(function () {
         bodyEl.querySelectorAll("[data-status]").forEach(function (b) {
           b.addEventListener("click", function () {
             if (b.disabled) return;
-            MC.update("jobs", j.id, { status: b.dataset.status });
+            setJobStatus(j.id, b.dataset.status);
             render();
             openJob(MC.get("jobs", j.id));
           });

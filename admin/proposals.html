@@ -455,6 +455,17 @@ MC.ready.then(function () {
           }).catch(function (e) { alert("Couldn't send the balance invoice:\n" + e.message); });
       } });
     }
+    var existingJob = MC.list("jobs").filter(function (j) { return j.proposal_id === p.id; })[0];
+    if (existingJob) {
+      actions.push({ label: "View job →", kind: "outline", onClick: function () { location.href = "jobs.html?id=" + encodeURIComponent(existingJob.id); } });
+    } else {
+      actions.push({ label: "Create job from deal", kind: "outline", onClick: function () {
+        MC.add("jobs", { customerId: p.customerId, proposal_id: p.id, lead_id: p.lead_id || null, title: p.title || "Job",
+          status: "scheduled", start: (p.project_start_at ? String(p.project_start_at).slice(0, 10) : new Date().toISOString().slice(0, 10)),
+          value: Number(p.amount) || 0, note: "Created from the proposal." });
+        render(); MCUI.toast("Job created ✓"); openTimeline(MC.get("proposals", p.id));
+      } });
+    }
     if (!p.lead_id) actions.push({ label: "Link to lead →", kind: "outline", onClick: function () { openLinkLead(p); } });
 
     MCUI.open({

@@ -255,12 +255,14 @@ MC.ready.then(function () {
         ["Service", lead.service],
         ["Stage", stageLabel(derived) + (derived !== normStage(lead.stage) ? " <span class='t-sub'>(from proposal)</span>" : ""), "raw"],
         ["Assigned to", MC.memberName(lead.assigned_to)],
+        ["Follow-up", lead.followup_at ? MC.fmtDate(lead.followup_at) : ""],
         ["Created", MC.fmtDate(lead.created)],
         ["Note", lead.note]
       ])) +
       MCUI.section("Proposals", propHTML) +
       MCUI.section("Move stage", "<div>" + stageBtns + "</div>") +
-      MCUI.section("Assigned to", assignSel);
+      MCUI.section("Assigned to", assignSel) +
+      MCUI.section("Activity & follow-up", activityHTML(lead));
 
     var actions = [{
       label: "Create proposal →", kind: "primary", onClick: function () {
@@ -339,8 +341,34 @@ MC.ready.then(function () {
           render();
           MCUI.toast("Assignment updated");
         });
+        var addBtn = bodyEl.querySelector("#lead-note-add");
+        if (addBtn) addBtn.addEventListener("click", function () {
+          var inp = bodyEl.querySelector("#lead-note"); var txt = (inp && inp.value || "").trim(); if (!txt) return;
+          var cur = Array.isArray(lead.activity) ? lead.activity.slice() : [];
+          cur.push({ at: new Date().toISOString(), text: txt });
+          MC.update("leads", lead.id, { activity: cur });
+          openLeadPanel(lead.id);
+        });
+        var fuBtn = bodyEl.querySelector("#lead-fu-save");
+        if (fuBtn) fuBtn.addEventListener("click", function () {
+          var d = bodyEl.querySelector("#lead-fu");
+          MC.update("leads", lead.id, { followup_at: (d && d.value) || null });
+          render(); MCUI.toast("Follow-up set ✓"); openLeadPanel(lead.id);
+        });
       }
     });
+  }
+
+  function activityHTML(lead) {
+    var acts = Array.isArray(lead.activity) ? lead.activity.slice() : [];
+    var list = acts.length ? acts.slice().reverse().map(function (a) {
+      return "<div style='padding:.3rem 0;border-bottom:1px solid rgba(28,36,29,.06)'><span class='t-sub'>" + (a.at ? MC.fmtDate(a.at) : "") + " · </span>" + MCUI.esc(a.text || "") + "</div>";
+    }).join("") : "<span class='t-sub'>No activity logged yet.</span>";
+    return "<div style='display:flex;gap:.5rem;align-items:center;margin-bottom:.6rem'>" +
+        "<label class='t-sub' for='lead-fu'>Follow-up</label><input type='date' id='lead-fu' value='" + (lead.followup_at ? String(lead.followup_at).slice(0, 10) : "") + "'>" +
+        "<button class='btn-icon' id='lead-fu-save' type='button'>Set</button></div>" +
+      "<div id='lead-acts'>" + list + "</div>" +
+      "<div style='display:flex;gap:.5rem;margin-top:.5rem'><input id='lead-note' placeholder='Log a call or note…' style='flex:1'><button class='btn btn-outline btn-sm' id='lead-note-add' type='button'>Log</button></div>";
   }
 
   board.addEventListener("click", function (e) {
