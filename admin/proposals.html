@@ -260,7 +260,7 @@ MC.ready.then(function () {
       } else {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='copy'>Copy Link</button>";
       }
-      actions += "<a class='btn-icon' href='" + url + "' target='_blank' rel='noopener'>Open / PDF</a>";
+      actions += "<a class='btn-icon' href='" + url + "' target='_blank' rel='noopener'>View ↗</a>";
       actions += "<a class='btn-icon' href='" + location.origin + "/contract.html?t=" + p.token + "' target='_blank' rel='noopener'>Agreement</a>";
       if (p.stripe_invoice_url) {
         actions += "<a class='btn-icon' href='" + p.stripe_invoice_url + "' target='_blank' rel='noopener'>Invoice →</a>";
@@ -335,6 +335,8 @@ MC.ready.then(function () {
         setTimeout(function () { btn.textContent = orig; }, 1600);
       });
     } else if (act === "edit") {
+      if ((p.status === "invoiced" || p.status === "paid") &&
+          !confirm("This proposal already has a Stripe invoice — editing the line items here won't change what the customer actually owes. Continue?")) return;
       openEditProposal(id);
     } else if (act === "timeline") {
       openTimeline(p);
@@ -342,7 +344,10 @@ MC.ready.then(function () {
       openLinkLead(p);
     } else if (act === "delete") {
       if (((MC.auth.session() || {}).role) !== "admin") return;
-      if (!confirm("Delete this proposal? This can't be undone.")) return;
+      var warn = "Delete this proposal? This can't be undone.";
+      if (p.stripe_invoice_id) warn = "This proposal has a LIVE Stripe invoice — deleting it here won't void the invoice in Stripe. " + warn;
+      else if (p.agreement_signed_at) warn = "This proposal has a SIGNED agreement on file. " + warn;
+      if (!confirm(warn)) return;
       MC.remove("proposals", p.id);
       render();
       window.MCUI && MCUI.toast("Proposal deleted");
