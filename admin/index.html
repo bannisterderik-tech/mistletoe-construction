@@ -129,10 +129,10 @@ MC.ready.then(function () {
 
   /* Attention list */
   var att = [];
-  newLeads.forEach(function (l) { att.push(["red", "New lead: <strong>" + l.name + "</strong> (" + l.city + ", " + l.service + ") — call them today", "leads.html"]); });
-  owed.forEach(function (i) { att.push(["amber", "Unpaid: <strong>" + i.label + "</strong> · " + MC.money(i.amount) + " · " + MC.customerName(i.customerId), "money.html"]); });
+  newLeads.forEach(function (l) { att.push(["red", "New lead: <strong>" + l.name + "</strong> (" + l.city + ", " + l.service + ") — call them today", "leads.html?lead=" + encodeURIComponent(l.id)]); });
+  owed.forEach(function (i) { att.push(["amber", "Unpaid: <strong>" + i.label + "</strong> · " + MC.money(i.amount) + " · " + MC.customerName(i.customerId), "invoices.html?f=unpaid"]); });
   visits.filter(function (v) { return v.date >= iso && v.summary === ""; }).forEach(function (v) {
-    att.push(["blue", "Member visit due " + MC.fmtDate(v.date) + ": <strong>" + MC.customerName(v.customerId) + "</strong> · " + v.type, "members.html"]);
+    att.push(["blue", "Member visit due " + MC.fmtDate(v.date) + ": <strong>" + MC.customerName(v.customerId) + "</strong> · " + v.type, "customers.html?id=" + encodeURIComponent(v.customerId || "")]);
   });
   var ah = document.getElementById("attention");
   if (!att.length) ah.innerHTML = "<p style='color:var(--ink-soft)'>All clear. Go build something.</p>";
@@ -148,16 +148,18 @@ MC.ready.then(function () {
   var in7 = new Date(today); in7.setDate(in7.getDate() + 7);
   var iso7 = in7.toISOString().slice(0, 10);
   jobs.forEach(function (j) {
-    if (j.start >= iso && j.start <= iso7) week.push({ d: j.start, what: j.title, who: MC.customerName(j.customerId), type: "Job", badge: "pine" });
+    if (j.start >= iso && j.start <= iso7) week.push({ d: j.start, what: j.title, who: MC.customerName(j.customerId), type: "Job", badge: "pine", href: "customers.html?id=" + encodeURIComponent(j.customerId || "") });
   });
   visits.forEach(function (v) {
-    if (v.date >= iso && v.date <= iso7) week.push({ d: v.date, what: v.type, who: MC.customerName(v.customerId), type: "Member visit", badge: "green" });
+    if (v.date >= iso && v.date <= iso7) week.push({ d: v.date, what: v.type, who: MC.customerName(v.customerId), type: "Member visit", badge: "green", href: "customers.html?id=" + encodeURIComponent(v.customerId || "") });
   });
   week.sort(function (a, b) { return a.d < b.d ? -1 : 1; });
   var wb = document.getElementById("week");
   if (!week.length) wb.innerHTML = "<tr><td colspan='4' style='color:var(--ink-soft)'>Nothing scheduled in the next 7 days.</td></tr>";
   week.forEach(function (w) {
     var tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    tr.addEventListener("click", function () { location.href = w.href; });
     tr.innerHTML = "<td class='t-strong'>" + MC.fmtDate(w.d) + "</td><td>" + w.what + "</td><td>" + w.who + "</td><td><span class='badge " + w.badge + "'>" + w.type + "</span></td>";
     wb.appendChild(tr);
   });

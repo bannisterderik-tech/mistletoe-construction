@@ -115,7 +115,7 @@ MC.ready.then(function () {
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
 
   var rows = document.getElementById("rows");
-  var filter = "all";
+  var filter = (function () { var f = new URLSearchParams(location.search).get("f"); return (f === "unpaid" || f === "paid") ? f : "all"; })();
   var STATUS_BADGE = { draft: "gray", sent: "blue", approved: "green", paid: "green", overdue: "red", declined: "red" };
 
   /* A proposal that's been invoiced/paid IS an invoice — map it into the money-doc shape. */
@@ -202,6 +202,7 @@ MC.ready.then(function () {
   }
   function render() { renderStats(); renderTable(); }
   render();
+  (function () { var b = document.querySelector("#filters button[data-filter='" + filter + "']"); if (b) { document.querySelectorAll("#filters button").forEach(function (x) { x.classList.remove("active"); }); b.classList.add("active"); } })();
 
   /* ---------- detail ---------- */
   function statusLabel(s) { s = String(s || ""); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }

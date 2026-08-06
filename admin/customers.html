@@ -277,12 +277,25 @@ MC.ready.then(function () {
       MCUI.section("Invoices & payments", invList, payRows.length) +
       MCUI.section("Visits", visitList, visits.length);
 
+    var today = new Date().toISOString().slice(0, 10);
     var actions = [
       { label: "New proposal →", kind: "primary", onClick: function () {
           location.href = "proposals.html?customer=" + encodeURIComponent(c.id) + "&new=1";
       } },
       { label: "Edit details", kind: "outline", onClick: function () { openRecordForm(c, "customers", c); } },
-      { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } }
+      { label: "Add job", kind: "outline", onClick: function () {
+          var j = MC.add("jobs", { customerId: c.id, title: "New job", status: "scheduled", start: today, value: 0, note: "" });
+          openRecordForm(c, "jobs", j);
+      } },
+      { label: "Add visit", kind: "outline", onClick: function () {
+          var v = MC.add("visits", { customerId: c.id, type: "Site visit", date: today, summary: "" });
+          openRecordForm(c, "visits", v);
+      } },
+      { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } },
+      { label: (c.member ? "Remove membership" : "Make member"), kind: "outline", onClick: function () {
+          MC.update("customers", c.id, { member: !c.member }); render();
+          MCUI.toast(c.member ? "Membership removed" : "Marked as member ✓"); openProfile(MC.get("customers", c.id) || c);
+      } }
     ];
     if (((MC.auth.session() || {}).role) === "admin") {
       actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
