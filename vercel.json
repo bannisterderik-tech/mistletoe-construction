@@ -8,6 +8,9 @@
     { "source": "/fonts/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
     { "source": "/images/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=86400" }] }
   ],
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "www.mistletoeconstruction.com" }], "destination": "https://mistletoeconstruction.com/:path*", "permanent": true }
+  ],
   "crons": [
     { "path": "/api/campaign-tick?token=mc-cron-9f27a1b4", "schedule": "0 16 * * *" },
     { "path": "/api/final-invoice-cron?token=mc-cron-9f27a1b4", "schedule": "0 17 * * *" }
