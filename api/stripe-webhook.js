@@ -4,7 +4,8 @@
 // SUPABASE_SERVICE_ROLE_KEY. Inert (returns 200) until those are set.
 const Stripe = require("stripe");
 const notifyTeam = require("./_notify.js");
-const { sbPatch, sbInsert, genId } = require("./_supabase.js");
+const { sbGet, sbPatch, sbInsert, genId } = require("./_supabase.js");
+const { sendReviewRequest } = require("./_review.js");
 
 function money(c) { return "$" + (Number(c || 0) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 }); }
 
@@ -50,6 +51,10 @@ module.exports = async (req, res) => {
         else patch = { deposit_paid_at: nowIso, final_paid_at: nowIso, status: "paid" }; // 'full' / legacy
         try { await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), patch); }
         catch (e) { await sbPatch("proposals", "id=eq." + encodeURIComponent(proposalId), { status: (md.kind === "deposit" ? "invoiced" : "paid") }); }
+        // Deal fully paid (not just a deposit) → auto-send the review request (idempotent).
+        if (md.kind !== "deposit") {
+          try { const pr = await sbGet("proposals?id=eq." + encodeURIComponent(proposalId) + "&select=*"); if (pr && pr[0]) await sendReviewRequest(pr[0]); } catch (e) {}
+        }
       }
       // Admin/sales invoices are recorded in the CRM with stripe_invoice_id.
       if (inv.id) await sbPatch("invoices", "stripe_invoice_id=eq." + encodeURIComponent(inv.id), { status: "paid" });

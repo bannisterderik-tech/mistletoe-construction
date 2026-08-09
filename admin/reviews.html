@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reviews | Mistletoe CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../images/logo-badge.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1b3d26">
+<meta name="apple-mobile-web-app-title" content="Mistletoe">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css?v=3">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app">
+<div class="app-shell">
+  <aside class="app-side">
+    <a class="brand" href="index.html"><img src="../images/logo-lockup-white.png" alt="Mistletoe Construction"></a>
+    <nav class="app-nav" aria-label="CRM">
+      <a href="index.html">Dashboard</a>
+      <a href="leads.html">Leads</a>
+      <a href="customers.html">Customers</a>
+      <a href="proposals.html">Proposals</a>
+      <a href="invoices.html">Invoices</a>
+      <a href="money.html">Money</a>
+      <a href="reviews.html" aria-current="page">Reviews</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="members.html">Members</a>
+      <a href="partners.html">Partners</a>
+      <a href="social.html">Social</a>
+      <a href="team.html">Team</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="../index.html" class="nav-sep">← View site</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1>Reviews</h1>
+        <p class="sub">Ask paid customers for a Google review — and see who opened and clicked. More reviews = higher local ranking.</p>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Requested</div><div class="stat-num" id="st-req">0</div><div class="stat-sub">review emails sent</div></div>
+      <div class="stat"><div class="stat-label">Opened</div><div class="stat-num" id="st-open">0</div><div class="stat-sub" id="st-open-sub">approx.</div></div>
+      <div class="stat"><div class="stat-label">Clicked</div><div class="stat-num" id="st-click">0</div><div class="stat-sub" id="st-click-sub">went to Google</div></div>
+      <div class="stat"><div class="stat-label">Ready to ask</div><div class="stat-num" id="st-ready">0</div><div class="stat-sub">paid, not yet asked</div></div>
+    </div>
+
+    <div id="rev-bar"></div>
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Review requests</h2>
+        <div class="login-tabs" id="filters" style="margin-bottom:0">
+          <button type="button" class="active" data-filter="all">All</button>
+          <button type="button" data-filter="ready">Ready</button>
+          <button type="button" data-filter="sent">Sent</button>
+          <button type="button" data-filter="clicked">Clicked</button>
+        </div>
+      </div>
+      <div class="panel-body flush tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Customer</th><th>Deal</th><th>Requested</th><th>Opens</th><th>Clicks</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="mc-pager" id="pager" hidden></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/app-data.js?v=3"></script>
+<script src="../js/app-ui.js?v=3"></script>
+<script src="../js/app-paginate.js"></script>
+<script>
+MC.ready.then(function () {
+  var ses = MC.auth.require("admin", "../portal/login.html"); if (!ses) return;
+  (function(){
+    var role = (MC.auth.session()||{}).role || "admin";
+    var allow = {
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","reviews","team"],
+      sales: ["index","leads","customers","jobs","schedule","proposals","invoices"],
+      field: ["index","jobs","schedule"]
+    }[role] || [];
+    document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
+      var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","reviews","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+    });
+  })();
+  document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
+
+  var rows = document.getElementById("rows");
+  var filter = "all";
+
+  // Deals eligible for a review: fully paid, OR already asked.
+  function eligible() {
+    return MC.list("proposals").filter(function (p) { return p.status === "paid" || p.review_requested_at; });
+  }
+  function fmt(ts) { return ts ? MC.fmtDate(ts) : "—"; }
+
+  function renderStats() {
+    var docs = eligible();
+    var req = 0, opened = 0, clicked = 0, ready = 0;
+    docs.forEach(function (p) {
+      if (p.review_requested_at) { req++; if (p.review_opened_at) opened++; if (p.review_clicked_at) clicked++; }
+      else if (p.status === "paid") ready++;
+    });
+    document.getElementById("st-req").textContent = req;
+    document.getElementById("st-open").textContent = opened;
+    document.getElementById("st-click").textContent = clicked;
+    document.getElementById("st-ready").textContent = ready;
+    document.getElementById("st-click-sub").textContent = req ? Math.round(clicked / req * 100) + "% clicked" : "went to Google";
+  }
+
+  var bar = MCUI.listBar(document.getElementById("rev-bar"), {
+    placeholder: "Search customer or deal…",
+    sorts: [
+      { value: "recent", label: "Most recent" },
+      { value: "clicks", label: "Most clicks" },
+      { value: "name", label: "Customer A–Z" }
+    ],
+    onChange: function () { pager.first(); renderTable(); }
+  });
+
+  function row(p) {
+    var requested = !!p.review_requested_at;
+    var clicks = Number(p.review_click_count) || 0, opens = Number(p.review_open_count) || 0;
+    var act = requested
+      ? "<button class='btn-icon' data-id='" + p.id + "' data-act='resend'>Resend</button>"
+      : "<button class='btn-icon' data-id='" + p.id + "' data-act='send'>Send request</button>";
+    return "<tr>" +
+      "<td><span class='t-strong'>" + MCUI.esc(MC.customerName(p.customerId)) + "</span></td>" +
+      "<td><span class='t-sub'>" + MCUI.esc(p.title || "") + " · " + MC.money(p.amount) + "</span></td>" +
+      "<td>" + (requested ? fmt(p.review_requested_at) : "<span class='badge amber'>ready</span>") + "</td>" +
+      "<td>" + (requested ? (opens ? (opens + "× " + fmt(p.review_opened_at)) : "—") : "") + "</td>" +
+      "<td>" + (requested ? (clicks ? "<span class='badge green'>" + clicks + "× " + fmt(p.review_clicked_at) + "</span>" : "—") : "") + "</td>" +
+      "<td>" + act + "</td>" +
+      "</tr>";
+  }
+
+  var pager = MCPager({ controls: document.getElementById("pager"), pageSize: 25, onPage: function (slice) {
+    rows.innerHTML = slice.length ? slice.map(row).join("") : "<tr><td colspan='6'><span class='t-sub'>No paid deals yet — review requests appear here once a deal is paid.</span></td></tr>";
+  } });
+
+  function renderTable() {
+    var docs = eligible().filter(function (p) {
+      if (filter === "ready") return !p.review_requested_at && p.status === "paid";
+      if (filter === "sent") return !!p.review_requested_at;
+      if (filter === "clicked") return !!p.review_clicked_at;
+      return true;
+    }).map(function (p) { return Object.assign({ _cust: MC.customerName(p.customerId), _sortts: p.review_requested_at || p.created || "" }, p); });
+    docs = MCUI.filterSort(docs, bar, {
+      keys: ["_cust", "title"],
+      sorts: {
+        recent: MCUI.cmp.dateDesc("_sortts"),
+        clicks: MCUI.cmp.numDesc("review_click_count"),
+        name: MCUI.cmp.textAsc("_cust")
+      }
+    });
+    pager.set(docs);
+  }
+  function render() { renderStats(); renderTable(); }
+  render();
+
+  function sendFor(p, btn, force) {
+    var orig = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+    return fetch("/api/request-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: p.token, force: !!force }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error((res.d && res.d.error) || "Failed");
+        MC.update("proposals", p.id, { review_requested_at: p.review_requested_at || new Date().toISOString() });
+        render(); MCUI.toast("Review request sent to " + (res.d.email || "the customer") + " ✓");
+      }).catch(function (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Couldn't send: " + e.message); });
+  }
+
+  rows.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]"); if (!btn) return;
+    var p = MC.get("proposals", btn.dataset.id); if (!p) return;
+    if (btn.dataset.act === "resend" && !confirm("Send another review request to this customer?")) return;
+    sendFor(p, btn, btn.dataset.act === "resend");
+  });
+
+  document.getElementById("filters").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-filter]"); if (!btn) return;
+    filter = btn.dataset.filter;
+    this.querySelectorAll("button").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active"); pager.first(); renderTable();
+  });
+});
+</script>
+</body>
+</html>

@@ -28,6 +28,7 @@
       <a href="proposals.html">Proposals</a>
       <a href="invoices.html">Invoices</a>
       <a href="money.html" aria-current="page">Money</a>
+      <a href="reviews.html">Reviews</a>
       <a href="jobs.html">Jobs</a>
       <a href="schedule.html">Schedule</a>
       <a href="members.html">Members</a>
@@ -103,13 +104,13 @@ MC.ready.then(function () {
   (function(){
     var role = (MC.auth.session()||{}).role || "admin";
     var allow = {
-      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"],
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","reviews","team"],
       sales: ["index","leads","customers","jobs","schedule","proposals","invoices"],
       field: ["index","jobs","schedule"]
     }[role] || [];
     document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
       var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
-      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","reviews","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
     });
   })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });

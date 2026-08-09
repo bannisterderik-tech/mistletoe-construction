@@ -28,6 +28,7 @@
       <a href="proposals.html" aria-current="page">Proposals</a>
       <a href="invoices.html">Invoices</a>
       <a href="money.html">Money</a>
+      <a href="reviews.html">Reviews</a>
       <a href="jobs.html">Jobs</a>
       <a href="schedule.html">Schedule</a>
       <a href="members.html">Members</a>
@@ -143,13 +144,13 @@ MC.ready.then(function () {
   (function(){
     var role = (MC.auth.session()||{}).role || "admin";
     var allow = {
-      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"],
+      admin: ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","reviews","team"],
       sales: ["index","leads","customers","jobs","schedule","proposals","invoices"],
       field: ["index","jobs","schedule"]
     }[role] || [];
     document.querySelectorAll(".app-nav a[href$='.html']").forEach(function(a){
       var m = a.getAttribute("href").match(/([a-z-]+)\.html$/);
-      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
+      if (m && ["index","leads","customers","jobs","schedule","members","money","partners","proposals","invoices","reviews","team"].indexOf(m[1])>-1 && allow.indexOf(m[1])===-1) a.style.display="none";
     });
   })();
   document.getElementById("logout").addEventListener("click", function (e) { e.preventDefault(); MC.auth.logout("../portal/login.html"); });
@@ -458,6 +459,15 @@ MC.ready.then(function () {
             MC.update("proposals", p.id, { final_invoiced_at: new Date().toISOString() });
             render(); MCUI.toast("Balance invoice sent ✓"); openTimeline(MC.get("proposals", p.id));
           }).catch(function (e) { alert("Couldn't send the balance invoice:\n" + e.message); });
+      } });
+    }
+    if (p.status === "paid" || p.final_paid_at) {
+      actions.push({ label: (p.review_requested_at ? "Re-request review" : "Request review ★"), kind: "outline", onClick: function () {
+        if (p.review_requested_at && !confirm("Send another review request to this customer?")) return;
+        fetch("/api/request-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: p.token, force: !!p.review_requested_at }) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) { if (!res.ok) throw new Error((res.d && res.d.error) || "Failed"); MC.update("proposals", p.id, { review_requested_at: p.review_requested_at || new Date().toISOString() }); render(); MCUI.toast("Review request sent ✓"); openTimeline(MC.get("proposals", p.id)); })
+          .catch(function (e) { alert("Couldn't send the review request: " + e.message); });
       } });
     }
     var existingJob = MC.list("jobs").filter(function (j) { return j.proposal_id === p.id; })[0];
