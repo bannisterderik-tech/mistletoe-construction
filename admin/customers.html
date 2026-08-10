@@ -214,7 +214,7 @@ MC.ready.then(function () {
     var visits = MC.list("visits").filter(function (v) { return v.customerId === c.id; });
 
     /* Details */
-    var details = MCUI.kv([
+    var detailRows = [
       ["Phone", c.phone ? "<a href='tel:" + MCUI.esc(c.phone) + "'>" + MCUI.esc(c.phone) + "</a>" : "", "raw"],
       ["Email", c.email ? "<a href='mailto:" + MCUI.esc(c.email) + "'>" + MCUI.esc(c.email) + "</a>" : "", "raw"],
       ["Address", c.address || ""],
@@ -222,7 +222,13 @@ MC.ready.then(function () {
       ["Member", c.member ? "Yes" : "No"],
       ["Assigned to", MC.memberName(c.assigned_to)],
       ["Notes", c.notes || ""]
-    ]);
+    ];
+    if (c.review_requested_at) {
+      detailRows.push(["Review", "Requested " + MC.fmtDate(c.review_requested_at) +
+        (c.review_click_count ? " · <span class='badge green'>clicked " + c.review_click_count + "×</span>"
+          : c.review_opened_at ? " · opened" : ""), "raw"]);
+    }
+    var details = MCUI.kv(detailRows);
 
     var editHint = "<span class='t-sub' style='opacity:.7'> · click to edit</span>";
     var pdfBtn = function (href, label) { return "<a class='btn-icon' target='_blank' rel='noopener' href='" + MCUI.esc(href) + "'>" + label + "</a>"; };
@@ -293,6 +299,26 @@ MC.ready.then(function () {
           openRecordForm(c, "visits", v);
       } },
       { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } },
+      { label: (c.review_requested_at ? "Resend review request ★" : "Request review ★"), kind: "outline", onClick: function () {
+          if (!c.email) { MCUI.toast("Add an email to this customer first.", "err"); return; }
+          if (MC.mode !== "supabase") { MCUI.toast("Review requests need the live database.", "err"); return; }
+          if (c.review_requested_at && !window.confirm("Send another review request to " + c.name + "?")) return;
+          MCUI.toast("Sending review request…");
+          MC.client().auth.getSession().then(function (r) {
+            var token = r.data.session && r.data.session.access_token;
+            return fetch("/api/review?action=request-customer", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ customerId: c.id, force: !!c.review_requested_at })
+            });
+          }).then(function (resp) { return resp.json().then(function (d) { return { ok: resp.ok, d: d }; }); })
+            .then(function (res) {
+              if (!res.ok) throw new Error((res.d && res.d.error) || "Failed to send");
+              MC.update("customers", c.id, { review_requested_at: c.review_requested_at || new Date().toISOString() });
+              MCUI.toast("Review request sent to " + (res.d.email || c.email) + " ✓");
+              openProfile(MC.get("customers", c.id) || c);
+            }).catch(function (e) { MCUI.toast("Couldn't send: " + e.message, "err"); });
+      } },
       { label: (c.member ? "Remove membership" : "Make member"), kind: "outline", onClick: function () {
           MC.update("customers", c.id, { member: !c.member }); render();
           MCUI.toast(c.member ? "Membership removed" : "Marked as member ✓"); openProfile(MC.get("customers", c.id) || c);

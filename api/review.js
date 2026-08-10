@@ -1,6 +1,7 @@
 // Auto-generated dispatcher — routes ?action= to a handler module (keeps us under Vercel's 12-fn Hobby cap).
 var H = {
   "request": require("./_request-review.js"),
+  "request-customer": require("./_request-review-customer.js"),
   "click": require("./_review-click.js"),
   "open": require("./_review-open.js"),
 };
