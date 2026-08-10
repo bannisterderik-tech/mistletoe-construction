@@ -3,16 +3,170 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "headers": [
-    { "source": "/css/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] },
-    { "source": "/js/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] },
-    { "source": "/fonts/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/images/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=86400" }] }
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
+      ]
+    }
   ],
   "redirects": [
-    { "source": "/:path*", "has": [{ "type": "host", "value": "www.mistletoeconstruction.com" }], "destination": "https://mistletoeconstruction.com/:path*", "permanent": true }
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mistletoeconstruction.com"
+        }
+      ],
+      "destination": "https://mistletoeconstruction.com/:path*",
+      "permanent": true
+    }
   ],
   "crons": [
-    { "path": "/api/campaign-tick?token=mc-cron-9f27a1b4", "schedule": "0 16 * * *" },
-    { "path": "/api/final-invoice-cron?token=mc-cron-9f27a1b4", "schedule": "0 17 * * *" }
+    {
+      "path": "/api/campaign-tick?token=mc-cron-9f27a1b4",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/final-invoice-cron?token=mc-cron-9f27a1b4",
+      "schedule": "0 17 * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/social-accounts",
+      "destination": "/api/social?action=accounts"
+    },
+    {
+      "source": "/api/social-connect",
+      "destination": "/api/social?action=connect"
+    },
+    {
+      "source": "/api/social-post",
+      "destination": "/api/social?action=post"
+    },
+    {
+      "source": "/api/social-posts",
+      "destination": "/api/social?action=posts"
+    },
+    {
+      "source": "/api/social-update",
+      "destination": "/api/social?action=update"
+    },
+    {
+      "source": "/api/social-upload",
+      "destination": "/api/social?action=upload"
+    },
+    {
+      "source": "/api/request-review",
+      "destination": "/api/review?action=request"
+    },
+    {
+      "source": "/api/review-click",
+      "destination": "/api/review?action=click"
+    },
+    {
+      "source": "/api/review-open",
+      "destination": "/api/review?action=open"
+    },
+    {
+      "source": "/api/get-proposal",
+      "destination": "/api/proposal?action=get"
+    },
+    {
+      "source": "/api/send-proposal",
+      "destination": "/api/proposal?action=send"
+    },
+    {
+      "source": "/api/accept-proposal",
+      "destination": "/api/proposal?action=accept"
+    },
+    {
+      "source": "/api/sign-contract",
+      "destination": "/api/proposal?action=sign"
+    },
+    {
+      "source": "/api/track-view",
+      "destination": "/api/proposal?action=track"
+    },
+    {
+      "source": "/api/create-checkout",
+      "destination": "/api/billing?action=checkout"
+    },
+    {
+      "source": "/api/create-invoice",
+      "destination": "/api/billing?action=invoice"
+    },
+    {
+      "source": "/api/create-final-invoice",
+      "destination": "/api/billing?action=final"
+    },
+    {
+      "source": "/api/create-lead-proposal",
+      "destination": "/api/billing?action=lead-proposal"
+    },
+    {
+      "source": "/api/roof-estimate",
+      "destination": "/api/roof?action=estimate"
+    },
+    {
+      "source": "/api/roof-image",
+      "destination": "/api/roof?action=image"
+    },
+    {
+      "source": "/api/address-autocomplete",
+      "destination": "/api/roof?action=address"
+    },
+    {
+      "source": "/api/submit-lead",
+      "destination": "/api/lead?action=submit"
+    },
+    {
+      "source": "/api/estimate-lead",
+      "destination": "/api/lead?action=estimate"
+    },
+    {
+      "source": "/api/pricing",
+      "destination": "/api/misc?action=get-pricing"
+    },
+    {
+      "source": "/api/set-pricing",
+      "destination": "/api/misc?action=set-pricing"
+    },
+    {
+      "source": "/api/send-preview",
+      "destination": "/api/misc?action=send-preview"
+    }
   ]
 }
