@@ -61,10 +61,12 @@ async function sendReviewRequest(p, opts) {
 async function sendReviewToCustomer(customerId, opts) {
   opts = opts || {};
   if (!customerId) return { error: "no customer" };
-  const cs = await sbGet("customers?id=eq." + encodeURIComponent(customerId) + "&select=name,email,review_requested_at");
-  const c = cs && cs[0];
+  // Select only guaranteed columns — requesting review_* here would 400 (and be
+  // misread as "not found") until migration 004 adds them. Idempotency for the
+  // manual customer flow is handled by the caller (the button passes force).
+  const cs = await sbGet("customers?id=eq." + encodeURIComponent(customerId) + "&select=name,email");
+  const c = Array.isArray(cs) ? cs[0] : null;
   if (!c) return { error: "customer not found" };
-  if (c.review_requested_at && !opts.force) return { ok: true, already: true };
   const email = String(c.email || "").trim();
   if (!email) return { error: "no customer email" };
   const name = String(c.name || "there").split(" ")[0];
