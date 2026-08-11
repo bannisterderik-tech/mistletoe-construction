@@ -419,6 +419,19 @@
 
   var estData = null;         // last API estimate payload
   var currentMaterial = "asphalt";
+  var leadId = null;          // address-only lead captured on estimate render (upgraded on unlock)
+
+  // Capture the address as a lead the moment the estimate renders — before the
+  // visitor enters contact info — so an abandoned quiz is still a mailable lead.
+  function captureAddress(address, est) {
+    if (!address || leadId) return; // once per session; server also dedupes by address
+    fetch("/api/lead?action=estimate-address", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: address, estimate: est || {} })
+    }).then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.leadId) leadId = d.leadId; })
+      .catch(function () {});
+  }
 
   // ---- Step navigation ----
   var steps = { address: $("step-address"), calc: $("step-calc"), results: $("step-results") };
@@ -532,6 +545,8 @@
     priceFor(d, "asphalt");
     $("matWrap").hidden = false;
     lock(true);
+    captureAddress(d.address || $("address").value.trim(),
+      { city: "", measuredSqFt: d.measuredSqFt, pitchBand: d.pitchBand, costLow: d.costLow, costHigh: d.costHigh });
   }
 
   // Recompute cost for a material from the base estimate
@@ -560,6 +575,7 @@
     $("costSub").textContent = "We couldn't pull satellite data here — we'll measure your roof and send your exact price.";
     $("matWrap").hidden = true;
     lock(true);
+    captureAddress(address, {});
   }
 
   function lock(on) { $("qResults").classList.toggle("locked", !!on); }
@@ -596,7 +612,7 @@
 
     fetch("/api/estimate-lead", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, phone: phone, email: email, address: addr, estimate: estimate })
+      body: JSON.stringify({ name: name, phone: phone, email: email, address: addr, estimate: estimate, leadId: leadId })
     }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         // Reveal regardless — the customer earned their number; log failures for follow-up.

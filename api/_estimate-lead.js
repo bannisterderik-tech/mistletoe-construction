@@ -6,7 +6,7 @@
 // Secrets from env: SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY.
 const notifyTeam = require("./_notify.js");
 const crypto = require("crypto");
-const { sbGet, sbInsert, genId, hasService } = require("./_supabase.js");
+const { sbGet, sbInsert, sbPatch, genId, hasService } = require("./_supabase.js");
 
 function esc(s) { return String(s == null ? "" : s).replace(/[<>&]/g, function (c) { return ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c]; }); }
 function money(n) { return "$" + Math.round(Number(n) || 0).toLocaleString("en-US"); }
@@ -44,16 +44,28 @@ module.exports = async (req, res) => {
         city: String(est.city || "").trim(), address: address, member: false, notes: "From the instant roof estimate." }));
     }
 
-    // 1b) drop a lead into the pipeline in the NEW stage
-    const leadId = genId("l");
-    await chk("lead", await sbInsert("leads", {
-      id: leadId,
-      name: name, phone: phone, email: email, city: String(est.city || "").trim(),
+    // 1b) lead — UPGRADE the address-only lead the quiz already created (matched
+    //     by leadId, else by exact address) so we never duplicate; else create one.
+    const leadFields = {
+      name: name, phone: phone, email: email, address: address, city: String(est.city || "").trim(),
       service: "Roof Replacement — instant estimate", stage: "new",
       note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
-        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : ""),
-      created: today
-    }));
+        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "")
+    };
+    let leadId = String(b.leadId || "").trim();
+    if (!leadId && address) {
+      const exL = await sbGet("leads?address=eq." + encodeURIComponent(address) + "&select=id&limit=1");
+      if (Array.isArray(exL) && exL[0]) leadId = exL[0].id;
+    }
+    if (leadId) {
+      const okL = await sbGet("leads?id=eq." + encodeURIComponent(leadId) + "&select=id&limit=1");
+      if (Array.isArray(okL) && okL[0]) await chk("lead", await sbPatch("leads", "id=eq." + encodeURIComponent(leadId), leadFields));
+      else leadId = "";
+    }
+    if (!leadId) {
+      leadId = genId("l");
+      await chk("lead", await sbInsert("leads", Object.assign({ id: leadId, created: today }, leadFields)));
+    }
 
     // 2) draft proposal pre-filled from the estimate
     const mid = (est.costLow != null && est.costHigh != null) ? Math.round((est.costLow + est.costHigh) / 2) : 0;

@@ -142,7 +142,7 @@ MC.ready.then(function () {
   }
   function leadMatches(l) {
     var q = (searchEl.value || "").trim().toLowerCase();
-    if (q) { var hay = [l.name, l.city, l.phone, l.email, l.service, l.note].join(" ").toLowerCase(); if (hay.indexOf(q) === -1) return false; }
+    if (q) { var hay = [l.name, l.city, l.phone, l.email, l.service, l.note, l.address].join(" ").toLowerCase(); if (hay.indexOf(q) === -1) return false; }
     if (ownerEl.value && String(l.assigned_to || "") !== ownerEl.value) return false;
     if (serviceEl.value && l.service !== serviceEl.value) return false;
     return true;
@@ -170,9 +170,11 @@ MC.ready.then(function () {
         var card = document.createElement("div");
         card.className = "kcard"; card.draggable = true; card.dataset.id = l.id;
         card.style.cursor = "pointer";
+        var noContact = !l.phone && !l.email;
         card.innerHTML =
-          "<div class='k-name'>" + l.name + "</div>" +
-          "<div class='k-meta'>" + (l.phone || "") + (l.phone ? " · " : "") + l.city + "</div>" +
+          "<div class='k-name'>" + (l.name || MCUI.esc((l.address || "").split(",")[0]) || "New lead") + "</div>" +
+          "<div class='k-meta'>" + (l.phone || (noContact ? "📬 No contact yet" : "")) + ((l.phone || noContact) && l.city ? " · " : "") + (l.city || "") + "</div>" +
+          (l.address ? "<div class='k-meta'>" + MCUI.esc(l.address) + "</div>" : "") +
           (l.note ? "<div class='k-meta'>" + l.note + "</div>" : "") +
           (l.assigned_to ? "<div class='k-meta'>→ " + MC.memberName(l.assigned_to) + "</div>" : "") +
           "<div class='k-tags'><span class='badge pine' style='white-space:normal;max-width:100%;overflow-wrap:anywhere;text-align:left'>" + l.service + "</span><span class='badge gray'>" + MC.fmtDate(l.created) + "</span></div>";
@@ -212,7 +214,7 @@ MC.ready.then(function () {
     if (stage === "won") {
       var l = MC.get("leads", draggedId);
       var exists = MC.list("customers").some(function (c) { return c.name === l.name; });
-      if (!exists) MC.add("customers", { name: l.name, phone: l.phone || "", email: l.email || "", address: "", city: l.city, member: false, notes: "Won lead — " + l.service + ". " + (l.note || "") });
+      if (!exists) MC.add("customers", { name: l.name, phone: l.phone || "", email: l.email || "", address: l.address || "", city: l.city, member: false, notes: "Won lead — " + l.service + ". " + (l.note || "") });
     }
     draggedId = null; render();
   });
@@ -252,6 +254,7 @@ MC.ready.then(function () {
       MCUI.section("Details", MCUI.kv([
         ["Phone", lead.phone ? "<a href='tel:" + MCUI.esc(lead.phone) + "'>" + MCUI.esc(lead.phone) + "</a>" : "", "raw"],
         ["Email", lead.email ? "<a href='mailto:" + MCUI.esc(lead.email) + "'>" + MCUI.esc(lead.email) + "</a>" : "", "raw"],
+        ["Address", lead.address || ""],
         ["City", lead.city],
         ["Service", lead.service],
         ["Stage", stageLabel(derived) + (derived !== normStage(lead.stage) ? " <span class='t-sub'>(from proposal)</span>" : ""), "raw"],
@@ -324,7 +327,7 @@ MC.ready.then(function () {
 
     MCUI.open({
       eyebrow: "Lead",
-      title: lead.name,
+      title: lead.name || lead.address || "New lead",
       subtitle: [lead.service, lead.city].filter(Boolean).join(" · "),
       bodyHTML: bodyHTML,
       actions: actions,
