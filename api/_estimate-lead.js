@@ -57,14 +57,22 @@ module.exports = async (req, res) => {
       const exL = await sbGet("leads?address=eq." + encodeURIComponent(address) + "&select=id&limit=1");
       if (Array.isArray(exL) && exL[0]) leadId = exL[0].id;
     }
+    // Resilient write: retry without `address` if that column doesn't exist yet
+    // (migration 005) — the note already carries the address, so nothing is lost.
+    const noAddr = (o) => { const c = Object.assign({}, o); delete c.address; return c; };
     if (leadId) {
       const okL = await sbGet("leads?id=eq." + encodeURIComponent(leadId) + "&select=id&limit=1");
-      if (Array.isArray(okL) && okL[0]) await chk("lead", await sbPatch("leads", "id=eq." + encodeURIComponent(leadId), leadFields));
-      else leadId = "";
+      if (Array.isArray(okL) && okL[0]) {
+        let r = await sbPatch("leads", "id=eq." + encodeURIComponent(leadId), leadFields);
+        if (r && r.ok === false) r = await sbPatch("leads", "id=eq." + encodeURIComponent(leadId), noAddr(leadFields));
+        await chk("lead", r);
+      } else leadId = "";
     }
     if (!leadId) {
       leadId = genId("l");
-      await chk("lead", await sbInsert("leads", Object.assign({ id: leadId, created: today }, leadFields)));
+      let r = await sbInsert("leads", Object.assign({ id: leadId, created: today }, leadFields));
+      if (r && r.ok === false) r = await sbInsert("leads", Object.assign({ id: leadId, created: today }, noAddr(leadFields)));
+      await chk("lead", r);
     }
 
     // 2) draft proposal pre-filled from the estimate

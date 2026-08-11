@@ -25,10 +25,13 @@ module.exports = async (req, res) => {
     const note = "📬 Address-only lead from the instant quote — no contact submitted yet (direct-mail candidate). " +
       (est.costLow != null ? "Est. " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
       (est.pitchBand ? est.pitchBand + ". " : "");
-    const r = await sbInsert("leads", {
-      id: leadId, name: "", phone: "", email: "", address: address, city: String(est.city || "").trim(),
-      service: "Instant quote — address only", stage: "new", note: note, created: today
-    });
+    const base = { id: leadId, name: "", phone: "", email: "", city: String(est.city || "").trim(),
+      service: "Instant quote — address only", stage: "new", created: today };
+    let r = await sbInsert("leads", Object.assign({ address: address, note: note }, base));
+    if (r && r.ok === false) {
+      // leads.address may not exist yet (migration 005) — keep the address in the note.
+      r = await sbInsert("leads", Object.assign({ note: note + address + "." }, base));
+    }
     if (r && r.ok === false) { const t = await r.text(); res.status(500).json({ error: t.slice(0, 200) }); return; }
     res.status(200).json({ ok: true, leadId: leadId });
   } catch (e) { res.status(500).json({ error: (e && e.message) || "Could not save" }); }
