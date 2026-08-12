@@ -136,6 +136,38 @@
     text-decoration: none; font-size: 1rem; }
   .q-repair-call:hover { text-decoration: underline; }
 
+  /* Exit-intent discount popup */
+  .exit-back { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center;
+    padding: 1rem; background: rgba(6,15,9,0.74); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .exit-back.open { display: flex; animation: exit-fade 0.25s ease both; }
+  @keyframes exit-fade { from { opacity: 0; } to { opacity: 1; } }
+  .exit-card { position: relative; width: 100%; max-width: 30rem; text-align: center;
+    background: linear-gradient(160deg, var(--pine-900), var(--pine-800)); border: 1px solid rgba(201,160,66,0.4);
+    border-radius: var(--radius-lg); padding: clamp(1.6rem, 5vw, 2.3rem); box-shadow: 0 30px 80px -18px rgba(0,0,0,0.9);
+    animation: exit-pop 0.32s cubic-bezier(0.2,1.2,0.3,1) both; }
+  @keyframes exit-pop { from { transform: translateY(18px) scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .exit-back.open, .exit-card { animation: none; } }
+  .exit-x { position: absolute; top: 0.6rem; right: 0.9rem; background: none; border: 0; color: var(--sage);
+    font-size: 1.7rem; line-height: 1; cursor: pointer; }
+  .exit-x:hover { color: var(--cream); }
+  .exit-badge { display: inline-block; background: rgba(201,160,66,0.16); border: 1px solid rgba(201,160,66,0.4);
+    color: var(--ochre); font-weight: 900; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.35rem 0.85rem; border-radius: 999px; }
+  .exit-card h2 { color: var(--cream); font-family: var(--font-display); font-weight: 800; line-height: 1.04;
+    font-size: clamp(1.9rem, 6.5vw, 2.5rem); margin: 0.9rem 0 0.35rem; }
+  .exit-card h2 em { font-style: normal; color: var(--ochre); }
+  .exit-sub { color: var(--mist); font-size: 0.96rem; line-height: 1.5; margin: 0 0 1.2rem; }
+  .exit-form { display: grid; gap: 0.6rem; text-align: left; }
+  .exit-form input { width: 100%; padding: 0.9rem 0.95rem; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.18);
+    background: #fff; color: var(--ink); font-size: 1rem; }
+  .exit-form input:focus { outline: none; border-color: var(--ochre); box-shadow: 0 0 0 3px rgba(201,160,66,0.25); }
+  .exit-consent { font-size: 0.7rem; color: var(--sage); line-height: 1.45; margin: 0.7rem 0 0; text-align: center; }
+  .exit-consent a { color: var(--ochre); font-weight: 700; }
+  .exit-call { display: block; margin-top: 0.9rem; color: var(--ochre); font-weight: 800; text-decoration: none; font-size: 1rem; }
+  .exit-call:hover { text-decoration: underline; }
+  .exit-ok { color: #d7f0c8; font-weight: 700; font-size: 1.02rem; line-height: 1.5; margin: 0.5rem 0 0; }
+  .exit-ok[hidden] { display: none; }
+
   .q-error { margin-top: 0.9rem; padding: 0.8rem 1rem; border-radius: 10px; background: rgba(197,120,40,0.16);
     border: 1px solid rgba(230,150,70,0.4); color: #ffd9b0; font-size: 0.92rem; font-weight: 600; }
   .q-error[hidden] { display: none; }
@@ -422,6 +454,26 @@
   </section>
 </main>
 
+<!-- Exit-intent discount popup -->
+<div class="exit-back" id="exitPop" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+  <div class="exit-card">
+    <button type="button" class="exit-x" id="exitX" aria-label="Close">&times;</button>
+    <span class="exit-badge">🎁 Before you go</span>
+    <h2 id="exitTitle">Save <em>$500</em> on your new roof</h2>
+    <p class="exit-sub">Claim it now and we'll apply it to your roof replacement. Real, local, family-owned — no pressure, no obligation.</p>
+    <form class="exit-form" id="exitForm" novalidate>
+      <input type="text" id="exName" placeholder="Full name" autocomplete="name" required>
+      <input type="tel" id="exPhone" placeholder="Phone" autocomplete="tel" inputmode="tel" required>
+      <input type="text" id="exCompany" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+      <button type="submit" class="q-cta" id="exSubmit">🎁 Claim My $500 Off</button>
+      <div class="q-error" id="exErr" hidden role="alert"></div>
+    </form>
+    <p class="exit-consent">By claiming, you agree to be contacted by call, text &amp; email about your estimate (automated messages may be used; consent isn't a condition of purchase; reply STOP to opt out). <a href="terms-of-service.html" target="_blank" rel="noopener">Terms</a> · <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>.</p>
+    <a class="exit-call" href="tel:+15416705005">or call (541) 670-5005</a>
+    <p class="exit-ok" id="exOk" hidden></p>
+  </div>
+</div>
+
 <div class="q-callbar">
   <a class="cb-call" href="tel:+15416705005">☎ Call / Text</a>
   <a class="cb-quote" href="#address" id="cbQuote">Get my estimate</a>
@@ -684,6 +736,69 @@
   $("cbQuote").addEventListener("click", function (e) {
     if (!steps.address.hidden) { e.preventDefault(); $("address").focus(); }
   });
+
+  // ---- Exit-intent discount popup (once per session) ----
+  (function () {
+    var pop = $("exitPop"); if (!pop) return;
+    var KEY = "mcExitShown", shown = false;
+    function already() { try { return sessionStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
+    function mark() { try { sessionStorage.setItem(KEY, "1"); } catch (e) {} }
+    function openPop() {
+      if (shown || already()) return;
+      shown = true; mark(); pop.classList.add("open");
+      setTimeout(function () { var n = $("exName"); if (n) n.focus(); }, 120);
+    }
+    function closePop() { pop.classList.remove("open"); }
+    $("exitX").addEventListener("click", closePop);
+    pop.addEventListener("click", function (e) { if (e.target === pop) closePop(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePop(); });
+
+    // Arm after a short delay so it never fires on an instant bounce.
+    setTimeout(function () {
+      document.addEventListener("mouseout", function (e) {
+        if (e.clientY <= 0 && !e.relatedTarget && !e.toElement) openPop(); // desktop: cursor leaves the top
+      });
+      if (window.matchMedia && window.matchMedia("(hover: none)").matches) setTimeout(openPop, 25000); // touch: dwell fallback
+    }, 5000);
+
+    // Don't nag someone who already converted through the unlock gate.
+    var gate = $("gateForm"); if (gate) gate.addEventListener("submit", mark);
+
+    $("exitForm").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if ($("exCompany").value) { closePop(); return; } // honeypot
+      var name = $("exName").value.trim(), phone = $("exPhone").value.trim(), err = $("exErr");
+      err.hidden = true;
+      if (!name) { err.textContent = "Please enter your name."; err.hidden = false; $("exName").focus(); return; }
+      if (phone.replace(/\D/g, "").length < 10) { err.textContent = "Please enter a valid phone number."; err.hidden = false; $("exPhone").focus(); return; }
+      var btn = $("exSubmit"), orig = btn.textContent;
+      btn.disabled = true; btn.classList.add("is-loading"); btn.textContent = "Claiming…";
+      var addr = (estData && estData.address) || $("address").value.trim();
+      var estimate = estData ? {
+        address: addr, city: "", measuredSqFt: estData.measuredSqFt, quotedSqFt: estData.quotedSqFt,
+        squares: estData.squares, pitchBand: estData.pitchBand, material: currentMaterial,
+        custom: estData.custom, costLow: estData.costLow, costHigh: estData.costHigh, fallback: !!estData.fallback
+      } : {};
+      // Route through estimate-lead with the address leadId so it UPGRADES the
+      // existing lead (no duplicate) and records the discount offer.
+      fetch("/api/estimate-lead", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name, phone: phone, address: addr, estimate: estimate, leadId: leadId,
+          offer: "$500 off (exit-intent offer)" })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, d: j }; }); })
+        .then(function (res) {
+          if (!res.ok) throw new Error((res.d && res.d.error) || "Something went wrong");
+          if (window.mcTrackLead) window.mcTrackLead(); // Google Ads lead conversion
+          $("exitForm").style.display = "none";
+          $("exOk").hidden = false;
+          $("exOk").textContent = "🎉 Locked in! We'll call to confirm your estimate and apply your $500 off.";
+        })
+        .catch(function (e2) {
+          err.textContent = e2.message + " — or call (541) 670-5005.";
+          err.hidden = false; btn.disabled = false; btn.classList.remove("is-loading"); btn.textContent = orig;
+        });
+    });
+  })();
 })();
 </script>
 </body>

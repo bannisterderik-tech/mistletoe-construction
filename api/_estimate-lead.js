@@ -24,6 +24,7 @@ module.exports = async (req, res) => {
   const email = String(b.email || "").trim().toLowerCase();
   const address = String(b.address || "").trim();
   const est = b.estimate || {};
+  const offer = String(b.offer || "").trim(); // e.g. "$500 off (exit-intent offer)"
   if (!name || (!phone && !email)) { res.status(400).json({ error: "Add a name and a phone or email." }); return; }
   if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { res.status(400).json({ error: "That email doesn't look right." }); return; }
 
@@ -49,7 +50,8 @@ module.exports = async (req, res) => {
     const leadFields = {
       name: name, phone: phone, email: email, address: address, city: String(est.city || "").trim(),
       service: "Roof Replacement — instant estimate", stage: "new",
-      note: (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
+      note: (offer ? "🎁 " + offer + ". " : "") +
+        (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
         (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "")
     };
     let leadId = String(b.leadId || "").trim();
@@ -84,6 +86,7 @@ module.exports = async (req, res) => {
     const desc = "Roof replacement" + (descBits.length ? " — " + descBits.join(", ") : "");
     const token = crypto.randomBytes(16).toString("hex");
     const note = "Auto-created from the instant roof estimate." +
+      (offer ? " 🎁 Offer claimed: " + offer + "." : "") +
       (est.costLow != null ? " Estimated range " + money(est.costLow) + "–" + money(est.costHigh) + "." : "") +
       (est.custom ? " Steep pitch (9+/12) — needs a manual quote." : "") +
       (address ? " Property: " + address + "." : "") +
@@ -95,8 +98,9 @@ module.exports = async (req, res) => {
     }));
 
     // 3) notify the team
-    await notifyTeam("🏠 Instant estimate → draft proposal ready",
+    await notifyTeam((offer ? "🎁 Offer claimed → draft proposal ready" : "🏠 Instant estimate → draft proposal ready"),
       "<h2 style='color:#1b3d26'>New instant-estimate request</h2>" +
+      (offer ? "<p style='background:#fdf6e3;border:1px solid #eadfae;border-radius:8px;padding:8px 12px;color:#6b5d2a;font-weight:700'>🎁 Discount offer claimed: " + esc(offer) + " — honor it on the quote.</p>" : "") +
       "<p><strong>" + esc(name) + "</strong>" + (phone ? " · " + esc(phone) : "") + (email ? " · " + esc(email) : "") + "</p>" +
       (address ? "<p><strong>Property:</strong> " + esc(address) + "</p>" : "") +
       (est.costLow != null ? "<p><strong>Estimated range:</strong> " + money(est.costLow) + "–" + money(est.costHigh) +
