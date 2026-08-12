@@ -120,6 +120,15 @@
     color: var(--mist); font-size: 0.9rem; }
   .q-social .stars { color: var(--ochre); letter-spacing: 0.1em; font-size: 1rem; }
 
+  /* Offer teaser shown on every step (address, calculating, gate) */
+  .q-offer-hint { display: flex; align-items: center; gap: 0.6rem; margin: 1.1rem 0 0;
+    background: linear-gradient(120deg, rgba(201,160,66,0.18), rgba(107,208,71,0.12));
+    border: 1px solid rgba(201,160,66,0.45); border-radius: 12px; padding: 0.7rem 0.95rem;
+    color: var(--cream); font-size: 0.92rem; line-height: 1.4; }
+  .q-offer-hint .oh-ico { font-size: 1.2rem; flex: 0 0 auto; }
+  .q-offer-hint b { color: var(--ochre); }
+  .calc-offer { margin: 1.3rem auto 0; max-width: 22rem; color: var(--ochre); font-weight: 800; font-size: 0.92rem; }
+
   /* "Just need a repair?" off-ramp — the estimator prices full roofs; repairs
      need a person, so route those visitors to the estimate request / a call. */
   .q-repair { margin-top: clamp(1.5rem, 4vw, 2.2rem); display: flex; gap: 1rem; align-items: flex-start;
@@ -334,6 +343,7 @@
         <span class="q-kicker">⚡ 30-second estimate</span>
         <h1 class="q-h1">What will your <em>new roof</em> cost?</h1>
         <p class="q-lede">Type your address — we'll size your roof from satellite building data and price it. No phone call, no salesperson.</p>
+        <p class="q-offer-hint"><span class="oh-ico">🎁</span><span><b>$500 off every new roof</b> — plus <b>free gutters</b> for the whole house on qualifying roofs. Enter your address to see what yours gets.</span></p>
 
         <div class="q-card">
           <label class="q-label" for="address">Enter your property address</label>
@@ -389,6 +399,7 @@
             <li data-i="3"><span class="tick">4</span> Pricing it for your area</li>
           </ul>
           <div class="calc-progress"><i id="calcBar"></i></div>
+          <p class="calc-offer">🎁 Applying your $500 off — and checking free-gutter eligibility…</p>
         </div>
       </div>
 
@@ -425,7 +436,7 @@
               <div class="gate-card">
                 <div class="gate-lock">🔒</div>
                 <h3>Your estimate is ready</h3>
-                <p class="g-sub">We measured your roof — enter your details to <b>unlock your price range</b> and get a firm quote.</p>
+                <p class="g-sub">We measured your roof — enter your details to <b>unlock your price</b>, lock in your <b>$500 off</b>, and see if you scored <b>free gutters</b>.</p>
                 <form id="gateForm" novalidate>
                   <div class="g-field"><input type="text" id="gName" placeholder="Full name" autocomplete="name" required></div>
                   <div class="g-field"><input type="tel" id="gPhone" placeholder="Phone" autocomplete="tel" inputmode="tel" required></div>
@@ -513,6 +524,7 @@
   var leadId = null;          // address-only lead captured on estimate render (upgraded on unlock)
   var GUTTER_MIN = 20000;     // roofs at/above this qualify for free gutters
   var gutterQualified = false;
+  var unlocked = false;       // reveal the "you qualify" success only after contact info
 
   // Capture the address as a lead the moment the estimate renders — before the
   // visitor enters contact info — so an abandoned quiz is still a mailable lead.
@@ -654,7 +666,7 @@
       $("qgTitle").textContent = "$500 off your new roof";
       $("qgSub").textContent = "Applied to your replacement — ask about free gutters on larger roofs.";
     }
-    $("qrGutters").hidden = false;
+    $("qrGutters").hidden = !unlocked; // the "you qualify" success reveals after contact info
   }
 
   function priceFor(d, material) {
@@ -745,21 +757,21 @@
   });
 
   function reveal() {
-    captured = true;
+    captured = true; unlocked = true;
     lock(false);
-    var res = steps.results;
-    // subtle scroll to the revealed number
+    setOfferBanner(gutterQualified); // now reveal the "you qualify" success
+    // celebrate: scroll to the free-gutters banner if they qualified, else the price
     setTimeout(function () {
-      var hero = document.querySelector(".qr-hero");
-      if (hero) hero.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 200);
+      var target = (gutterQualified && !$("qrGutters").hidden) ? $("qrGutters") : document.querySelector(".qr-hero");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 220);
   }
 
   // ---- Restart ----
   $("restart").addEventListener("click", function () {
-    estData = null; captured = false;
+    estData = null; captured = false; unlocked = false;
     gateForm.reset(); lock(true);
-    $("qrOk").hidden = true;
+    $("qrGutters").hidden = true; $("qrOk").hidden = true;
     unlockBtn.classList.remove("is-loading"); unlockBtn.disabled = false; unlockBtn.textContent = "🔓 Unlock my estimate";
     $("address").value = "";
     show("address"); $("address").focus();
