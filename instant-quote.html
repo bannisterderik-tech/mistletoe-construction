@@ -168,6 +168,20 @@
   .exit-ok { color: #d7f0c8; font-weight: 700; font-size: 1.02rem; line-height: 1.5; margin: 0.5rem 0 0; }
   .exit-ok[hidden] { display: none; }
 
+  /* "You qualify for FREE gutters" reward banner — shown in results for $10k+
+     roofs, visible even while the price is blurred (an unlock incentive). */
+  .qr-gutters { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.1rem;
+    background: linear-gradient(120deg, rgba(201,160,66,0.24), rgba(107,208,71,0.16));
+    border: 1px solid rgba(201,160,66,0.55); border-radius: var(--radius-lg); padding: 0.95rem 1.15rem;
+    box-shadow: 0 14px 44px -22px rgba(201,160,66,0.75); animation: qg-pop 0.5s cubic-bezier(0.2,1.3,0.35,1) both; }
+  .qr-gutters[hidden] { display: none; }
+  @keyframes qg-pop { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .qr-gutters { animation: none; } }
+  .qg-spark { font-size: 1.8rem; line-height: 1; flex: 0 0 auto; }
+  .qg-text { display: flex; flex-direction: column; gap: 0.1rem; }
+  .qg-text strong { color: var(--cream); font-size: 1.06rem; }
+  .qg-text span { color: var(--sage); font-size: 0.88rem; line-height: 1.4; }
+
   .q-error { margin-top: 0.9rem; padding: 0.8rem 1rem; border-radius: 10px; background: rgba(197,120,40,0.16);
     border: 1px solid rgba(230,150,70,0.4); color: #ffd9b0; font-size: 0.92rem; font-weight: 600; }
   .q-error[hidden] { display: none; }
@@ -387,6 +401,11 @@
             <figcaption>📍 <b id="satAddr"></b><span id="satDate"></span></figcaption>
           </figure>
 
+          <div class="qr-gutters" id="qrGutters" hidden>
+            <span class="qg-spark" aria-hidden="true">🎉</span>
+            <div class="qg-text"><strong>Congratulations — you qualify for FREE gutters!</strong><span>A full-home gutter install, included with your new roof.</span></div>
+          </div>
+
           <div class="qr-stack">
             <div class="qr-payoff" aria-hidden="true">
               <div class="qr-hero">
@@ -458,19 +477,11 @@
 <div class="exit-back" id="exitPop" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
   <div class="exit-card">
     <button type="button" class="exit-x" id="exitX" aria-label="Close">&times;</button>
-    <span class="exit-badge">🎁 Before you go</span>
-    <h2 id="exitTitle">Save <em>$500</em> on your new roof</h2>
-    <p class="exit-sub">Claim it now and we'll apply it to your roof replacement. Real, local, family-owned — no pressure, no obligation.</p>
-    <form class="exit-form" id="exitForm" novalidate>
-      <input type="text" id="exName" placeholder="Full name" autocomplete="name" required>
-      <input type="tel" id="exPhone" placeholder="Phone" autocomplete="tel" inputmode="tel" required>
-      <input type="text" id="exCompany" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-      <button type="submit" class="q-cta" id="exSubmit">🎁 Claim My $500 Off</button>
-      <div class="q-error" id="exErr" hidden role="alert"></div>
-    </form>
-    <p class="exit-consent">By claiming, you agree to be contacted by call, text &amp; email about your estimate (automated messages may be used; consent isn't a condition of purchase; reply STOP to opt out). <a href="terms-of-service.html" target="_blank" rel="noopener">Terms</a> · <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>.</p>
+    <span class="exit-badge">💧 Wait — free gutters?</span>
+    <h2 id="exitTitle">Your roof may come with <em>FREE gutters</em></h2>
+    <p class="exit-sub">Bigger roofs include a <strong>full-home gutter install — on the house</strong>. Enter your address to see if yours qualifies. 30 seconds, no obligation.</p>
+    <button type="button" class="q-cta" id="exitGo">💧 See if I qualify →</button>
     <a class="exit-call" href="tel:+15416705005">or call (541) 670-5005</a>
-    <p class="exit-ok" id="exOk" hidden></p>
   </div>
 </div>
 
@@ -500,6 +511,8 @@
   var estData = null;         // last API estimate payload
   var currentMaterial = "asphalt";
   var leadId = null;          // address-only lead captured on estimate render (upgraded on unlock)
+  var GUTTER_MIN = 20000;     // roofs at/above this qualify for free gutters
+  var gutterQualified = false;
 
   // Capture the address as a lead the moment the estimate renders — before the
   // visitor enters contact info — so an abandoned quiz is still a mailable lead.
@@ -635,6 +648,7 @@
     if (d.custom || d.costLow == null) {
       $("costVal").textContent = "Custom quote";
       $("costSub").textContent = "Steep or complex roof — we'll price it precisely on-site.";
+      gutterQualified = false; $("qrGutters").hidden = true;
       return;
     }
     var mult = (MATERIAL[material] || 1.0) / (MATERIAL.asphalt || 1.0);
@@ -642,12 +656,16 @@
     $("costVal").textContent = money(low) + " – " + money(high);
     var label = { asphalt: "architectural asphalt", metal: "standing-seam metal", tile: "tile", flat: "flat-roof membrane" }[material] || material;
     $("costSub").textContent = "Based on ~" + (d.squares || "?") + " squares of " + label + ", " + (d.pitchBand || "measured pitch") + ".";
+    // Free gutters on qualifying roofs — based on the midpoint of the range.
+    gutterQualified = ((low + high) / 2) >= GUTTER_MIN;
+    $("qrGutters").hidden = !gutterQualified;
   }
 
   // ---- Fallback when satellite lookup fails: still gate & capture ----
   function renderFallback(address, reason) {
     estData = { address: address, fallback: true };
     $("qrSat").hidden = true;
+    gutterQualified = false; $("qrGutters").hidden = true;
     $("tileArea").textContent = "Measured on-site";
     $("tilePitch").textContent = "On-site";
     $("tileSquares").textContent = "—";
@@ -692,7 +710,8 @@
 
     fetch("/api/estimate-lead", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, phone: phone, email: email, address: addr, estimate: estimate, leadId: leadId })
+      body: JSON.stringify({ name: name, phone: phone, email: email, address: addr, estimate: estimate, leadId: leadId,
+        offer: gutterQualified ? "FREE gutters (qualifying roof, est. $20k+)" : "" })
     }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         // Reveal regardless — the customer earned their number; log failures for follow-up.
@@ -737,7 +756,7 @@
     if (!steps.address.hidden) { e.preventDefault(); $("address").focus(); }
   });
 
-  // ---- Exit-intent discount popup (once per session) ----
+  // ---- Exit-intent "free gutters" hook (once per session, address step only) ----
   (function () {
     var pop = $("exitPop"); if (!pop) return;
     var KEY = "mcExitShown", shown = false;
@@ -745,13 +764,19 @@
     function mark() { try { sessionStorage.setItem(KEY, "1"); } catch (e) {} }
     function openPop() {
       if (shown || already()) return;
+      if (steps.address.hidden || estData) return; // only before they've run an estimate
       shown = true; mark(); pop.classList.add("open");
-      setTimeout(function () { var n = $("exName"); if (n) n.focus(); }, 120);
     }
     function closePop() { pop.classList.remove("open"); }
     $("exitX").addEventListener("click", closePop);
     pop.addEventListener("click", function (e) { if (e.target === pop) closePop(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePop(); });
+
+    // "See if I qualify" → close and drop them on the address field.
+    $("exitGo").addEventListener("click", function () {
+      closePop(); show("address");
+      setTimeout(function () { var a = $("address"); if (a) { a.focus(); a.scrollIntoView({ behavior: "smooth", block: "center" }); } }, 160);
+    });
 
     // Arm after a short delay so it never fires on an instant bounce.
     setTimeout(function () {
@@ -763,41 +788,6 @@
 
     // Don't nag someone who already converted through the unlock gate.
     var gate = $("gateForm"); if (gate) gate.addEventListener("submit", mark);
-
-    $("exitForm").addEventListener("submit", function (ev) {
-      ev.preventDefault();
-      if ($("exCompany").value) { closePop(); return; } // honeypot
-      var name = $("exName").value.trim(), phone = $("exPhone").value.trim(), err = $("exErr");
-      err.hidden = true;
-      if (!name) { err.textContent = "Please enter your name."; err.hidden = false; $("exName").focus(); return; }
-      if (phone.replace(/\D/g, "").length < 10) { err.textContent = "Please enter a valid phone number."; err.hidden = false; $("exPhone").focus(); return; }
-      var btn = $("exSubmit"), orig = btn.textContent;
-      btn.disabled = true; btn.classList.add("is-loading"); btn.textContent = "Claiming…";
-      var addr = (estData && estData.address) || $("address").value.trim();
-      var estimate = estData ? {
-        address: addr, city: "", measuredSqFt: estData.measuredSqFt, quotedSqFt: estData.quotedSqFt,
-        squares: estData.squares, pitchBand: estData.pitchBand, material: currentMaterial,
-        custom: estData.custom, costLow: estData.costLow, costHigh: estData.costHigh, fallback: !!estData.fallback
-      } : {};
-      // Route through estimate-lead with the address leadId so it UPGRADES the
-      // existing lead (no duplicate) and records the discount offer.
-      fetch("/api/estimate-lead", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, phone: phone, address: addr, estimate: estimate, leadId: leadId,
-          offer: "$500 off (exit-intent offer)" })
-      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, d: j }; }); })
-        .then(function (res) {
-          if (!res.ok) throw new Error((res.d && res.d.error) || "Something went wrong");
-          if (window.mcTrackLead) window.mcTrackLead(); // Google Ads lead conversion
-          $("exitForm").style.display = "none";
-          $("exOk").hidden = false;
-          $("exOk").textContent = "🎉 Locked in! We'll call to confirm your estimate and apply your $500 off.";
-        })
-        .catch(function (e2) {
-          err.textContent = e2.message + " — or call (541) 670-5005.";
-          err.hidden = false; btn.disabled = false; btn.classList.remove("is-loading"); btn.textContent = orig;
-        });
-    });
   })();
 })();
 </script>
