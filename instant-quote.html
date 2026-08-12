@@ -402,8 +402,8 @@
           </figure>
 
           <div class="qr-gutters" id="qrGutters" hidden>
-            <span class="qg-spark" aria-hidden="true">🎉</span>
-            <div class="qg-text"><strong>Congratulations — you qualify for FREE gutters!</strong><span>A full-home gutter install, included with your new roof.</span></div>
+            <span class="qg-spark" id="qgSpark" aria-hidden="true">🎉</span>
+            <div class="qg-text"><strong id="qgTitle">Congratulations — you qualify for FREE gutters!</strong><span id="qgSub">A full-home gutter install, included with your new roof.</span></div>
           </div>
 
           <div class="qr-stack">
@@ -477,10 +477,10 @@
 <div class="exit-back" id="exitPop" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
   <div class="exit-card">
     <button type="button" class="exit-x" id="exitX" aria-label="Close">&times;</button>
-    <span class="exit-badge">💧 Wait — free gutters?</span>
-    <h2 id="exitTitle">Your roof may come with <em>FREE gutters</em></h2>
-    <p class="exit-sub">Bigger roofs include a <strong>full-home gutter install — on the house</strong>. Enter your address to see if yours qualifies. 30 seconds, no obligation.</p>
-    <button type="button" class="q-cta" id="exitGo">💧 See if I qualify →</button>
+    <span class="exit-badge">🎁 Wait — $500 off + free gutters?</span>
+    <h2 id="exitTitle">Get <em>$500 off</em> your new roof</h2>
+    <p class="exit-sub">Every roof gets <strong>$500 off</strong> — and bigger roofs include a <strong>full-home gutter install, free</strong>. Enter your address to see what yours qualifies for. 30 seconds, no obligation.</p>
+    <button type="button" class="q-cta" id="exitGo">🎁 See what I qualify for →</button>
     <a class="exit-call" href="tel:+15416705005">or call (541) 670-5005</a>
   </div>
 </div>
@@ -643,12 +643,26 @@
   }
 
   // Recompute cost for a material from the base estimate
+  // $500 off every roof; free gutters stack on qualifying ($20k+) roofs.
+  function setOfferBanner(qualifies) {
+    if (qualifies) {
+      $("qgSpark").textContent = "🎉";
+      $("qgTitle").textContent = "You qualify for FREE gutters + $500 off!";
+      $("qgSub").textContent = "A full-home gutter install AND $500 off — with your new roof.";
+    } else {
+      $("qgSpark").textContent = "🎁";
+      $("qgTitle").textContent = "$500 off your new roof";
+      $("qgSub").textContent = "Applied to your replacement — ask about free gutters on larger roofs.";
+    }
+    $("qrGutters").hidden = false;
+  }
+
   function priceFor(d, material) {
     currentMaterial = material;
     if (d.custom || d.costLow == null) {
       $("costVal").textContent = "Custom quote";
       $("costSub").textContent = "Steep or complex roof — we'll price it precisely on-site.";
-      gutterQualified = false; $("qrGutters").hidden = true;
+      gutterQualified = false; setOfferBanner(false);
       return;
     }
     var mult = (MATERIAL[material] || 1.0) / (MATERIAL.asphalt || 1.0);
@@ -658,14 +672,14 @@
     $("costSub").textContent = "Based on ~" + (d.squares || "?") + " squares of " + label + ", " + (d.pitchBand || "measured pitch") + ".";
     // Free gutters on qualifying roofs — based on the midpoint of the range.
     gutterQualified = ((low + high) / 2) >= GUTTER_MIN;
-    $("qrGutters").hidden = !gutterQualified;
+    setOfferBanner(gutterQualified);
   }
 
   // ---- Fallback when satellite lookup fails: still gate & capture ----
   function renderFallback(address, reason) {
     estData = { address: address, fallback: true };
     $("qrSat").hidden = true;
-    gutterQualified = false; $("qrGutters").hidden = true;
+    gutterQualified = false; setOfferBanner(false);
     $("tileArea").textContent = "Measured on-site";
     $("tilePitch").textContent = "On-site";
     $("tileSquares").textContent = "—";
@@ -711,7 +725,7 @@
     fetch("/api/estimate-lead", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name, phone: phone, email: email, address: addr, estimate: estimate, leadId: leadId,
-        offer: gutterQualified ? "FREE gutters (qualifying roof, est. $20k+)" : "" })
+        offer: gutterQualified ? "FREE gutters + $500 off (qualifying roof, est. $20k+)" : "$500 off" })
     }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         // Reveal regardless — the customer earned their number; log failures for follow-up.
@@ -778,13 +792,13 @@
       setTimeout(function () { var a = $("address"); if (a) { a.focus(); a.scrollIntoView({ behavior: "smooth", block: "center" }); } }, 160);
     });
 
-    // Arm after a short delay so it never fires on an instant bounce.
+    // Arm quickly (brief guard against an instant on-load bounce).
     setTimeout(function () {
       document.addEventListener("mouseout", function (e) {
         if (e.clientY <= 0 && !e.relatedTarget && !e.toElement) openPop(); // desktop: cursor leaves the top
       });
-      if (window.matchMedia && window.matchMedia("(hover: none)").matches) setTimeout(openPop, 25000); // touch: dwell fallback
-    }, 5000);
+      if (window.matchMedia && window.matchMedia("(hover: none)").matches) setTimeout(openPop, 12000); // touch: dwell fallback
+    }, 1500);
 
     // Don't nag someone who already converted through the unlock gate.
     var gate = $("gateForm"); if (gate) gate.addEventListener("submit", mark);
