@@ -2,8 +2,10 @@
 // Set GOOGLE_REVIEW_URL in Vercel to your Business Profile "write a review" link.
 // Keys on ?c=<customerId> (customer flow) or ?p=<proposalId> (proposal flow).
 const { sbGet, sbPatch, hasService } = require("./_supabase.js");
+// Direct "write a review" link from the Google Business Profile (g.page short
+// link). Env var still wins if set; this default means it works without it.
 const REVIEW_URL = process.env.GOOGLE_REVIEW_URL ||
-  "https://www.google.com/search?q=Mistletoe+Construction+LLC+Riddle+Oregon+reviews";
+  "https://g.page/r/CYxQiWWU9vkMEBM/review";
 
 module.exports = async (req, res) => {
   const q = req.query || {};
