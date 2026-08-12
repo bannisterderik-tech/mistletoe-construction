@@ -120,6 +120,22 @@
     color: var(--mist); font-size: 0.9rem; }
   .q-social .stars { color: var(--ochre); letter-spacing: 0.1em; font-size: 1rem; }
 
+  /* "Just need a repair?" off-ramp — the estimator prices full roofs; repairs
+     need a person, so route those visitors to the estimate request / a call. */
+  .q-repair { margin-top: clamp(1.5rem, 4vw, 2.2rem); display: flex; gap: 1rem; align-items: flex-start;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid var(--ochre);
+    border-radius: var(--radius-lg); padding: clamp(1.1rem, 3.5vw, 1.6rem); }
+  .q-repair-icon { font-size: 1.9rem; line-height: 1; flex: 0 0 auto; }
+  .q-repair-body h3 { color: var(--cream); font-size: clamp(1.15rem, 3.4vw, 1.45rem); margin: 0 0 0.35rem; }
+  .q-repair-body p { color: var(--mist); font-size: 0.94rem; line-height: 1.55; margin: 0 0 1rem; }
+  .q-repair-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1.1rem; }
+  .q-repair-btn { display: inline-flex; align-items: center; gap: 0.45rem; background: #fff; color: var(--pine-900);
+    font-weight: 900; text-decoration: none; padding: 0.85rem 1.3rem; border-radius: 10px; font-size: 1.02rem; }
+  .q-repair-btn:hover { filter: brightness(0.96); }
+  .q-repair-call { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--ochre); font-weight: 800;
+    text-decoration: none; font-size: 1rem; }
+  .q-repair-call:hover { text-decoration: underline; }
+
   .q-error { margin-top: 0.9rem; padding: 0.8rem 1rem; border-radius: 10px; background: rgba(197,120,40,0.16);
     border: 1px solid rgba(230,150,70,0.4); color: #ffd9b0; font-size: 0.92rem; font-weight: 600; }
   .q-error[hidden] { display: none; }
@@ -295,6 +311,18 @@
         <div class="q-social">
           <span class="stars">★★★★★</span>
           <span>Family-owned in Riddle — trusted across Douglas County.</span>
+        </div>
+
+        <div class="q-repair">
+          <div class="q-repair-icon">🔧</div>
+          <div class="q-repair-body">
+            <h3>Just looking for a repair estimate?</h3>
+            <p>This tool prices a full roof replacement. For a repair — a leak, missing shingles, flashing, a few bad spots — we'll come take a quick look in person, free. No satellite needed.</p>
+            <div class="q-repair-actions">
+              <a class="q-repair-btn" href="contact.html">🔧 Get a Repair Estimate →</a>
+              <a class="q-repair-call" href="tel:+15416705005">or call (541) 670-5005</a>
+            </div>
+          </div>
         </div>
       </div>
 
