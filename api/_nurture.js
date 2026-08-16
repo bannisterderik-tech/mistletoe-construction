@@ -47,10 +47,11 @@ function wrap(inner, email) {
     "Prefer not to get these? <a href='" + unsubUrl(email) + "' style='color:#9ca3af'>Unsubscribe</a>.</p></div></div>";
 }
 
-async function runNurture() {
+async function runNurture(opts) {
+  const peek = !!(opts && opts.peek); // read-only: count who's due, send nothing
   if (!hasService()) return { skipped: "no service key" };
   const key = process.env.RESEND_API_KEY;
-  if (!key) return { skipped: "no resend key" };
+  if (!key && !peek) return { skipped: "no resend key" };
   const now = new Date();
 
   // Global suppression: anyone who unsubscribed from any list.
@@ -84,6 +85,8 @@ async function runNurture() {
     due.push({ l: l, email: email, nst: nst });
     if (due.length >= MAX_PER_RUN) break;
   }
+
+  if (peek) return { ready: true, due: due.length, scanned: leads.length };
 
   let sent = 0, failed = 0;
   for (const d of due) {

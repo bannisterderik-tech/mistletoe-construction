@@ -54,8 +54,8 @@ module.exports = async (req, res) => {
 
   // Lead-nurture drip rides along on this daily cron (no extra Vercel function).
   // Skipped on dry runs; never lets a nurture error break the realtor tick.
-  let nurture = { skipped: "dry run" };
-  if (!dry) { try { nurture = await require("./_nurture.js")(); } catch (e) { nurture = { error: (e && e.message) || "nurture failed" }; } }
+  let nurture = null;
+  try { nurture = await require("./_nurture.js")(dry ? { peek: true } : undefined); } catch (e) { nurture = { error: (e && e.message) || "nurture failed" }; }
 
   const h = { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" };
   const today = new Date().toISOString().slice(0, 10);
