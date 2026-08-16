@@ -260,6 +260,7 @@ MC.ready.then(function () {
         ["Stage", stageLabel(derived) + (derived !== normStage(lead.stage) ? " <span class='t-sub'>(from proposal)</span>" : ""), "raw"],
         ["Assigned to", MC.memberName(lead.assigned_to)],
         ["Follow-up", lead.followup_at ? MC.fmtDate(lead.followup_at) : ""],
+        ["Nurture", (!lead.email ? "<span class='t-sub'>needs an email</span>" : (lead.nurture_stop ? "⏸ Paused" : ((Number(lead.nurture_stage) || 0) >= 3 ? "✓ Sequence complete" : "Active · " + (Number(lead.nurture_stage) || 0) + "/3 emails sent"))), "raw"],
         ["Created", MC.fmtDate(lead.created)],
         ["Note", lead.note]
       ])) +
@@ -309,6 +310,11 @@ MC.ready.then(function () {
     }
     if (lead.email) {
       actions.push({ label: "Email", kind: "outline", onClick: function () { location.href = "mailto:" + lead.email; } });
+      actions.push({ label: (lead.nurture_stop ? "Resume nurture" : "Stop nurture"), kind: "outline", onClick: function () {
+        MC.update("leads", lead.id, { nurture_stop: !lead.nurture_stop });
+        MCUI.toast(lead.nurture_stop ? "Nurture resumed ✓" : "Nurture paused for this lead");
+        openLeadPanel(lead.id);
+      } });
     }
     if (((MC.auth.session() || {}).role) === "admin") {
       actions.push({ label: "Delete", kind: "outline", onClick: function (api) {

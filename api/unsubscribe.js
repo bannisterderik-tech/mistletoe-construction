@@ -51,7 +51,10 @@ module.exports = async (req, res) => {
         // never emailed yet — record a suppression row so we never start
         await sbInsert("campaign_state", { email: email, step: 0, status: "unsubscribed", updated_at: now });
       }
-      notifyTeam("Unsubscribe — " + email, "<p><strong>" + email + "</strong> unsubscribed from the realtor drip. They won't be emailed again.</p>");
+      // Also stop any lead-nurture drip for this address (best-effort; ignores
+      // missing nurture_stop column pre-migration-006).
+      try { await sbPatch("leads", "email=eq." + encodeURIComponent(email), { nurture_stop: true }); } catch (e) {}
+      notifyTeam("Unsubscribe — " + email, "<p><strong>" + email + "</strong> unsubscribed. They won't be emailed again (realtor drip + lead nurture).</p>");
     } catch (e) { /* best-effort: still confirm to the user below */ }
   }
 

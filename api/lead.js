@@ -3,6 +3,7 @@ var H = {
   "submit": require("./_submit-lead.js"),
   "estimate": require("./_estimate-lead.js"),
   "estimate-address": require("./_estimate-address.js"),
+  "refer": require("./_refer.js"),
 };
 module.exports = async function (req, res) {
   var action = (req.query && req.query.action) || "";

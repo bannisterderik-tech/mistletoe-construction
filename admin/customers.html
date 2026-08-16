@@ -319,6 +319,14 @@ MC.ready.then(function () {
               openProfile(MC.get("customers", c.id) || c);
             }).catch(function (e) { MCUI.toast("Couldn't send: " + e.message, "err"); });
       } },
+      { label: "Referral link 🎁", kind: "outline", onClick: function () {
+          var link = location.origin + "/refer.html?ref=" + encodeURIComponent(c.id);
+          var share = "Hi " + (c.name ? c.name.split(" ")[0] : "there") + "! If you know a neighbor who needs a roof, send them our way — they get $500 off and you get $250 when it's installed: " + link;
+          function done() { MCUI.toast("Referral message copied — text or email it to " + (c.name || "them") + " ✓"); }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(share).then(done).catch(function () { window.prompt("Copy this referral message:", share); });
+          } else { window.prompt("Copy this referral message:", share); }
+      } },
       { label: (c.member ? "Remove membership" : "Make member"), kind: "outline", onClick: function () {
           MC.update("customers", c.id, { member: !c.member }); render();
           MCUI.toast(c.member ? "Membership removed" : "Marked as member ✓"); openProfile(MC.get("customers", c.id) || c);

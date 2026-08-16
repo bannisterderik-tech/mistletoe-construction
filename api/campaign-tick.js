@@ -52,6 +52,11 @@ module.exports = async (req, res) => {
   if (!svc || !key) { res.status(503).json({ error: "not configured" }); return; }
   const dry = !!(req.query && (req.query.dry === "1" || req.query.dry === "true"));
 
+  // Lead-nurture drip rides along on this daily cron (no extra Vercel function).
+  // Skipped on dry runs; never lets a nurture error break the realtor tick.
+  let nurture = { skipped: "dry run" };
+  if (!dry) { try { nurture = await require("./_nurture.js")(); } catch (e) { nurture = { error: (e && e.message) || "nurture failed" }; } }
+
   const h = { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" };
   const today = new Date().toISOString().slice(0, 10);
   const NSTEPS = EM.steps.length;
@@ -78,7 +83,7 @@ module.exports = async (req, res) => {
       return { c: c, step: s.step || 0, status: s.status || "active" };
     }).filter((x) => x.status !== "unsubscribed" && x.step < NSTEPS && !ALWAYS_SUPPRESS.has((x.c.email || "").toLowerCase()));
 
-    if (!eligible.length) { res.status(200).json({ done: true, message: "all contacts completed all 14 emails" }); return; }
+    if (!eligible.length) { res.status(200).json({ done: true, message: "all contacts completed all 14 emails", nurture: nurture }); return; }
 
     const minStep = Math.min.apply(null, eligible.map((x) => x.step));
     const column = eligible.filter((x) => x.step === minStep);
@@ -88,7 +93,7 @@ module.exports = async (req, res) => {
       today, currentEmail: minStep + 1, currentSubject: EM.steps[minStep].subject,
       sentToday, cap: DAILY_CAP, remainingBudget: budget,
       waitingInColumn: column.length, toSendNow: batch.length, dry,
-      totalSent, contactsStarted, contactsTotal: CONTACTS.length, unsubscribed, byStep
+      totalSent, contactsStarted, contactsTotal: CONTACTS.length, unsubscribed, byStep, nurture
     };
     if (dry) { summary.preview = batch.slice(0, 5).map((x) => x.c.email); res.status(200).json(summary); return; }
     if (!batch.length) { res.status(200).json(Object.assign({ sent: 0 }, summary)); return; }

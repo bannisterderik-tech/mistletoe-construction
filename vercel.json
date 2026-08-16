@@ -65,6 +65,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/refer",
+      "destination": "/api/lead?action=refer"
+    },
+    {
       "source": "/api/social-accounts",
       "destination": "/api/social?action=accounts"
     },
