@@ -52,7 +52,8 @@ module.exports = async (req, res) => {
       service: "Roof Replacement — instant estimate", stage: "new",
       note: (offer ? "🎁 " + offer + ". " : "") +
         (est.costLow != null ? "Instant estimate " + money(est.costLow) + "–" + money(est.costHigh) + ". " : "") +
-        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "")
+        (est.pitchBand ? est.pitchBand + ". " : "") + (address ? address + ". " : "") +
+        (est.details ? est.details + ". " : "")
     };
     let leadId = String(b.leadId || "").trim();
     if (!leadId && address) {
@@ -90,6 +91,7 @@ module.exports = async (req, res) => {
       (est.costLow != null ? " Estimated range " + money(est.costLow) + "–" + money(est.costHigh) + "." : "") +
       (est.custom ? " Steep pitch (9+/12) — needs a manual quote." : "") +
       (address ? " Property: " + address + "." : "") +
+      (est.details ? " Homeowner said — " + est.details + "." : "") +
       " Review and adjust the line items before sending.";
     await chk("proposal", await sbInsert("proposals", {
       id: genId("p"), customerId: customerId, lead_id: leadId, title: "Roof replacement — instant estimate",
@@ -103,6 +105,7 @@ module.exports = async (req, res) => {
       (offer ? "<p style='background:#fdf6e3;border:1px solid #eadfae;border-radius:8px;padding:8px 12px;color:#6b5d2a;font-weight:700'>🎁 Discount offer claimed: " + esc(offer) + " — honor it on the quote.</p>" : "") +
       "<p><strong>" + esc(name) + "</strong>" + (phone ? " · " + esc(phone) : "") + (email ? " · " + esc(email) : "") + "</p>" +
       (address ? "<p><strong>Property:</strong> " + esc(address) + "</p>" : "") +
+      (est.details ? "<p><strong>Homeowner said:</strong> " + esc(est.details) + "</p>" : "") +
       (est.costLow != null ? "<p><strong>Estimated range:</strong> " + money(est.costLow) + "–" + money(est.costHigh) +
         " · " + esc(est.pitchBand || "") + " · " + (est.material || "asphalt") + "</p>" : "") +
       "<p>A <strong>draft proposal</strong> and customer record were created in the CRM. Open <strong>Proposals</strong> to review, adjust, and send — accepting it becomes a Stripe invoice automatically.</p>");

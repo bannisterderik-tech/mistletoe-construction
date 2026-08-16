@@ -302,6 +302,50 @@
   .q-restart { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; background: none; border: 0;
     color: var(--sage); font-weight: 700; font-size: 0.85rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
+  /* Back link (change project / go back a step) */
+  .q-back { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0 0 1rem; background: none; border: 0;
+    color: var(--sage); font-weight: 800; font-size: 0.85rem; cursor: pointer; padding: 0; }
+  .q-back:hover { color: var(--cream); }
+  .q-back svg { width: 15px; height: 15px; }
+
+  /* Step 1 — project chooser tiles */
+  .q-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 0.4rem; }
+  .q-choice { display: flex; align-items: flex-start; gap: 0.8rem; text-align: left; cursor: pointer;
+    background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.14); border-radius: var(--radius);
+    padding: 1.05rem 1rem; color: var(--cream); transition: border-color 0.15s, background 0.15s, transform 0.1s; }
+  .q-choice:hover { border-color: var(--ochre); background: rgba(255,255,255,0.1); }
+  .q-choice:active { transform: translateY(1px); }
+  .q-choice .c-ico { font-size: 1.7rem; line-height: 1; flex: 0 0 auto; }
+  .q-choice .c-ttl { font-weight: 900; font-size: 1.02rem; display: block; margin-bottom: 0.15rem; }
+  .q-choice .c-sub { font-size: 0.82rem; color: var(--mist); line-height: 1.4; }
+  .q-choice.feat { grid-column: 1 / -1; border-color: rgba(201,160,66,0.5); background: rgba(201,160,66,0.1); }
+  .q-choice.feat .c-tag { display: inline-block; margin-top: 0.35rem; font-size: 0.7rem; font-weight: 900;
+    letter-spacing: 0.05em; text-transform: uppercase; color: #22160a; background: var(--ochre);
+    padding: 0.15rem 0.5rem; border-radius: 999px; }
+  @media (max-width: 460px) { .q-choices { grid-template-columns: 1fr; } }
+
+  /* Details — tappable question groups */
+  .q-qgroup { margin-bottom: 1.3rem; }
+  .q-qgroup .q-q { font-weight: 800; font-size: 1rem; margin: 0 0 0.6rem; color: var(--cream); }
+  .q-qgroup .q-q .req { color: var(--ochre); }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .q-opt { cursor: pointer; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.16);
+    border-radius: 999px; padding: 0.6rem 1rem; color: var(--cream); font-weight: 700; font-size: 0.9rem;
+    transition: border-color 0.15s, background 0.15s; }
+  .q-opt:hover { border-color: var(--ochre); }
+  .q-opt.on { background: var(--ochre); border-color: var(--ochre); color: #22160a; }
+
+  /* Success (non-priced branches) */
+  .q-done { text-align: center; }
+  .q-done .d-ico { font-size: 3.4rem; line-height: 1; }
+  .q-done h2 { font-size: clamp(1.5rem, 4.5vw, 2rem); margin: 0.6rem 0 0.4rem; color: var(--cream); }
+  .q-done p { color: var(--mist); font-size: 1.02rem; line-height: 1.6; max-width: 30rem; margin: 0 auto 1.2rem; }
+  .q-done .d-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; }
+  .q-done .d-actions a { flex: 1 1 12rem; text-align: center; padding: 1rem; border-radius: var(--radius);
+    font-weight: 900; text-decoration: none; }
+  .q-done .d-call { background: #fff; color: var(--pine-900); }
+  .q-done .d-home { background: rgba(255,255,255,0.1); color: var(--cream); border: 1px solid rgba(255,255,255,0.18); }
+
   /* Sticky mobile call bar */
   .q-callbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; display: none; gap: 0.6rem;
     padding: 0.6rem 0.8rem calc(0.6rem + env(safe-area-inset-bottom)); background: rgba(11,26,16,0.96);
@@ -333,13 +377,61 @@
 
       <!-- Progress -->
       <div class="q-progress" id="qProgress">
-        <span class="dot on" data-step="1"><i>1</i> Your address</span>
+        <span class="dot on" data-step="1"><i>1</i> <span class="dl" data-l1="What you need">What you need</span></span>
         <span class="bar"></span>
-        <span class="dot" data-step="2"><i>2</i> Your estimate</span>
+        <span class="dot" data-step="2"><i>2</i> <span class="dl" data-l2="Details">Details</span></span>
+        <span class="bar"></span>
+        <span class="dot" data-step="3"><i>3</i> <span class="dl" data-l3="Your estimate">Your estimate</span></span>
       </div>
 
-      <!-- STEP 1 — ADDRESS ONLY -->
-      <div class="q-step" id="step-address">
+      <!-- STEP 1 — WHAT DO YOU NEED? -->
+      <div class="q-step" id="step-service">
+        <span class="q-kicker">⚡ Free instant estimate</span>
+        <h1 class="q-h1">What can we help you with?</h1>
+        <p class="q-lede">Pick what you need below. Full roof replacements get an instant satellite price — everything else gets a fast, free on-site look.</p>
+        <p class="q-offer-hint"><span class="oh-ico">🎁</span><span><b>$500 off every new roof</b> — plus <b>free gutters</b> for the whole house on qualifying roofs.</span></p>
+
+        <div class="q-choices" id="svcChoices">
+          <button type="button" class="q-choice feat" data-service="Roof Replacement" data-flow="price" data-label="new roof">
+            <span class="c-ico">🏠</span>
+            <span><span class="c-ttl">Full roof replacement</span><span class="c-sub">Get an instant price from satellite measurements.</span><span class="c-tag">Instant price + $500 off</span></span>
+          </button>
+          <button type="button" class="q-choice" data-service="Roof Repair" data-flow="contact" data-label="roof repair">
+            <span class="c-ico">🔧</span>
+            <span><span class="c-ttl">Roof repair</span><span class="c-sub">Leak, missing shingles, storm or flashing damage.</span></span>
+          </button>
+          <button type="button" class="q-choice" data-service="Roof Cleaning / Moss Removal" data-flow="contact" data-label="roof cleaning">
+            <span class="c-ico">🧹</span>
+            <span><span class="c-ttl">Roof cleaning &amp; moss removal</span><span class="c-sub">Moss, debris and buildup — cleaned and treated.</span></span>
+          </button>
+          <button type="button" class="q-choice" data-service="Gutters / Gutter Guards" data-flow="contact" data-label="gutters">
+            <span class="c-ico">🌧️</span>
+            <span><span class="c-ttl">Gutters &amp; guards</span><span class="c-sub">New gutters, leaf guards, or gutter repair.</span></span>
+          </button>
+          <button type="button" class="q-choice" data-service="Siding" data-flow="contact" data-label="siding">
+            <span class="c-ico">🧱</span>
+            <span><span class="c-ttl">Siding</span><span class="c-sub">Repair or full replacement, any material.</span></span>
+          </button>
+          <button type="button" class="q-choice" data-service="Roof Inspection" data-flow="contact" data-label="inspection">
+            <span class="c-ico">🔍</span>
+            <span><span class="c-ttl">Not sure? Free inspection</span><span class="c-sub">We'll take a look and tell you honestly.</span></span>
+          </button>
+        </div>
+
+        <div class="q-trust" style="margin-top:1.5rem">
+          <span class="q-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> CCB #255729</span>
+          <span class="q-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Licensed &amp; insured</span>
+          <span class="q-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> No obligation</span>
+        </div>
+        <div class="q-social">
+          <span class="stars">★★★★★</span>
+          <span>Family-owned in Riddle — trusted across Douglas County.</span>
+        </div>
+      </div>
+
+      <!-- STEP 2 (price flow) — ADDRESS -->
+      <div class="q-step" id="step-address" hidden>
+        <button type="button" class="q-back" data-back="service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg> Change what you need</button>
         <span class="q-kicker">⚡ 30-second estimate</span>
         <h1 class="q-h1">What will your <em>new roof</em> cost?</h1>
         <p class="q-lede">Type your address — we'll size your roof from satellite building data and price it. No phone call, no salesperson.</p>
@@ -353,7 +445,7 @@
               placeholder="e.g. 595 E Third St, Riddle OR" inputmode="text">
             <ul id="ac-list" class="ac-list" role="listbox" hidden></ul>
           </div>
-          <button type="button" class="q-cta" id="find">See my estimate →</button>
+          <button type="button" class="q-cta" id="find">Next: a few quick details →</button>
           <div class="q-error" id="estError" hidden role="alert"></div>
 
           <div class="q-trust">
@@ -368,17 +460,54 @@
           <span class="stars">★★★★★</span>
           <span>Family-owned in Riddle — trusted across Douglas County.</span>
         </div>
+      </div>
 
-        <div class="q-repair">
-          <div class="q-repair-icon">🔧</div>
-          <div class="q-repair-body">
-            <h3>Just looking for a repair estimate?</h3>
-            <p>This tool prices a full roof replacement. For a repair — a leak, missing shingles, flashing, a few bad spots — we'll come take a quick look in person, free. No satellite needed.</p>
-            <div class="q-repair-actions">
-              <a class="q-repair-btn" href="contact.html">🔧 Get a Repair Estimate →</a>
-              <a class="q-repair-call" href="tel:+15416705005">or call (541) 670-5005</a>
-            </div>
+      <!-- STEP 2/3 — DETAILS (questions built per project type) -->
+      <div class="q-step" id="step-details" hidden>
+        <button type="button" class="q-back" id="detailsBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+        <span class="q-kicker" id="detailsKicker">⚡ Almost there</span>
+        <h1 class="q-h1" id="detailsH1">A few quick details</h1>
+        <p class="q-lede" id="detailsLede">This helps us get your number right. Tap your answers — takes 15 seconds.</p>
+        <div class="q-card">
+          <div id="detailsQs"></div>
+          <button type="button" class="q-cta" id="detailsGo">Continue →</button>
+          <div class="q-error" id="detailsError" hidden role="alert"></div>
+        </div>
+      </div>
+
+      <!-- STEP (contact flow) — CONTACT -->
+      <div class="q-step" id="step-contact" hidden>
+        <button type="button" class="q-back" id="contactBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+        <span class="q-kicker" id="contactKicker">📋 Last step</span>
+        <h1 class="q-h1" id="contactH1">Where should we send your free quote?</h1>
+        <p class="q-lede" id="contactLede">Tell us how to reach you and we'll schedule your free, no-obligation visit — usually within one business day.</p>
+        <div class="q-card">
+          <div class="g-field"><input type="text" id="cName" placeholder="Full name" autocomplete="name"></div>
+          <div class="g-field"><input type="tel" id="cPhone" placeholder="Phone" autocomplete="tel" inputmode="tel"></div>
+          <div class="g-field"><input type="email" id="cEmail" placeholder="Email" autocomplete="email" inputmode="email"></div>
+          <div class="g-field"><input type="text" id="cAddress" placeholder="Property address (or town)" autocomplete="street-address"></div>
+          <input type="text" id="cCompany" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+          <label class="g-consent">
+            <input type="checkbox" id="cConsent">
+            <span>I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener">Terms</a> &amp; <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a> and consent to calls, texts &amp; emails from Mistletoe Construction LLC — including automated/AI messages. Consent isn't a condition of purchase. Msg &amp; data rates may apply; reply STOP to opt out.</span>
+          </label>
+          <div class="q-error" id="contactError" hidden role="alert"></div>
+          <button type="button" class="q-cta" id="contactGo">Request my free estimate →</button>
+          <p class="g-fine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Your info is safe. No spam, ever.</p>
+        </div>
+      </div>
+
+      <!-- Success (contact flow) -->
+      <div class="q-step" id="step-done" hidden>
+        <div class="q-done">
+          <div class="d-ico">🎉</div>
+          <h2 id="doneH2">You're all set!</h2>
+          <p id="doneP">Thanks! We got your request and we'll reach out within one business day to schedule your free on-site look. Need us sooner? Call or text anytime.</p>
+          <div class="d-actions">
+            <a class="d-call" href="tel:+15416705005">☎ Call / Text (541) 670-5005</a>
+            <a class="d-home" href="./">← Back to home</a>
           </div>
+          <div style="margin-top:1rem"><button type="button" class="q-restart" id="restart2">↻ Start over</button></div>
         </div>
       </div>
 
@@ -538,20 +667,29 @@
       .catch(function () {});
   }
 
+  // ---- Project selection state ----
+  var project = { service: "Roof Replacement", flow: "price", label: "new roof", details: {} };
+
   // ---- Step navigation ----
-  var steps = { address: $("step-address"), calc: $("step-calc"), results: $("step-results") };
+  var steps = {
+    service: $("step-service"), address: $("step-address"), details: $("step-details"),
+    calc: $("step-calc"), results: $("step-results"), contact: $("step-contact"), done: $("step-done")
+  };
+  // stage -> which numbered dot is "current" (1..3); earlier dots show "done"
+  var STAGE_DOT = { service: 1, address: 2, details: 2, calc: 3, results: 3, contact: 3, done: 3 };
   function setProgress(stage) {
-    var dots = document.querySelectorAll("#qProgress .dot");
-    dots.forEach(function (d) {
+    var cur = STAGE_DOT[stage] || 1;
+    var lastLabel = document.querySelector('#qProgress .dot[data-step="3"] .dl');
+    if (lastLabel) lastLabel.textContent = project.flow === "price" ? "Your estimate" : "Your info";
+    document.querySelectorAll("#qProgress .dot").forEach(function (d) {
       var s = Number(d.dataset.step);
       d.classList.remove("on", "done");
-      if (stage === "results" && s === 2) d.classList.add("on");
-      else if (stage === "results" && s === 1) d.classList.add("done");
-      else if (stage !== "results" && s === 1) d.classList.add("on");
+      if (s < cur) d.classList.add("done");
+      else if (s === cur) d.classList.add("on");
     });
   }
   function show(name) {
-    Object.keys(steps).forEach(function (k) { steps[k].hidden = (k !== name); });
+    Object.keys(steps).forEach(function (k) { if (steps[k]) steps[k].hidden = (k !== name); });
     setProgress(name);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -608,16 +746,112 @@
     })();
   }
 
-  // ---- Find (Step 1 → 2 → 3) ----
+  // ---- Question sets per project type ----
+  var QUESTIONS = {
+    "Roof Replacement": [
+      { k: "property", q: "What type of property?", req: true, opts: ["Single-family home", "Manufactured home", "Multi-family", "Commercial"] },
+      { k: "stories", q: "How many stories?", req: true, opts: ["1", "2", "3+"] },
+      { k: "roofAge", q: "Roughly how old is the current roof?", req: false, opts: ["0–10 yrs", "10–20 yrs", "20+ yrs", "Not sure"] },
+      { k: "timeline", q: "When are you hoping to get it done?", req: true, opts: ["As soon as possible", "1–3 months", "Just getting a budget"] }
+    ],
+    "Roof Repair": [
+      { k: "issue", q: "What's going on?", req: true, opts: ["Active leak", "Missing / damaged shingles", "Storm damage", "Flashing or chimney", "Something else"] },
+      { k: "urgency", q: "How urgent is it?", req: true, opts: ["Emergency", "Within a week", "Just checking"] },
+      { k: "stories", q: "How many stories?", req: false, opts: ["1", "2", "3+"] }
+    ],
+    "Roof Cleaning / Moss Removal": [
+      { k: "amount", q: "How much moss or buildup?", req: true, opts: ["A little", "Quite a lot", "Not sure"] },
+      { k: "material", q: "Roof material?", req: false, opts: ["Asphalt shingle", "Metal", "Tile", "Not sure"] }
+    ],
+    "Gutters / Gutter Guards": [
+      { k: "need", q: "What do you need?", req: true, opts: ["New gutters", "Gutter guards", "Gutter repair", "Not sure"] },
+      { k: "stories", q: "How many stories?", req: false, opts: ["1", "2", "3+"] }
+    ],
+    "Siding": [
+      { k: "work", q: "What kind of work?", req: true, opts: ["Repair a section", "Full replacement", "Not sure"] },
+      { k: "material", q: "Preferred material?", req: false, opts: ["Vinyl", "Fiber cement", "Wood / other", "Not sure"] }
+    ],
+    "Roof Inspection": [
+      { k: "reason", q: "What's the inspection for?", req: true, opts: ["Buying or selling", "Insurance claim", "General checkup", "I think there's a problem"] },
+      { k: "timeline", q: "How soon do you need it?", req: true, opts: ["As soon as possible", "This month", "Just planning"] }
+    ]
+  };
+
+  function esc2(s) { return String(s).replace(/[<>&"]/g, function (c) { return ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]; }); }
+
+  // Build the details step's questions for the current project.
+  function buildDetails() {
+    project.details = {};
+    var qs = QUESTIONS[project.service] || [];
+    $("detailsQs").innerHTML = qs.map(function (g) {
+      return "<div class='q-qgroup' data-k='" + g.k + "' data-req='" + (g.req ? 1 : 0) + "'>" +
+        "<p class='q-q'>" + esc2(g.q) + (g.req ? " <span class='req'>*</span>" : "") + "</p>" +
+        "<div class='q-opts'>" + g.opts.map(function (o) {
+          return "<button type='button' class='q-opt' data-v='" + esc2(o) + "'>" + esc2(o) + "</button>";
+        }).join("") + "</div></div>";
+    }).join("");
+    if (project.flow === "price") {
+      $("detailsKicker").textContent = "⚡ Almost there";
+      $("detailsH1").textContent = "A few quick details";
+      $("detailsLede").textContent = "This helps us get your number right. Tap your answers — takes 15 seconds.";
+      $("detailsGo").textContent = "See my estimate →";
+      $("detailsBack").dataset.back = "address";
+    } else {
+      $("detailsKicker").textContent = "🔧 " + project.service;
+      $("detailsH1").textContent = "Tell us a little more";
+      $("detailsLede").textContent = "A couple quick taps so we can help you faster.";
+      $("detailsGo").textContent = "Continue →";
+      $("detailsBack").dataset.back = "service";
+    }
+  }
+
+  // Select one option per group.
+  $("detailsQs").addEventListener("click", function (e) {
+    var b = e.target.closest(".q-opt"); if (!b) return;
+    var group = b.closest(".q-qgroup");
+    group.querySelectorAll(".q-opt").forEach(function (x) { x.classList.remove("on"); });
+    b.classList.add("on");
+    project.details[group.dataset.k] = b.dataset.v;
+    clearErr($("detailsError"));
+  });
+
+  function detailsSummary() {
+    var qs = QUESTIONS[project.service] || [];
+    return qs.map(function (g) { return project.details[g.k] ? (g.q.replace(/\?$/, "") + ": " + project.details[g.k]) : null; })
+      .filter(Boolean).join(" · ");
+  }
+
+  // ---- Service tiles (Step 1) ----
+  $("svcChoices").addEventListener("click", function (e) {
+    var b = e.target.closest(".q-choice"); if (!b) return;
+    project.service = b.dataset.service;
+    project.flow = b.dataset.flow;
+    project.label = b.dataset.label || "project";
+    if (project.flow === "price") { show("address"); setTimeout(function () { $("address").focus(); }, 120); }
+    else { buildDetails(); show("details"); }
+  });
+
+  // ---- Back buttons ----
+  document.querySelector('#step-address .q-back').addEventListener("click", function () { show("service"); });
+  $("detailsBack").addEventListener("click", function () { show(this.dataset.back || "service"); });
+  $("contactBack").addEventListener("click", function () { show("details"); });
+
+  // ---- Price flow: address → details ----
   var findBtn = $("find");
   findBtn.addEventListener("click", function () {
     var address = $("address").value.trim();
     clearErr($("estError"));
     if (address.length < 5) { showErr($("estError"), "Please enter your full property address."); $("address").focus(); return; }
+    captureAddress(address, {}); // bank the lead early, even if they bail mid-details
+    buildDetails();
+    show("details");
+  });
 
+  // Run the satellite estimate (price flow), after details are collected.
+  function runEstimate() {
+    var address = $("address").value.trim();
     $("calcAddr").textContent = address;
     show("calc");
-
     var apiDone = false, animDone = false, apiResult = null;
     function maybeFinish() {
       if (!(apiDone && animDone)) return;
@@ -625,13 +859,53 @@
       else { renderFallback(address, apiResult && apiResult.reason); show("results"); }
     }
     runCalc(function () { animDone = true; maybeFinish(); });
-
     fetch("/api/roof-estimate", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: address, roofType: "asphalt" })
     }).then(function (r) { return r.json(); })
       .then(function (d) { apiResult = d; apiDone = true; maybeFinish(); })
       .catch(function () { apiResult = null; apiDone = true; maybeFinish(); });
+  }
+
+  // ---- Details "Continue" ----
+  $("detailsGo").addEventListener("click", function () {
+    clearErr($("detailsError"));
+    var qs = QUESTIONS[project.service] || [];
+    var missing = qs.filter(function (g) { return g.req && !project.details[g.k]; });
+    if (missing.length) { showErr($("detailsError"), "Please answer: " + missing[0].q.replace(/\?$/, "") + "."); return; }
+    if (project.flow === "price") runEstimate();
+    else show("contact");
+  });
+
+  // ---- Contact flow submit (repair / cleaning / gutters / siding / inspection) ----
+  $("contactGo").addEventListener("click", function () {
+    clearErr($("contactError"));
+    var name = $("cName").value.trim(), phone = $("cPhone").value.trim(), email = $("cEmail").value.trim(), addr = $("cAddress").value.trim();
+    if (!name) { showErr($("contactError"), "Please enter your name."); $("cName").focus(); return; }
+    if (phone.replace(/\D/g, "").length < 10 && !/.+@.+\..+/.test(email)) { showErr($("contactError"), "Add a phone or email so we can reach you."); $("cPhone").focus(); return; }
+    if (email && !/.+@.+\..+/.test(email)) { showErr($("contactError"), "That email doesn't look right."); $("cEmail").focus(); return; }
+    if (!$("cConsent").checked) { showErr($("contactError"), "Please check the box so we can contact you."); return; }
+
+    var btn = $("contactGo"), orig = btn.textContent;
+    btn.classList.add("is-loading"); btn.disabled = true; btn.textContent = "Sending…";
+    var note = "🎁 $500 off offer. " + project.service + " request via instant estimator." +
+      (detailsSummary() ? " " + detailsSummary() + "." : "") + (addr ? " Property: " + addr + "." : "");
+    fetch("/api/lead?action=submit", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name, phone: phone, email: email, service: project.service, message: note, company: $("cCompany").value })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        if (window.mcTrackLead) window.mcTrackLead();
+        $("doneP").textContent = "Thanks, " + name.split(" ")[0] + "! We got your " + project.service.toLowerCase() +
+          " request and we'll reach out within one business day to schedule your free, no-obligation visit. Need us sooner? Call or text anytime.";
+        show("done");
+      })
+      .catch(function () {
+        if (window.mcTrackLead) window.mcTrackLead();
+        $("doneP").textContent = "Thanks! Your request is in. If you'd like to talk sooner, call or text (541) 670-5005.";
+        show("done");
+      })
+      .then(function () { btn.classList.remove("is-loading"); btn.disabled = false; btn.textContent = orig; });
   });
 
   // ---- Render satellite estimate ----
@@ -731,8 +1005,8 @@
       address: addr, city: "", measuredSqFt: estData.measuredSqFt, quotedSqFt: estData.quotedSqFt,
       squares: estData.squares, pitchBand: estData.pitchBand, material: currentMaterial,
       ratePerSquare: estData.ratePerSquare, custom: estData.custom, costLow: estData.costLow, costHigh: estData.costHigh,
-      fallback: !!estData.fallback
-    } : {};
+      fallback: !!estData.fallback, details: detailsSummary()
+    } : { details: detailsSummary() };
 
     fetch("/api/estimate-lead", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -767,22 +1041,27 @@
     }, 220);
   }
 
-  // ---- Restart ----
-  $("restart").addEventListener("click", function () {
-    estData = null; captured = false; unlocked = false;
+  // ---- Restart (from the results screen) ----
+  function resetAll() {
+    estData = null; captured = false; unlocked = false; leadId = null;
+    project = { service: "Roof Replacement", flow: "price", label: "new roof", details: {} };
     gateForm.reset(); lock(true);
     $("qrGutters").hidden = true; $("qrOk").hidden = true;
     unlockBtn.classList.remove("is-loading"); unlockBtn.disabled = false; unlockBtn.textContent = "🔓 Unlock my estimate";
     $("address").value = "";
-    show("address"); $("address").focus();
-  });
+    show("service");
+  }
+  $("restart").addEventListener("click", resetAll);
+  $("restart2").addEventListener("click", resetAll);
 
-  // Sticky bar "Get my estimate" focuses the field
+  // Sticky bar "Get my estimate" → jump back to the top of the current step
   $("cbQuote").addEventListener("click", function (e) {
-    if (!steps.address.hidden) { e.preventDefault(); $("address").focus(); }
+    var onEarly = !steps.service.hidden || !steps.address.hidden || !steps.details.hidden || !steps.contact.hidden;
+    if (onEarly) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" });
+      if (!steps.address.hidden) $("address").focus(); }
   });
 
-  // ---- Exit-intent "free gutters" hook (once per session, address step only) ----
+  // ---- Exit-intent "free gutters" hook (once per session, before results) ----
   (function () {
     var pop = $("exitPop"); if (!pop) return;
     var KEY = "mcExitShown", shown = false;
@@ -790,7 +1069,8 @@
     function mark() { try { sessionStorage.setItem(KEY, "1"); } catch (e) {} }
     function openPop() {
       if (shown || already()) return;
-      if (steps.address.hidden || estData) return; // only before they've run an estimate
+      var early = !steps.service.hidden || !steps.address.hidden || !steps.details.hidden;
+      if (!early || estData) return; // only before they've run an estimate
       shown = true; mark(); pop.classList.add("open");
     }
     function closePop() { pop.classList.remove("open"); }
@@ -798,9 +1078,11 @@
     pop.addEventListener("click", function (e) { if (e.target === pop) closePop(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePop(); });
 
-    // "See if I qualify" → close and drop them on the address field.
+    // "See if I qualify" → close and start the full-roof (price) flow at the address.
     $("exitGo").addEventListener("click", function () {
-      closePop(); show("address");
+      closePop();
+      project.service = "Roof Replacement"; project.flow = "price"; project.label = "new roof";
+      show("address");
       setTimeout(function () { var a = $("address"); if (a) { a.focus(); a.scrollIntoView({ behavior: "smooth", block: "center" }); } }, 160);
     });
 
@@ -812,8 +1094,9 @@
       if (window.matchMedia && window.matchMedia("(hover: none)").matches) setTimeout(openPop, 12000); // touch: dwell fallback
     }, 1500);
 
-    // Don't nag someone who already converted through the unlock gate.
+    // Don't nag someone who already converted through a gate/contact form.
     var gate = $("gateForm"); if (gate) gate.addEventListener("submit", mark);
+    var cg = $("contactGo"); if (cg) cg.addEventListener("click", mark);
   })();
 })();
 </script>
