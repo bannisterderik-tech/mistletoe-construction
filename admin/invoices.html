@@ -132,12 +132,14 @@ MC.ready.then(function () {
     };
   }
   function allInvoices() {
-    var fromProps = MC.list("proposals")
-      .filter(function (p) { return p.status === "invoiced" || p.status === "paid"; })
-      .map(propToDoc);
     var manual = MC.list("invoices")
       .filter(function (d) { return d.kind === "invoice"; })
       .map(function (d) { return Object.assign({ _src: "invoice" }, d); });
+    // Skip proposals that already have their own (manually converted) invoice row.
+    var invByProp = {}; manual.forEach(function (d) { if (d.proposal_id) invByProp[d.proposal_id] = true; });
+    var fromProps = MC.list("proposals")
+      .filter(function (p) { return (p.status === "invoiced" || p.status === "paid") && !invByProp[p.id]; })
+      .map(propToDoc);
     return fromProps.concat(manual);
   }
 

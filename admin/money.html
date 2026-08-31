@@ -141,7 +141,10 @@ MC.ready.then(function () {
   }
   function allDocs() {
     var inv = MC.list("invoices").map(function (d) { d = Object.assign({ _src: "invoice" }, d); return d; });
-    var props = MC.list("proposals").map(propToDoc);
+    // A proposal that's been manually converted has its own invoice row — don't
+    // also list the proposal, or the same deal shows twice.
+    var invByProp = {}; inv.forEach(function (d) { if (d.proposal_id) invByProp[d.proposal_id] = true; });
+    var props = MC.list("proposals").filter(function (p) { return !invByProp[p.id]; }).map(propToDoc);
     return props.concat(inv);
   }
 

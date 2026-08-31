@@ -269,6 +269,11 @@ MC.ready.then(function () {
       if (p.stripe_invoice_pdf) {
         actions += "<a class='btn-icon' href='" + p.stripe_invoice_pdf + "' target='_blank' rel='noopener'>Invoice PDF</a>";
       }
+      // Manual convert → invoice (for cash/check jobs, no Stripe needed).
+      if (!p.stripe_invoice_url && p.status !== "paid") {
+        if (linkedInvoice(p)) actions += "<a class='btn-icon' href='invoices.html' title='An invoice was created from this proposal'>Invoice ✓</a>";
+        else actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='invoice'>→ Invoice</button>";
+      }
       actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='edit'>Edit</button>";
       if (!p.lead_id && ((MC.auth.session() || {}).role) === "admin") {
         actions += "<button class='btn-icon' data-id='" + p.id + "' data-act='linklead'>Link lead</button>";
@@ -316,12 +321,31 @@ MC.ready.then(function () {
   function render() { renderStats(); renderTable(); }
   render();
 
+  /* ---------- convert a proposal into a manual invoice (no Stripe) ---------- */
+  function linkedInvoice(p) { return MC.list("invoices").filter(function (i) { return i.proposal_id === p.id; })[0]; }
+  function convertToInvoice(p, done) {
+    if (!p) return;
+    var existing = linkedInvoice(p);
+    if (existing) { MCUI.toast("This proposal already has an invoice."); if (done) done(existing); return; }
+    var amt = Number(p.amount || 0);
+    if (!(amt > 0) && !window.confirm("This proposal has no amount set — create a $0 invoice anyway?")) return;
+    var inv = MC.add("invoices", {
+      customerId: p.customerId, kind: "invoice", label: p.title || "Invoice",
+      amount: amt, status: "sent", date: new Date().toISOString().slice(0, 10), proposal_id: p.id
+    });
+    MCUI.toast("Invoice created from proposal ✓ — find it under Invoices, or log a payment on the customer.");
+    if (done) done(inv);
+  }
+
   /* ---------- row actions ---------- */
   rows.addEventListener("click", function (e) {
     var btn = e.target.closest("button[data-act]"); if (!btn) return;
     var id = btn.dataset.id, act = btn.dataset.act;
     var p = MC.get("proposals", id); if (!p) return;
-    if (act === "send") {
+    if (act === "invoice") {
+      convertToInvoice(p, function () { render(); });
+      return;
+    } else if (act === "send") {
       var cust = MC.get("customers", p.customerId);
       if (!cust || !String(cust.email || "").trim()) {
         alert("This customer has no email on file.\n\nA proposal is delivered by email — open the customer under Customers → Edit details, add their email, then send.");
@@ -431,6 +455,11 @@ MC.ready.then(function () {
       { label: "Open proposal ↗", kind: "outline", onClick: function () { window.open(shareUrl(p) + "&admin=1", "_blank"); } },
       { label: "Agreement ↗", kind: "outline", onClick: function () { window.open(location.origin + "/contract.html?t=" + p.token + "&admin=1", "_blank"); } }
     ];
+    // Manual invoice (cash/check jobs) — convert, or jump to the one already made.
+    if (!p.stripe_invoice_url && p.status !== "paid") {
+      if (linkedInvoice(p)) actions.push({ label: "View invoice →", kind: "outline", onClick: function () { location.href = "invoices.html"; } });
+      else actions.push({ label: "Convert to invoice 🧾", kind: "primary", onClick: function () { convertToInvoice(p, function () { render(); openTimeline(MC.get("proposals", p.id)); }); } });
+    }
     if (!p.job_completed_at && (p.deposit_paid_at || p.status === "invoiced" || p.status === "paid")) {
       actions.push({ label: "Mark job complete", kind: "outline", onClick: function () {
         MC.update("proposals", p.id, { job_completed_at: new Date().toISOString() });
