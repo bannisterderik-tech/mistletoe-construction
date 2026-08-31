@@ -69,6 +69,14 @@
       "destination": "/api/lead?action=refer"
     },
     {
+      "source": "/api/log-payment",
+      "destination": "/api/billing?action=payment"
+    },
+    {
+      "source": "/api/send-receipt",
+      "destination": "/api/billing?action=receipt"
+    },
+    {
       "source": "/api/social-accounts",
       "destination": "/api/social?action=accounts"
     },

@@ -85,6 +85,7 @@
     return {
       mode: "demo",
       ready: Promise.resolve(),
+      reload: function () { return Promise.resolve(); },
       list: function (e) { return (db[e] || []).slice(); },
       page: function (e, opts) {
         opts = opts || {}; var all = (db[e] || []).slice(), off = opts.offset || 0, lim = opts.limit || 50;
@@ -126,7 +127,7 @@
 
   /* ================= SUPABASE MODE ================= */
   function supabaseMode() {
-    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners", "proposals", "team_seats"];
+    var TABLES = ["customers", "leads", "jobs", "visits", "invoices", "partners", "proposals", "team_seats", "payments"];
     var cache = {}; TABLES.forEach(function (t) { cache[t] = []; });
     var sb = null;
     var sessionInfo = null; /* { role, name, email, customerId } */
@@ -203,6 +204,9 @@
       mode: "supabase",
       ready: ready,
       client: function () { return sb; },
+      // Re-pull every table into the cache (e.g. after a server-side API write
+      // like /api/log-payment that this client didn't make through MC.add).
+      reload: function () { return fetchAll(); },
       list: function (e) { return (cache[e] || []).slice(); },
       // Server-side paginated/filtered fetch (for large tables, so we don't hold
       // every row in memory). opts: { limit, offset, order, desc, ilike:{col,q} }.

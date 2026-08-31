@@ -53,7 +53,7 @@
     <div class="stat-row">
       <div class="stat"><div class="stat-label">Pipeline</div><div class="stat-num" id="st-pipeline">$0</div><div class="stat-sub">Proposals out for review</div></div>
       <div class="stat"><div class="stat-label">Owed</div><div class="stat-num" id="st-owed">$0</div><div class="stat-sub">Invoices awaiting payment</div></div>
-      <div class="stat"><div class="stat-label">Collected this month</div><div class="stat-num" id="st-collected">$0</div><div class="stat-sub">Paid invoices</div></div>
+      <div class="stat"><div class="stat-label">Collected this month</div><div class="stat-num" id="st-collected">$0</div><div class="stat-sub">Cash, check &amp; card</div></div>
       <div class="stat"><div class="stat-label">Drafts</div><div class="stat-num" id="st-drafts">0</div><div class="stat-sub">Not yet sent</div></div>
     </div>
 
@@ -158,12 +158,21 @@ MC.ready.then(function () {
     var docs = allDocs();
     var now = new Date(), thisMonth = now.toISOString().slice(0, 7);
     var pipeline = 0, owed = 0, collected = 0, drafts = 0;
+    // Real payment records (cash/check/card) are the source of truth for money
+    // actually collected. Track which invoices/proposals already have one so we
+    // don't also count the doc's "paid" flag (that would double-count).
+    var payments = MC.list("payments") || [];
+    var paidDocIds = {};
+    payments.forEach(function (p) { if (p.invoice_id) paidDocIds[p.invoice_id] = true; if (p.proposal_id) paidDocIds[p.proposal_id] = true; });
     docs.forEach(function (d) {
       if (d.kind === "estimate" && d.status === "sent") pipeline += d.amount;
       if (d.kind === "invoice" && d.status === "sent") owed += d.amount;
-      if (d.kind === "invoice" && d.status === "paid" && (d.date || "").slice(0, 7) === thisMonth) collected += d.amount;
+      // legacy paid docs with no payment record still count once
+      if (d.kind === "invoice" && d.status === "paid" && !paidDocIds[d.id] && (d.date || "").slice(0, 7) === thisMonth) collected += d.amount;
       if (d.status === "draft") drafts++;
     });
+    // every logged payment received this month (cash, check & card)
+    payments.forEach(function (p) { if (String(p.paid_on || "").slice(0, 7) === thisMonth) collected += Number(p.amount) || 0; });
     document.getElementById("st-pipeline").textContent = MC.money(pipeline);
     document.getElementById("st-owed").textContent = MC.money(owed);
     document.getElementById("st-collected").textContent = MC.money(collected);

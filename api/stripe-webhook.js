@@ -6,8 +6,29 @@ const Stripe = require("stripe");
 const notifyTeam = require("./_notify.js");
 const { sbGet, sbPatch, sbInsert, genId } = require("./_supabase.js");
 const { sendReviewRequest } = require("./_review.js");
+const sendReceipt = require("./_receipt-send.js");
 
 function money(c) { return "$" + (Number(c || 0) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 }); }
+
+// Record a card payment + email our branded receipt. Idempotent: the Stripe id
+// is stored as `reference`, so webhook retries never double-charge the ledger or
+// re-send a receipt. Best-effort — the caller wraps it so a hiccup never blocks
+// the webhook's 200.
+async function recordCardPayment(o) {
+  if (!o.stripeRef) return;
+  const existing = await sbGet("payments?reference=eq." + encodeURIComponent(o.stripeRef) + "&select=id");
+  if (Array.isArray(existing) && existing.length) return; // already recorded on an earlier delivery
+  const r = await sbInsert("payments", {
+    id: genId("pay"), customerId: o.customerId || null, invoice_id: o.crmInvoiceId || null,
+    proposal_id: o.proposalId || null, amount: Math.round((Number(o.amountDollars) || 0) * 100) / 100,
+    method: "card", reference: o.stripeRef, paid_on: new Date().toISOString().slice(0, 10),
+    note: o.note || "Paid online by card"
+  }, { returning: true });
+  if (!r.ok) return;
+  const rows = await r.json().catch(() => null);
+  const pay = Array.isArray(rows) ? rows[0] : null;
+  if (pay) { try { await sendReceipt(pay.id, { payment: pay, email: o.email || undefined }); } catch (e) {} }
+}
 
 // Raw body is required for Stripe signature verification.
 module.exports.config = { api: { bodyParser: false } };
@@ -58,6 +79,18 @@ module.exports = async (req, res) => {
       }
       // Admin/sales invoices are recorded in the CRM with stripe_invoice_id.
       if (inv.id) await sbPatch("invoices", "stripe_invoice_id=eq." + encodeURIComponent(inv.id), { status: "paid" });
+      // Record the card payment + email our branded receipt (idempotent).
+      try {
+        if (proposalId) {
+          const pr = await sbGet("proposals?id=eq." + encodeURIComponent(proposalId) + "&select=customerId,title");
+          const p = Array.isArray(pr) ? pr[0] : null;
+          await recordCardPayment({ customerId: p && p.customerId, proposalId, amountDollars: (Number(inv.amount_paid) || 0) / 100, stripeRef: inv.id, email: inv.customer_email, note: p && p.title });
+        } else if (inv.id) {
+          const ci = await sbGet("invoices?stripe_invoice_id=eq." + encodeURIComponent(inv.id) + "&select=id,customerId,label");
+          const c = Array.isArray(ci) ? ci[0] : null;
+          if (c) await recordCardPayment({ customerId: c.customerId, crmInvoiceId: c.id, amountDollars: (Number(inv.amount_paid) || 0) / 100, stripeRef: inv.id, email: inv.customer_email, note: c.label });
+        }
+      } catch (e) { console.error("receipt (invoice.paid) failed:", e && e.message); }
       await notifyTeam("💰 Invoice paid — " + money(inv.amount_paid),
         "<h2 style='color:#1b3d26'>Invoice paid</h2><p><strong>" + money(inv.amount_paid) + "</strong> from " +
         (inv.customer_email || (inv.customer_name || "a customer")) + ".</p>" +
@@ -72,6 +105,11 @@ module.exports = async (req, res) => {
         const expected = Number(md.expectedCents || 0);
         if (s.payment_status === "paid" && (!expected || paid >= expected)) {
           await sbPatch("invoices", "id=eq." + encodeURIComponent(md.invoiceId), { status: "paid" });
+          try {
+            const ci = await sbGet("invoices?id=eq." + encodeURIComponent(md.invoiceId) + "&select=customerId,label");
+            const c = Array.isArray(ci) ? ci[0] : null;
+            await recordCardPayment({ customerId: c && c.customerId, crmInvoiceId: md.invoiceId, amountDollars: paid / 100, stripeRef: s.payment_intent || s.id, email, note: c && c.label });
+          } catch (e) { console.error("receipt (checkout) failed:", e && e.message); }
           await notifyTeam("💰 Invoice paid via checkout", "<h2 style='color:#1b3d26'>Invoice paid</h2><p>Invoice " + md.invoiceId + " was paid" + (email ? " by " + email : "") + ".</p>");
         } else {
           await notifyTeam("⚠️ Checkout amount mismatch — NOT marked paid",

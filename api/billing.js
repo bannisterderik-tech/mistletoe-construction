@@ -4,6 +4,8 @@ var H = {
   "invoice": require("./_create-invoice.js"),
   "final": require("./_create-final-invoice.js"),
   "lead-proposal": require("./_create-lead-proposal.js"),
+  "payment": require("./_log-payment.js"),
+  "receipt": require("./_send-receipt.js"),
 };
 module.exports = async function (req, res) {
   var action = (req.query && req.query.action) || "";

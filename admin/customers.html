@@ -271,6 +271,23 @@ MC.ready.then(function () {
       return { mainRaw: main, sub: statusLabel(r.status), right: MC.money(r.amount), rightRaw: right };
     }), "No invoices yet.");
 
+    /* Payments & receipts — logged cash/check/card payments, each with a receipt */
+    var METHOD_TXT = { cash: "Cash", check: "Check", card: "Card", other: "Other" };
+    var custPayments = (MC.list("payments") || []).filter(function (p) { return p.customerId === c.id; })
+      .sort(function (a, b) { return String(b.paid_on || b.created_at || "").localeCompare(String(a.paid_on || a.created_at || "")); });
+    var payList = MCUI.list(custPayments.map(function (p) {
+      var m = (METHOD_TXT[p.method] || p.method || "Payment") + (p.method === "check" && p.reference ? " #" + p.reference : "");
+      var sent = p.receipt_sent_at
+        ? "<span class='badge green'>Receipt sent</span>"
+        : "<span class='badge' style='opacity:.65'>No receipt yet</span>";
+      var resend = "<button type='button' class='btn-icon' data-resend='" + MCUI.esc(p.id) + "'>" + (p.receipt_sent_at ? "Resend receipt" : "Send receipt") + "</button>";
+      return {
+        mainRaw: "<strong>" + MC.money(p.amount) + "</strong> · " + MCUI.esc(m),
+        sub: (p.paid_on ? MC.fmtDate(p.paid_on) : "") + (p.receipt_number ? " · " + MCUI.esc(p.receipt_number) : ""),
+        rightRaw: sent + "<div style='margin-top:.25rem'>" + resend + "</div>"
+      };
+    }), "No payments logged yet.");
+
     /* Visits — click to edit */
     var visitList = MCUI.list(visits.map(function (v) {
       return { mainRaw: "<a href='#' data-edit='visit:" + MCUI.esc(v.id) + "'>" + MCUI.esc(v.type) + "</a>",
@@ -282,6 +299,7 @@ MC.ready.then(function () {
       MCUI.section("Jobs", jobsList, jobs.length) +
       MCUI.section("Proposals", propList, proposals.length) +
       MCUI.section("Invoices & payments", invList, payRows.length) +
+      MCUI.section("Payments & receipts", payList, custPayments.length) +
       MCUI.section("Visits", visitList, visits.length);
 
     var today = new Date().toISOString().slice(0, 10);
@@ -299,6 +317,7 @@ MC.ready.then(function () {
           openRecordForm(c, "visits", v);
       } },
       { label: "Add invoice", kind: "outline", onClick: function () { openInvoiceForm(c); } },
+      { label: "Log payment 💵", kind: "outline", onClick: function () { openPaymentForm(c); } },
       { label: (c.review_requested_at ? "Resend review request ★" : "Request review ★"), kind: "outline", onClick: function () {
           if (!c.email) { MCUI.toast("Add an email to this customer first.", "err"); return; }
           if (MC.mode !== "supabase") { MCUI.toast("Review requests need the live database.", "err"); return; }
@@ -350,6 +369,32 @@ MC.ready.then(function () {
       actions: actions,
       onBody: function (bodyEl) {
         bodyEl.addEventListener("click", function (e) {
+          var rs = e.target.closest("[data-resend]");
+          if (rs) {
+            e.preventDefault();
+            var pid = rs.getAttribute("data-resend");
+            var pay = (MC.list("payments") || []).filter(function (p) { return p.id === pid; })[0];
+            if (!c.email) { MCUI.toast("Add an email to this customer first.", "err"); return; }
+            if (MC.mode !== "supabase") { MCUI.toast("Receipts need the live database.", "err"); return; }
+            if (pay && pay.receipt_sent_at && !window.confirm("Send the receipt to " + c.email + " again?")) return;
+            rs.disabled = true; rs.textContent = "Sending…";
+            MCUI.toast("Sending receipt…");
+            MC.client().auth.getSession().then(function (r) {
+              var token = r.data.session && r.data.session.access_token;
+              return fetch("/api/send-receipt", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                body: JSON.stringify({ paymentId: pid })
+              });
+            }).then(function (resp) { return resp.json().then(function (d) { return { ok: resp.ok, d: d }; }); })
+              .then(function (res) {
+                if (!res.ok) throw new Error((res.d && res.d.error) || "Failed to send");
+                if (pay) MC.update("payments", pid, { receipt_sent_at: new Date().toISOString(), receipt_email: res.d.email || c.email });
+                MCUI.toast("Receipt sent to " + (res.d.email || c.email) + " ✓");
+                openProfile(MC.get("customers", c.id) || c);
+              }).catch(function (err) { rs.disabled = false; rs.textContent = "Resend receipt"; MCUI.toast("Couldn't send: " + err.message, "err"); });
+            return;
+          }
           var a = e.target.closest("[data-edit]"); if (!a) return;
           e.preventDefault();
           var parts = String(a.getAttribute("data-edit")).split(":"), type = parts[0], id = parts.slice(1).join(":");
@@ -544,6 +589,117 @@ MC.ready.then(function () {
           status: "sent", date: new Date().toISOString().slice(0, 10)
         });
         MCUI.toast("Invoice added (demo)");
+        openProfile(c);
+      }
+    });
+  }
+
+  /* ---------- Log a cash/check/card payment + email a branded receipt ---------- */
+  function openPaymentForm(c) {
+    var payReqId = "pay-" + c.id + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    var today = new Date().toISOString().slice(0, 10);
+    var hasEmail = !!(c.email && String(c.email).trim());
+    var openInv = (MC.list("invoices") || []).filter(function (i) { return i.customerId === c.id && i.status !== "paid"; });
+    var invOpts = "<option value=''>General payment (no invoice)</option>" + openInv.map(function (i) {
+      return "<option value='" + MCUI.esc(i.id) + "' data-amt='" + (Number(i.amount) || 0) + "'>" + MCUI.esc(i.label || "Invoice") + " — " + MC.money(i.amount) + "</option>";
+    }).join("");
+
+    var html =
+      "<div class='mcui-sec'>" +
+        "<label for='pay-amt' style='font-weight:700;display:block;margin-bottom:.3rem'>Amount received ($)</label>" +
+        "<input id='pay-amt' type='number' min='0' step='0.01' placeholder='0.00' inputmode='decimal'>" +
+      "</div>" +
+      "<div class='mcui-sec' style='display:grid;grid-template-columns:1fr 1fr;gap:.6rem'>" +
+        "<div><label for='pay-method' style='font-weight:700;display:block;margin-bottom:.3rem'>Method</label>" +
+          "<select id='pay-method'><option value='cash'>Cash</option><option value='check'>Check</option><option value='card'>Card</option><option value='other'>Other</option></select></div>" +
+        "<div><label for='pay-date' style='font-weight:700;display:block;margin-bottom:.3rem'>Date received</label>" +
+          "<input id='pay-date' type='date' value='" + today + "'></div>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<label for='pay-ref' id='pay-ref-lbl' style='font-weight:700;display:block;margin-bottom:.3rem'>Reference / memo</label>" +
+        "<input id='pay-ref' placeholder='e.g. check number'>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<label for='pay-inv' style='font-weight:700;display:block;margin-bottom:.3rem'>Apply to invoice (optional)</label>" +
+        "<select id='pay-inv'>" + invOpts + "</select>" +
+        "<div style='font-size:.8rem;color:#6b7280;margin-top:.25rem'>Applying to an invoice marks it paid once fully covered — partial payments show a running balance on the receipt.</div>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<label for='pay-note' style='font-weight:700;display:block;margin-bottom:.3rem'>What it's for (shows on receipt)</label>" +
+        "<input id='pay-note' placeholder='e.g. Deposit for roof replacement'>" +
+      "</div>" +
+      "<div class='mcui-sec'>" +
+        "<label style='display:flex;gap:.5rem;align-items:flex-start;font-weight:600'>" +
+          "<input type='checkbox' id='pay-email' " + (hasEmail ? "checked" : "disabled") + " style='margin-top:.2rem'>" +
+          "<span>Email the PDF receipt to " + (hasEmail ? MCUI.esc(c.email) : "the customer") + " now" + (hasEmail ? "" : " <em style='color:#a3271b;font-weight:500'>— add an email to this customer first</em>") + "</span>" +
+        "</label>" +
+      "</div>" +
+      "<div style='display:flex;gap:.6rem;flex-wrap:wrap'>" +
+        "<button type='button' class='btn btn-primary btn-sm' id='pay-save'>Log payment" + (hasEmail ? " &amp; send receipt" : "") + "</button>" +
+        "<button type='button' class='btn btn-outline btn-sm' id='pay-back'>Back</button>" +
+      "</div>";
+
+    MCUI.setBody(html);
+    var drawer = MCUI.drawer;
+    var methodEl = drawer.querySelector("#pay-method");
+    var refLbl = drawer.querySelector("#pay-ref-lbl");
+    var refEl = drawer.querySelector("#pay-ref");
+    var invEl = drawer.querySelector("#pay-inv");
+    var amtEl = drawer.querySelector("#pay-amt");
+
+    methodEl.addEventListener("change", function () {
+      var m = methodEl.value;
+      refLbl.textContent = m === "check" ? "Check number" : m === "card" ? "Card reference (optional)" : "Reference / memo (optional)";
+      refEl.placeholder = m === "check" ? "e.g. 1284" : m === "card" ? "e.g. Visa •••• 4242" : "optional";
+    });
+    invEl.addEventListener("change", function () {
+      var opt = invEl.options[invEl.selectedIndex];
+      var amt = opt && opt.getAttribute("data-amt");
+      if (amt && Number(amt) > 0) amtEl.value = Number(amt).toFixed(2);
+    });
+    drawer.querySelector("#pay-back").addEventListener("click", function () { openProfile(c); });
+
+    drawer.querySelector("#pay-save").addEventListener("click", function () {
+      var amount = Number(amtEl.value || 0);
+      if (!(amount > 0)) { MCUI.toast("Enter a payment amount.", "err"); amtEl.focus(); return; }
+      var payload = {
+        customerId: c.id, amount: amount, method: methodEl.value,
+        reference: refEl.value.trim(), paid_on: drawer.querySelector("#pay-date").value || today,
+        invoice_id: invEl.value || undefined, note: drawer.querySelector("#pay-note").value.trim(),
+        sendReceipt: !!(drawer.querySelector("#pay-email") && drawer.querySelector("#pay-email").checked),
+        requestId: payReqId
+      };
+      var btn = drawer.querySelector("#pay-save");
+      btn.disabled = true; btn.textContent = "Saving…";
+
+      if (MC.mode === "supabase") {
+        MC.client().auth.getSession().then(function (r) {
+          var token = r.data.session && r.data.session.access_token;
+          return fetch("/api/log-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+            body: JSON.stringify(payload)
+          });
+        }).then(function (resp) { return resp.json().then(function (d) { return { ok: resp.ok, d: d }; }); })
+          .then(function (res) {
+            if (!res.ok) throw new Error((res.d && res.d.error) || "Could not log the payment");
+            var d = res.d;
+            var msg = "Payment logged — " + (d.receipt_number || "receipt");
+            if (d.emailed) msg += " · emailed to " + (d.sentTo || c.email);
+            else if (payload.sendReceipt && d.emailError) msg += " · receipt not sent (" + d.emailError + ")";
+            if (d.invoicePaid) msg += " · invoice marked paid";
+            MCUI.toast(msg + " ✓");
+            (MC.reload ? MC.reload() : Promise.resolve()).then(function () { openProfile(MC.get("customers", c.id) || c); });
+          }).catch(function (err) {
+            btn.disabled = false; btn.textContent = "Log payment" + (hasEmail ? " & send receipt" : "");
+            MCUI.toast(err.message, "err");
+          });
+      } else {
+        MC.add("payments", {
+          customerId: c.id, amount: amount, method: payload.method, reference: payload.reference,
+          paid_on: payload.paid_on, note: payload.note, receipt_number: "MC-DEMO-" + Math.floor(Math.random() * 9000 + 1000)
+        });
+        MCUI.toast("Payment logged (demo)");
         openProfile(c);
       }
     });
