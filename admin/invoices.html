@@ -254,11 +254,17 @@ MC.ready.then(function () {
       if (d.hosted_invoice_url) actions.push({ label: "Open Stripe invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
       actions.push({ label: "Manage in Proposals →", kind: "outline", onClick: function () { location.href = "proposals.html?timeline=" + encodeURIComponent(d.id); } });
     } else {
-      if (!isPaid) actions.push({ label: "Log payment 💵", kind: "primary", onClick: function () { openInvoicePayment(d); } });
+      // Always available — even on a "paid" invoice you may still need to record
+      // the actual cash/check and send the receipt after the fact.
+      actions.push({ label: "Log payment 💵", kind: "primary", onClick: function () { openInvoicePayment(d); } });
       if (d.hosted_invoice_url) actions.push({ label: "View / pay invoice ↗", kind: "outline", onClick: function () { window.open(d.hosted_invoice_url, "_blank"); } });
-      else if (!isPaid) actions.push({ label: "Email payable invoice (card) →", kind: "outline", onClick: function () { makePayable(d); } });
+      else actions.push({ label: "Email payable invoice (card) →", kind: "outline", onClick: function () { makePayable(d); } });
       if (!isPaid) actions.push({ label: "Mark paid (no receipt)", kind: "outline", onClick: function () {
         MC.update("invoices", d.id, { status: "paid" }); render(); MCUI.toast("Marked paid ✓");
+        (MC.reload ? MC.reload() : Promise.resolve()).then(function () { openDoc(MC.get("invoices", d.id)); });
+      } });
+      else actions.push({ label: "Mark unpaid", kind: "outline", onClick: function () {
+        MC.update("invoices", d.id, { status: "sent" }); render(); MCUI.toast("Marked unpaid");
         (MC.reload ? MC.reload() : Promise.resolve()).then(function () { openDoc(MC.get("invoices", d.id)); });
       } });
       if (((MC.auth.session() || {}).role) === "admin") actions.push({ label: "Delete", kind: "outline", onClick: function (api) {
