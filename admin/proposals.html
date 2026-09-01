@@ -746,7 +746,7 @@ MC.ready.then(function () {
       status: "draft",
       token: genToken(),
       note: note,
-      lead_id: pendingLeadId || null,
+      lead_id: ensureLeadForProposal(customerId),
       created: created.toISOString().slice(0, 10)
     });
     pendingLeadId = null;
@@ -755,6 +755,27 @@ MC.ready.then(function () {
     render();
     showShare(prop);
   });
+
+  /* Every proposal is tied to a lead. Use the one it came from; otherwise reuse
+     an existing lead for this customer (by email, then name), or create one so
+     the deal always traces back to a lead — no more "unlinked" proposals. */
+  function ensureLeadForProposal(customerId) {
+    if (pendingLeadId) return pendingLeadId;
+    var c = MC.get("customers", customerId) || {};
+    var cem = String(c.email || "").trim().toLowerCase(), cnm = String(c.name || "").trim().toLowerCase(), found = null;
+    MC.list("leads").forEach(function (l) {
+      if (found) return;
+      if (cem && String(l.email || "").trim().toLowerCase() === cem) found = l;
+      else if (!cem && cnm && String(l.name || "").trim().toLowerCase() === cnm) found = l;
+    });
+    if (found) return found.id;
+    var nl = MC.add("leads", {
+      name: c.name || "Customer", phone: c.phone || "", email: c.email || "", city: c.city || "", address: c.address || "",
+      service: "Roofing — proposal", stage: "proposal_created", note: "Auto-created to link a proposal.",
+      created: new Date().toISOString().slice(0, 10)
+    });
+    return nl.id;
+  }
 
   /* ---------- deep links: ?edit=<proposalId> (open editor) or ?customer=<id>&new=1 ---------- */
   (function () {

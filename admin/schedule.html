@@ -334,8 +334,15 @@ MC.ready.then(function () {
         var lead = MC.get("leads", who.slice(2));
         var cust = leadToCustomer(lead);
         customerId = cust && cust.id; wasLead = true;
-        // move a brand-new lead forward so it isn't worked twice
-        if (lead && String(MC.leadStageFor ? MC.leadStageFor(lead) : lead.stage || "").toLowerCase() === "new") MC.update("leads", lead.id, { stage: "contacted" });
+        if (lead) {
+          var patch = {};
+          // move a brand-new lead forward so it isn't worked twice
+          if (String(MC.leadStageFor ? MC.leadStageFor(lead) : lead.stage || "").toLowerCase() === "new") patch.stage = "contacted";
+          // drop a follow-up a few days AFTER the inspection so an un-converted quote nags us
+          var fu = new Date(iDate + "T12:00:00");
+          if (!isNaN(fu.getTime())) { fu.setDate(fu.getDate() + 3); patch.followup_at = fu.toISOString().slice(0, 10); }
+          if (Object.keys(patch).length) MC.update("leads", lead.id, patch);
+        }
       } else {
         customerId = who.slice(2);
       }
@@ -348,7 +355,7 @@ MC.ready.then(function () {
       });
       modal.classList.remove("open");
       document.getElementById("ai-note").value = "";
-      MCUI.toast("Inspection scheduled ✓" + (wasLead ? " · lead added to Customers" : ""));
+      MCUI.toast("Inspection scheduled ✓" + (wasLead ? " · customer created + follow-up set" : ""));
       render();
       return;
     }

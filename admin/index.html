@@ -133,7 +133,16 @@ MC.ready.then(function () {
   newLeads.forEach(function (l) { att.push(["red", "New lead: <strong>" + l.name + "</strong> (" + l.city + ", " + l.service + ") — call them today", "leads.html?lead=" + encodeURIComponent(l.id)]); });
   owed.forEach(function (i) { att.push(["amber", "Unpaid: <strong>" + i.label + "</strong> · " + MC.money(i.amount) + " · " + MC.customerName(i.customerId), "invoices.html?f=unpaid"]); });
   visits.filter(function (v) { return v.date >= iso && v.summary === ""; }).forEach(function (v) {
-    att.push(["blue", "Member visit due " + MC.fmtDate(v.date) + ": <strong>" + MC.customerName(v.customerId) + "</strong> · " + v.type, "customers.html?id=" + encodeURIComponent(v.customerId || "")]);
+    var insp = /^Inspection/i.test(v.type || "");
+    att.push(["blue", (insp ? "Inspection" : "Member visit") + " due " + MC.fmtDate(v.date) + ": <strong>" + MC.customerName(v.customerId) + "</strong> · " + v.type, "customers.html?id=" + encodeURIComponent(v.customerId || "")]);
+  });
+  // Overdue lead follow-ups (e.g. an inspection/quote that hasn't converted yet).
+  MC.list("leads").forEach(function (l) {
+    if (!l.followup_at) return;
+    var st = String(MC.leadStageFor ? MC.leadStageFor(l) : (l.stage || "")).toLowerCase();
+    if (st === "won" || st === "lost") return;
+    if (String(l.followup_at).slice(0, 10) <= iso)
+      att.push(["amber", "Follow up: <strong>" + (l.name || l.address || "lead") + "</strong> — quote/inspection due to convert (" + MC.fmtDate(l.followup_at) + ")", "leads.html?lead=" + encodeURIComponent(l.id)]);
   });
   var ah = document.getElementById("attention");
   if (!att.length) ah.innerHTML = "<p style='color:var(--ink-soft)'>All clear. Go build something.</p>";
@@ -152,7 +161,7 @@ MC.ready.then(function () {
     if (j.start >= iso && j.start <= iso7) week.push({ d: j.start, what: j.title, who: MC.customerName(j.customerId), type: "Job", badge: "pine", href: "customers.html?id=" + encodeURIComponent(j.customerId || "") });
   });
   visits.forEach(function (v) {
-    if (v.date >= iso && v.date <= iso7) week.push({ d: v.date, what: v.type, who: MC.customerName(v.customerId), type: "Member visit", badge: "green", href: "customers.html?id=" + encodeURIComponent(v.customerId || "") });
+    if (v.date >= iso && v.date <= iso7) { var insp = /^Inspection/i.test(v.type || ""); week.push({ d: v.date, what: v.type, who: MC.customerName(v.customerId), type: insp ? "Inspection" : "Member visit", badge: insp ? "blue" : "green", href: "customers.html?id=" + encodeURIComponent(v.customerId || "") }); }
   });
   week.sort(function (a, b) { return a.d < b.d ? -1 : 1; });
   var wb = document.getElementById("week");
