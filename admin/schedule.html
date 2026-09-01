@@ -45,7 +45,7 @@
     <div class="app-topbar">
       <div>
         <h1>Schedule</h1>
-        <p class="sub">Jobs and member visits over the next two weeks.</p>
+        <p class="sub">Inspections, jobs &amp; member visits over the next two weeks.</p>
       </div>
       <button class="btn btn-primary btn-sm" id="add-event">+ Add to schedule</button>
     </div>
@@ -70,10 +70,25 @@
   <div class="modal">
     <h3>Add to schedule</h3>
     <div style="margin-bottom:0.9rem"><label for="ae-kind">What are you scheduling?</label>
-      <select id="ae-kind"><option value="visit">Member visit</option><option value="job">Job</option></select>
+      <select id="ae-kind"><option value="inspection">Inspection / quote</option><option value="visit">Member visit</option><option value="job">Job</option></select>
     </div>
 
-    <fieldset id="fs-visit" style="border:0;padding:0;margin:0">
+    <fieldset id="fs-insp" style="border:0;padding:0;margin:0">
+      <div class="form-row">
+        <div><label for="ai-who">Lead or customer *</label><select id="ai-who"></select></div>
+        <div><label for="ai-date">Date *</label><input id="ai-date" type="date" required></div>
+      </div>
+      <div class="form-row">
+        <div><label for="ai-type">Type</label>
+          <select id="ai-type"><option>Inspection — Roof</option><option>Inspection — Free estimate / quote</option><option>Inspection — Repair assessment</option><option>Inspection — Insurance</option></select>
+        </div>
+        <div><label for="ai-time">Time (optional)</label><input id="ai-time" type="time"></div>
+      </div>
+      <div style="margin-bottom:0.4rem"><label for="ai-note">Note (optional)</label><input id="ai-note" placeholder="e.g. leak over garage; gate code 1423"></div>
+      <p class="t-sub" style="margin:.2rem 0 0">Scheduling an inspection for a lead creates their customer record automatically.</p>
+    </fieldset>
+
+    <fieldset id="fs-visit" style="border:0;padding:0;margin:0;display:none">
       <div class="form-row">
         <div><label for="av-customer">Customer *</label><select id="av-customer"></select></div>
         <div><label for="av-date">Date *</label><input id="av-date" type="date" required></div>
@@ -147,7 +162,7 @@ MC.ready.then(function () {
   function eventRow(ev) {
     var badge = ev.kind === "job"
       ? "<span class='badge pine'>Job</span>"
-      : "<span class='badge green'>Member visit</span>";
+      : (/^Inspection/i.test(ev.label) ? "<span class='badge blue'>Inspection</span>" : "<span class='badge green'>Member visit</span>");
     var clickable = ev.kind === "visit" ? " data-visit='" + ev.id + "' style='cursor:pointer'" : "";
     return "<tr" + clickable + "><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
       "<td>" + badge + "</td><td>" + ev.extra + "</td></tr>";
@@ -181,7 +196,7 @@ MC.ready.then(function () {
       beyond.innerHTML = "<tr><td colspan='3'><span class='t-sub'>Nothing scheduled beyond the next two weeks.</span></td></tr>";
     } else {
       beyond.innerHTML = later.map(function (ev) {
-        var badge = ev.kind === "job" ? "<span class='badge pine'>Job</span>" : "<span class='badge green'>Member visit</span>";
+        var badge = ev.kind === "job" ? "<span class='badge pine'>Job</span>" : (/^Inspection/i.test(ev.label) ? "<span class='badge blue'>Inspection</span>" : "<span class='badge green'>Member visit</span>");
         var clickable = ev.kind === "visit" ? " data-visit='" + ev.id + "' style='cursor:pointer'" : "";
         return "<tr" + clickable + "><td><span class='t-strong'>" + ev.label + "</span><span class='t-sub'>" + ev.customer + "</span></td>" +
           "<td>" + badge + "</td><td>" + MC.fmtDate(ev.date) + "</td></tr>";
@@ -235,31 +250,108 @@ MC.ready.then(function () {
   /* Modal */
   var modal = document.getElementById("event-modal");
   var kindSel = document.getElementById("ae-kind");
+  var fsInsp = document.getElementById("fs-insp");
   var fsVisit = document.getElementById("fs-visit");
   var fsJob = document.getElementById("fs-job");
 
   function fillCustomers(selectId) {
     var sel = document.getElementById(selectId);
     sel.innerHTML = MC.list("customers").map(function (c) {
-      return "<option value='" + c.id + "'>" + c.name + "</option>";
+      return "<option value='" + c.id + "'>" + MCUI.esc(c.name) + "</option>";
     }).join("");
   }
+  // Inspection "who" picker: open leads (not yet won/lost) + existing customers.
+  function fillWho() {
+    var sel = document.getElementById("ai-who");
+    var leads = (MC.list("leads") || []).filter(function (l) {
+      var st = String(MC.leadStageFor ? MC.leadStageFor(l) : (l.stage || "")).toLowerCase();
+      return st !== "won" && st !== "lost";
+    });
+    var custs = MC.list("customers") || [];
+    var opt = function (v, label) { return "<option value='" + v + "'>" + MCUI.esc(label) + "</option>"; };
+    var html = "";
+    if (leads.length) html += "<optgroup label='Leads'>" + leads.map(function (l) {
+      return opt("l:" + l.id, (l.name || l.address || "New lead") + (l.city ? " · " + l.city : ""));
+    }).join("") + "</optgroup>";
+    html += "<optgroup label='Customers'>" + custs.map(function (c) {
+      return opt("c:" + c.id, c.name + (c.city ? " · " + c.city : ""));
+    }).join("") + "</optgroup>";
+    sel.innerHTML = html || "<option value=''>No leads or customers yet</option>";
+  }
+  // Turn a lead into a customer (reuse by email, else name, else create).
+  function leadToCustomer(lead) {
+    if (!lead) return null;
+    var lem = String(lead.email || "").trim().toLowerCase(), lnm = String(lead.name || "").trim().toLowerCase(), found = null;
+    MC.list("customers").forEach(function (x) {
+      if (found) return;
+      if (lem && String(x.email || "").trim().toLowerCase() === lem) found = x;
+      else if (!lem && lnm && String(x.name || "").trim().toLowerCase() === lnm) found = x;
+    });
+    if (found) return found;
+    return MC.add("customers", {
+      name: lead.name || "New customer", phone: lead.phone || "", email: lead.email || "",
+      city: lead.city || "", address: lead.address || "", notes: "From lead" + (lead.note ? ": " + lead.note : "")
+    });
+  }
 
-  kindSel.addEventListener("change", function () {
-    var isVisit = kindSel.value === "visit";
-    fsVisit.style.display = isVisit ? "" : "none";
-    fsJob.style.display = isVisit ? "none" : "";
-  });
+  function toggleFieldsets() {
+    var k = kindSel.value;
+    fsInsp.style.display = k === "inspection" ? "" : "none";
+    fsVisit.style.display = k === "visit" ? "" : "none";
+    fsJob.style.display = k === "job" ? "" : "none";
+  }
+  kindSel.addEventListener("change", toggleFieldsets);
 
-  document.getElementById("add-event").addEventListener("click", function () {
-    fillCustomers("av-customer"); fillCustomers("aj-customer");
+  function openModal(opts) {
+    opts = opts || {};
+    fillCustomers("av-customer"); fillCustomers("aj-customer"); fillWho();
+    document.getElementById("ai-date").value = isoOffset(0);
     document.getElementById("av-date").value = isoOffset(0);
     document.getElementById("aj-date").value = isoOffset(0);
+    kindSel.value = opts.kind || "inspection";
+    if (opts.whoValue) document.getElementById("ai-who").value = opts.whoValue;
+    toggleFieldsets();
     modal.classList.add("open");
-  });
+    if (kindSel.value === "inspection") setTimeout(function () { var d = document.getElementById("ai-date"); if (d) d.focus(); }, 40);
+  }
+  document.getElementById("add-event").addEventListener("click", function () { openModal({ kind: "inspection" }); });
   document.getElementById("ae-cancel").addEventListener("click", function () { modal.classList.remove("open"); });
 
+  // Deep link from Leads → "Schedule inspection" opens the modal with the lead preselected.
+  (function () {
+    var lid = new URLSearchParams(location.search).get("inspect");
+    if (lid && MC.get("leads", lid)) openModal({ kind: "inspection", whoValue: "l:" + lid });
+  })();
+
   document.getElementById("ae-save").addEventListener("click", function () {
+    if (kindSel.value === "inspection") {
+      var who = document.getElementById("ai-who").value;
+      var iDate = document.getElementById("ai-date").value;
+      if (!who) { document.getElementById("ai-who").focus(); return; }
+      if (!iDate) { document.getElementById("ai-date").focus(); return; }
+      var customerId, wasLead = false;
+      if (who.slice(0, 2) === "l:") {
+        var lead = MC.get("leads", who.slice(2));
+        var cust = leadToCustomer(lead);
+        customerId = cust && cust.id; wasLead = true;
+        // move a brand-new lead forward so it isn't worked twice
+        if (lead && String(MC.leadStageFor ? MC.leadStageFor(lead) : lead.stage || "").toLowerCase() === "new") MC.update("leads", lead.id, { stage: "contacted" });
+      } else {
+        customerId = who.slice(2);
+      }
+      if (!customerId) { MCUI.toast("Couldn't work out who to schedule.", "err"); return; }
+      var t = document.getElementById("ai-time").value;
+      var note = document.getElementById("ai-note").value.trim();
+      MC.add("visits", {
+        customerId: customerId, date: iDate, type: document.getElementById("ai-type").value,
+        summary: (t ? t + " · " : "") + note, photos: 0
+      });
+      modal.classList.remove("open");
+      document.getElementById("ai-note").value = "";
+      MCUI.toast("Inspection scheduled ✓" + (wasLead ? " · lead added to Customers" : ""));
+      render();
+      return;
+    }
     if (kindSel.value === "visit") {
       var vDate = document.getElementById("av-date").value;
       if (!vDate) { document.getElementById("av-date").focus(); return; }

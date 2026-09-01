@@ -303,6 +303,7 @@ MC.ready.then(function () {
           .catch(function (e) { alert("Couldn't send the proposal: " + e.message); });
       } });
     }
+    actions.push({ label: "Schedule inspection 📅", kind: "outline", onClick: function () { location.href = "schedule.html?inspect=" + encodeURIComponent(lead.id); } });
     actions.push({ label: "Edit lead", kind: "outline", onClick: function () { editLead(lead); } });
     if (lead.phone) {
       actions.push({ label: "Call", kind: "outline", onClick: function () { location.href = "tel:" + lead.phone; } });
