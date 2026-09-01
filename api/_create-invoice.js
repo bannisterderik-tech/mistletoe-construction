@@ -3,7 +3,7 @@
 // reminders until paid. Authorizes the caller by their Supabase session role.
 // Secrets from env only: STRIPE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY.
 const Stripe = require("stripe");
-const { sbGet, sbInsert, genId, hasService } = require("./_supabase.js");
+const { sbGet, sbInsert, sbPatch, genId, hasService } = require("./_supabase.js");
 const { requireRole } = require("./_auth.js");
 
 module.exports = async (req, res) => {
@@ -20,7 +20,10 @@ module.exports = async (req, res) => {
   body = body || {};
   const customerId = String(body.customerId || "");
   const title = String(body.title || "Invoice").slice(0, 200);
-  const items = Array.isArray(body.items) ? body.items : [];
+  const existingId = String(body.invoiceId || "").trim(); // make an existing CRM invoice payable, no dupe
+  let items = Array.isArray(body.items) ? body.items : [];
+  // Convert a plain tracking invoice (label + amount) into a billable line item.
+  if (!items.length && Number(body.amount) > 0) items = [{ desc: title, qty: 1, unit: Number(body.amount) }];
   // A stable per-form request id makes double-clicks / retries idempotent in Stripe.
   const reqId = String(body.requestId || "").replace(/[^\w-]/g, "").slice(0, 80) || genId("inv");
   if (!customerId) { res.status(400).json({ error: "Missing customer" }); return; }
@@ -63,11 +66,19 @@ module.exports = async (req, res) => {
     // record in the CRM (best-effort — never fail the request over a schema quirk)
     const today = new Date().toISOString().slice(0, 10);
     try {
-      await sbInsert("invoices", {
-        id: genId("i"), customerId: customerId, kind: "invoice",
-        label: title, amount: total, status: "sent", date: today,
-        stripe_invoice_id: invoice.id, hosted_invoice_url: finalized.hosted_invoice_url || null
-      });
+      if (existingId) {
+        // Make the existing manual invoice payable in place (no duplicate row).
+        await sbPatch("invoices", "id=eq." + encodeURIComponent(existingId), {
+          status: "sent", amount: total, stripe_invoice_id: invoice.id,
+          hosted_invoice_url: finalized.hosted_invoice_url || null
+        });
+      } else {
+        await sbInsert("invoices", {
+          id: genId("i"), customerId: customerId, kind: "invoice",
+          label: title, amount: total, status: "sent", date: today,
+          stripe_invoice_id: invoice.id, hosted_invoice_url: finalized.hosted_invoice_url || null
+        });
+      }
     } catch (e) { /* invoice exists in Stripe regardless */ }
 
     res.status(200).json({ url: finalized.hosted_invoice_url, id: invoice.id, amount: total });
