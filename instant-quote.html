@@ -1091,6 +1091,26 @@
 
   // Set the initial progress labels for the default (price) flow.
   setProgress("start");
+
+  // Ad deep links (Google Ads sitelinks): ?service=repair|cleaning|gutters|siding|inspection
+  // opens that branch directly; ?service=roof or ?offer=1 lands on the address step
+  // (the $500-off / free-gutters offer is already on the page). Every entry point
+  // still ends in lead capture — no sitelink can bypass a form.
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var svc = String(q.get("service") || "").toLowerCase();
+    var MAP = {
+      repair: "Roof Repair", cleaning: "Roof Cleaning / Moss Removal", moss: "Roof Cleaning / Moss Removal",
+      gutters: "Gutters / Gutter Guards", siding: "Siding", inspection: "Roof Inspection", inspect: "Roof Inspection"
+    };
+    if (MAP[svc]) {
+      var tile = document.querySelector('#svcChoices .q-choice[data-service="' + MAP[svc] + '"]');
+      if (tile) { tile.click(); return; }
+    }
+    if (svc === "roof" || svc === "replacement" || q.get("offer")) {
+      setTimeout(function () { var a = $("address"); if (a) { a.focus(); a.scrollIntoView({ behavior: "smooth", block: "center" }); } }, 150);
+    }
+  })();
 })();
 </script>
 </body>
