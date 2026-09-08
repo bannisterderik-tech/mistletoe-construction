@@ -51,6 +51,61 @@
       ],
       "destination": "https://mistletoeconstruction.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/proposals.html",
+      "destination": "/admin/proposals.html",
+      "permanent": false
+    },
+    {
+      "source": "/invoices.html",
+      "destination": "/admin/invoices.html",
+      "permanent": false
+    },
+    {
+      "source": "/leads.html",
+      "destination": "/admin/leads.html",
+      "permanent": false
+    },
+    {
+      "source": "/customers.html",
+      "destination": "/admin/customers.html",
+      "permanent": false
+    },
+    {
+      "source": "/money.html",
+      "destination": "/admin/money.html",
+      "permanent": false
+    },
+    {
+      "source": "/schedule.html",
+      "destination": "/admin/schedule.html",
+      "permanent": false
+    },
+    {
+      "source": "/jobs.html",
+      "destination": "/admin/jobs.html",
+      "permanent": false
+    },
+    {
+      "source": "/reviews.html",
+      "destination": "/admin/reviews.html",
+      "permanent": false
+    },
+    {
+      "source": "/crm",
+      "destination": "/admin/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/admin/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/login",
+      "destination": "/portal/login.html",
+      "permanent": false
     }
   ],
   "crons": [
