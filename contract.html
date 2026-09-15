@@ -218,9 +218,10 @@
             <div><label for="s-name">Your full legal name *</label><input id="s-name" type="text" placeholder="Jane A. Owner"></div>
             <div><label for="s-co">Co-owner name (if any)</label><input id="s-co" type="text" placeholder="Optional"></div>
           </div>
-          <div id="s-email-row" style="display:none;margin-bottom:.4rem">
-            <label for="s-email" style="display:block;font-weight:700;margin-bottom:.3rem">Email for your invoice *</label>
-            <input id="s-email" type="email" placeholder="you@example.com" style="max-width:24rem">
+          <div id="s-email-row" style="margin-bottom:.4rem">
+            <label for="s-email" style="display:block;font-weight:700;margin-bottom:.3rem">Your email *</label>
+            <input id="s-email" type="email" placeholder="you@example.com" autocomplete="email" style="max-width:24rem">
+            <p style="margin:.3rem 0 0;font-size:.82rem;color:#6b7280;line-height:1.45">We send your signed agreement, invoice and receipt here. If this proposal was forwarded to you, use <strong>your own</strong> email — not the person who sent it.</p>
           </div>
           <label class="cb"><input type="checkbox" id="s-agree"> I have read and agree to the Master Construction Agreement above, and I received the attached Proposal.</label>
           <label class="cb"><input type="checkbox" id="s-lien"> I acknowledge receipt of the Notice of Right to a Lien (ORS 87.021).</label>
@@ -300,7 +301,7 @@
       $("c-total").textContent = money(p.amount || total);
       if (p.note) { var n = $("c-note"); n.innerHTML = esc(p.note); n.style.display = "block"; }
 
-      if (!(cust.email)) { $("s-email-row").style.display = "block"; }
+      // The email field is always shown: whoever signs is who we invoice.
       $("c-loading").style.display = "none"; $("c-main").style.display = "block";
       if (p.signed) renderSigned();
     }).catch(function () { $("c-loading").style.display = "none"; $("c-error").style.display = "block"; });
@@ -323,7 +324,7 @@
     }
     var btn = $("s-sign"); btn.disabled = true; btn.textContent = "Signing…"; msg.textContent = "";
     fetch("/api/sign-contract", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token, signer: name, cosigner: co, agree: true, lienAck: true }) })
+      body: JSON.stringify({ token: token, signer: name, cosigner: co, agree: true, lienAck: true, signerEmail: emVal }) })
       .then(function (r) { return r.json(); }).then(function (d) {
         if (!d || !d.ok) { btn.disabled = false; btn.textContent = "Sign & Continue to Invoice"; msg.textContent = (d && d.error) || "Could not sign — call (541) 670-5005."; return; }
         P.signed = true; P.agreement_signer = name; P.agreement_signed_at = d.signedAt || new Date().toISOString(); P.agreement_version = P.agreement_version || "MCA-2026-01";

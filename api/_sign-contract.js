@@ -2,7 +2,7 @@
 // Records signer + acknowledgements + IP, marks the proposal 'signed'.
 // The invoice is then created by accept-proposal (which requires a signature).
 const notifyTeam = require("./_notify.js");
-const { sbGet, sbPatch, hasService } = require("./_supabase.js");
+const { sbGet, sbPatch, sbInsert, genId, hasService } = require("./_supabase.js");
 const AGREEMENT_VERSION = "MCA-2026-01";
 
 module.exports = async (req, res) => {
@@ -17,15 +17,18 @@ module.exports = async (req, res) => {
   const cosigner = String(body.cosigner || "").trim();
   const agree = body.agree === true || body.agree === "true";
   const lienAck = body.lienAck === true || body.lienAck === "true";
+  // The signer may not be the person the proposal was sent to (forwarded links).
+  const signerEmail = String(body.signerEmail || body.email || "").trim().toLowerCase();
   if (!token) { res.status(400).json({ error: "Missing token" }); return; }
   if (!signer) { res.status(400).json({ error: "Please type your full legal name to sign." }); return; }
   if (!agree) { res.status(400).json({ error: "You must agree to the Master Construction Agreement." }); return; }
   if (!lienAck) { res.status(400).json({ error: "Please acknowledge the Notice of Right to a Lien." }); return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(signerEmail)) { res.status(400).json({ error: "Please add your email so we can send your agreement, invoice and receipt." }); return; }
 
   const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || null;
 
   try {
-    const rows = await sbGet("proposals?token=eq." + token + "&select=id,title,status,agreement_signed_at,customerId");
+    const rows = await sbGet("proposals?token=eq." + token + "&select=id,title,status,agreement_signed_at,customerId,lead_id");
     const p = rows && rows[0];
     if (!p) { res.status(404).json({ error: "Proposal not found" }); return; }
     if (p.agreement_signed_at) { res.status(200).json({ ok: true, already: true }); return; }
@@ -36,6 +39,7 @@ module.exports = async (req, res) => {
       agreement_cosigner: cosigner || null,
       agreement_signed_at: new Date().toISOString(),
       agreement_signer_ip: ip,
+      agreement_signer_email: signerEmail,
       lien_notice_ack: true,
       status: (p.status === "invoiced" || p.status === "paid") ? p.status : "signed"
     };
@@ -47,6 +51,10 @@ module.exports = async (req, res) => {
     if (wrote && wrote.ok === false) {
       const noStatus = Object.assign({}, patch); delete noStatus.status;
       wrote = await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), noStatus);
+      if (wrote && wrote.ok === false) { // column may predate migration 009
+        const lean = Object.assign({}, noStatus); delete lean.agreement_signer_email;
+        wrote = await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), lean);
+      }
     }
     if (wrote && wrote.ok === false) {
       let detail = ""; try { detail = (await wrote.text() || "").slice(0, 300); } catch (_) {}
@@ -57,6 +65,24 @@ module.exports = async (req, res) => {
       res.status(500).json({ error: "We could not record your signature. Please call (541) 670-5005." });
       return;
     }
+
+    // A forwarded signer is a real person in your pipeline — capture them.
+    try {
+      const cs = p.customerId ? await sbGet("customers?id=eq." + encodeURIComponent(p.customerId) + "&select=name,email") : null;
+      const cust = (cs && cs[0]) || {};
+      if (signerEmail && signerEmail !== String(cust.email || "").trim().toLowerCase()) {
+        const dupe = await sbGet("leads?email=eq." + encodeURIComponent(signerEmail) + "&select=id&limit=1");
+        if (!(Array.isArray(dupe) && dupe[0])) {
+          await sbInsert("leads", {
+            id: genId("l"), name: signer, email: signerEmail, phone: "", city: "",
+            service: p.title || "Signed agreement", stage: "proposal_sent",
+            note: "Signed \"" + (p.title || "a proposal") + "\" on behalf of " + (cust.name || "the customer") +
+                  ". Forwarded signer — this is the person who agreed and pays.",
+            created: new Date().toISOString().slice(0, 10)
+          });
+        }
+      }
+    } catch (_) { /* never block a valid signature over CRM bookkeeping */ }
 
     notifyTeam("🖊️ Agreement signed — " + (p.title || "proposal"),
       "<h2 style='color:#1b3d26'>Master Construction Agreement signed</h2><p><strong>" + signer + "</strong>" +
