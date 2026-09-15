@@ -455,6 +455,32 @@ MC.ready.then(function () {
       { label: "Open proposal ↗", kind: "outline", onClick: function () { window.open(shareUrl(p) + "&admin=1", "_blank"); } },
       { label: "Agreement ↗", kind: "outline", onClick: function () { window.open(location.origin + "/contract.html?t=" + p.token + "&admin=1", "_blank"); } }
     ];
+    // Signed but no Stripe invoice yet => let the owner fire the SAME accept flow the
+    // customer's browser uses, and surface the exact error instead of failing silently.
+    if (p.agreement_signed_at && !p.stripe_invoice_id && p.status !== "paid") {
+      actions.push({ label: "Send Stripe invoice now 💳", kind: "primary", onClick: function (api) {
+        var cust = MC.get("customers", p.customerId) || {};
+        var email = String(cust.email || "").trim();
+        if (!email) {
+          email = window.prompt("This customer has no email on file — Stripe needs one to send the invoice.\n\nEnter their email:", "") || "";
+          email = email.trim();
+          if (!email) { MCUI.toast("Need an email to send the invoice.", "err"); return; }
+          MC.update("customers", p.customerId, { email: email });
+        }
+        if (!window.confirm("Create and email a Stripe invoice for \"" + (p.title || "this proposal") + "\" to " + email + "?")) return;
+        MCUI.toast("Creating invoice…");
+        fetch("/api/accept-proposal", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: p.token, email: email }) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (!res.ok || !res.d.url) throw new Error((res.d && res.d.error) || "Could not create the invoice");
+            MCUI.toast("Invoice created & emailed to " + email + " ✓");
+            window.open(res.d.url, "_blank");
+            (MC.reload ? MC.reload() : Promise.resolve()).then(function () { render(); openTimeline(MC.get("proposals", p.id)); });
+          })
+          .catch(function (err) { window.alert("Invoice NOT created.\n\nStripe said: " + err.message); });
+      } });
+    }
     // Manual invoice (cash/check jobs) — convert, or jump to the one already made.
     if (!p.stripe_invoice_url && p.status !== "paid") {
       if (linkedInvoice(p)) actions.push({ label: "View invoice →", kind: "outline", onClick: function () { location.href = "invoices.html"; } });

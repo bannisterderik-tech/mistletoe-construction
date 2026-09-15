@@ -29,7 +29,15 @@ module.exports = async (req, res) => {
       const cs = await sbGet("customers?id=eq." + encodeURIComponent(p.customerId) + "&select=name,email");
       if (cs && cs[0]) { email = email || cs[0].email; name = cs[0].name || name; }
     }
-    if (!email) { res.status(400).json({ error: "We need an email to send the invoice." }); return; }
+    if (!email) {
+      // Silent-failure guard: the customer signed but we cannot invoice them.
+      try { await notifyTeam("⚠️ Signed but NO EMAIL — invoice not sent",
+        "<h2 style=\"color:#b00020\">" + (name || "A customer") + " signed \"" + (p.title || "a proposal") +
+        "\" but has no email on file, so no invoice could be created.</h2>" +
+        "<p>Add their email in CRM &rarr; Customers, then open CRM &rarr; Proposals &rarr; Timeline and hit " +
+        "<strong>Send Stripe invoice now</strong>.</p><p>Token <code>" + token + "</code></p>"); } catch (_) {}
+      res.status(400).json({ error: "We need an email to send the invoice." }); return;
+    }
 
     const stripe = new Stripe(key);
 
@@ -72,7 +80,14 @@ module.exports = async (req, res) => {
         any = true;
       }
     }
-    if (!any) { res.status(400).json({ error: "Proposal has no billable items." }); return; }
+    if (!any) {
+      try { await notifyTeam("⚠️ Signed but NO BILLABLE ITEMS — invoice not sent",
+        "<h2 style=\"color:#b00020\">" + (name || "A customer") + " signed \"" + (p.title || "a proposal") +
+        "\" but it has no line item priced above $0, so no invoice could be created.</h2>" +
+        "<p>Fix the line items in CRM &rarr; Proposals &rarr; Edit, then hit <strong>Send Stripe invoice now</strong> on the Timeline.</p>" +
+        "<p>Token <code>" + token + "</code></p>"); } catch (_) {}
+      res.status(400).json({ error: "Proposal has no billable items." }); return;
+    }
 
     // Invoice: emailed by Stripe, auto-reminders per your Stripe dashboard settings
     const invoice = await stripe.invoices.create({

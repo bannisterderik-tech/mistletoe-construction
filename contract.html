@@ -314,6 +314,13 @@
     if (!name) { msg.textContent = "Please type your full legal name to sign."; return; }
     if (!agree) { msg.textContent = "Please check the box to agree to the Agreement."; return; }
     if (!lien) { msg.textContent = "Please acknowledge the Notice of Right to a Lien."; return; }
+    // The invoice cannot be created without an email, so demand it before signing.
+    var emRow = $("s-email-row"), emVal = ($("s-email") ? $("s-email").value.trim() : "");
+    if (emRow && emRow.style.display !== "none" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emVal)) {
+      msg.textContent = "Please add your email — we need it to send your invoice and receipt.";
+      if ($("s-email")) $("s-email").focus();
+      return;
+    }
     var btn = $("s-sign"); btn.disabled = true; btn.textContent = "Signing…"; msg.textContent = "";
     fetch("/api/sign-contract", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: token, signer: name, cosigner: co, agree: true, lienAck: true }) })
