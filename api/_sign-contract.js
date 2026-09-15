@@ -39,7 +39,24 @@ module.exports = async (req, res) => {
       lien_notice_ack: true,
       status: (p.status === "invoiced" || p.status === "paid") ? p.status : "signed"
     };
-    await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), patch);
+    // The signature is the thing that matters. Some databases constrain
+    // proposals.status and reject "signed", which used to fail the WHOLE patch
+    // silently — the customer got a "signed" email while nothing was recorded,
+    // and every downstream invoice then refused with "please sign first".
+    let wrote = await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), patch);
+    if (wrote && wrote.ok === false) {
+      const noStatus = Object.assign({}, patch); delete noStatus.status;
+      wrote = await sbPatch("proposals", "id=eq." + encodeURIComponent(p.id), noStatus);
+    }
+    if (wrote && wrote.ok === false) {
+      let detail = ""; try { detail = (await wrote.text() || "").slice(0, 300); } catch (_) {}
+      try { await notifyTeam("⚠️ SIGNATURE NOT SAVED — action needed",
+        "<h2 style=\"color:#b00020\">" + signer + " signed \"" + (p.title || "a proposal") +
+        "\" but the signature could not be saved, so no invoice can be raised.</h2><p>" + detail +
+        "</p><p>Token <code>" + token + "</code></p>"); } catch (_) {}
+      res.status(500).json({ error: "We could not record your signature. Please call (541) 670-5005." });
+      return;
+    }
 
     notifyTeam("🖊️ Agreement signed — " + (p.title || "proposal"),
       "<h2 style='color:#1b3d26'>Master Construction Agreement signed</h2><p><strong>" + signer + "</strong>" +
