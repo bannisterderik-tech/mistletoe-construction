@@ -15,8 +15,10 @@ async function createFinalInvoice(p) {
     const u = Math.round(Number(it.unit || 0) * 100), q = Math.max(1, parseInt(it.qty || 1, 10));
     return s + (u > 0 ? u * q : 0);
   }, 0);
-  const depositPct = Math.min(100, Math.max(0, Number(p.deposit_pct) || 100));
+  // Must match the deposit default in _accept-proposal.js or the two halves wont add up.
+  const depositPct = Math.min(100, Math.max(0, Number(p.deposit_pct) || 50));
   const remainderCents = totalCents - Math.round(totalCents * depositPct / 100);
+  if (p.final_paid_at) return { error: "This proposal is already paid in full — no balance to invoice." };
   if (remainderCents <= 0) return { error: "No balance remaining (this was a full-payment proposal)." };
 
   let email = "", name = "Customer";

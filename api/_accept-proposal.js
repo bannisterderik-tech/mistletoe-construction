@@ -47,13 +47,14 @@ module.exports = async (req, res) => {
 
     // Ad-hoc invoice items (amount + description) — no throwaway Products/Prices.
     // If deposit_pct < 100 this invoice is only the DEPOSIT; the balance is invoiced
-    // later (admin button or scheduled cron). deposit_pct = 100 = full invoice (default).
+    // later (admin button or scheduled cron). Default is a 50% deposit: half up
+    // front, half on completion. Set deposit_pct = 100 for a single full invoice.
     const items = Array.isArray(p.items) ? p.items : [];
     const totalCents = items.reduce(function (s, it) {
       const u = Math.round(Number(it.unit || 0) * 100), q = Math.max(1, parseInt(it.qty || 1, 10));
       return s + (u > 0 ? u * q : 0);
     }, 0);
-    const depositPct = Math.min(100, Math.max(1, Number(p.deposit_pct) || 100));
+    const depositPct = Math.min(100, Math.max(1, Number(p.deposit_pct) || 50));
     const isSplit = depositPct < 100;
     const invKind = isSplit ? "deposit" : "full";
 

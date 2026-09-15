@@ -432,7 +432,7 @@ MC.ready.then(function () {
         "<input id='" + id + "' type='" + type + "'" + (type === "number" ? " min='1' max='100' step='1'" : "") + " value='" + MCUI.esc(val == null ? "" : val) + "' style='width:100%'></div>";
     };
     var sched = "<div style='display:grid;grid-template-columns:1fr 1fr;gap:.5rem'>" +
-      fld("Deposit %", "tl-deppct", "number", (p.deposit_pct == null ? 100 : p.deposit_pct)) +
+      fld("Deposit %", "tl-deppct", "number", (p.deposit_pct == null ? 50 : p.deposit_pct)) +
       fld("2nd payment due", "tl-due", "date", dOnly(p.second_payment_due_at)) +
       fld("Project start", "tl-pstart", "date", dOnly(p.project_start_at)) +
       fld("Project end", "tl-pend", "date", dOnly(p.project_end_at)) +
@@ -504,7 +504,7 @@ MC.ready.then(function () {
         }
       } });
     }
-    if (p.deposit_paid_at && !p.final_invoiced_at) {
+    if (p.deposit_paid_at && !p.final_invoiced_at && !p.final_paid_at) {
       actions.push({ label: "Send balance invoice now", kind: "primary", onClick: function (api) {
         if (!confirm("Create and email the balance invoice to this customer now?")) return;
         fetch("/api/create-final-invoice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: p.token }) })
