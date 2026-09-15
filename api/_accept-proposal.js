@@ -20,7 +20,12 @@ module.exports = async (req, res) => {
     const rows = await sbGet("proposals?token=eq." + token + "&select=*");
     const p = rows && rows[0];
     if (!p) { res.status(404).json({ error: "Proposal not found" }); return; }
-    if (p.status === "invoiced" || p.status === "paid") { res.status(200).json({ url: p.stripe_invoice_url, already: true }); return; }
+    // Only short-circuit when a real Stripe invoice actually exists. A proposal whose
+    // status says "invoiced" but has no invoice URL is a broken record — fall through and
+    // create the invoice instead of silently handing the customer nothing.
+    if ((p.status === "invoiced" || p.status === "paid") && p.stripe_invoice_url) {
+      res.status(200).json({ url: p.stripe_invoice_url, already: true }); return;
+    }
     // Require a signed Master Construction Agreement before invoicing.
     if (!p.agreement_signed_at) { res.status(409).json({ error: "Please sign the agreement first.", needsSignature: true }); return; }
 
